@@ -1,0 +1,25 @@
+node_modules
+.next
+.vercel
+
+# Variáveis de ambiente — NUNCA commitar (contêm chaves/segredos)
+.env
+.env.*
+# Templates sem segredos podem (e devem) ser versionados
+!.env.example
+!.env.test.example
+
+*.db
+*.db-journal
+.DS_Store
+prisma/migrations/dev.db*
+
+# backups locais do banco
+dev.db.bak-*
+*.bak
+
+# cache incremental do TypeScript
+tsconfig.tsbuildinfo
+
+# backups dos scripts de correção de dados
+backups/
