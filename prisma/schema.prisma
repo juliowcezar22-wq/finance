@@ -18,6 +18,9 @@ model User {
   passwordHash  String
   role          String    @default("USER") // ADMIN | USER
   active        Boolean   @default(true)
+  // Revogação de sessão: incrementado no logout; o token carrega esta versão e
+  // tokens de versões anteriores são rejeitados em getCurrentUser.
+  sessionVersion Int      @default(0)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -525,7 +528,24 @@ model WhatsAppMessage {
   actionTaken String?
   status      String?
   error       String?
+  // Id da mensagem no gateway (Z-API messageId / Evolution key.id). Unicidade
+  // garante deduplicação atômica de reentregas. Mensagens "out" ficam null
+  // (múltiplos null não violam @unique no Postgres).
+  providerMessageId String? @unique
   createdAt   DateTime @default(now())
 
   @@index([createdAt])
+}
+
+// Tentativas de login para lockout (5 falhas / 15 min por e-mail). Modelo
+// GLOBAL: registrado antes de existir sessão; fora de OWNED_MODELS. O IP é só
+// auditoria — o bloqueio conta apenas por e-mail (resistência a distribuído).
+model LoginAttempt {
+  id        String   @id @default(cuid())
+  email     String
+  ip        String?
+  success   Boolean
+  createdAt DateTime @default(now())
+
+  @@index([email, createdAt])
 }
