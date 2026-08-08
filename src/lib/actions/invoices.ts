@@ -1,28 +1,51 @@
 "use server";
+import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { parseBRL } from "@/lib/format";
 import { getViewer } from "@/lib/auth/viewer";
 
+// Status válidos de fatura (schema: aberta | fechada | paga | atrasada | parcial).
+const InvoiceStatus = z.enum(["aberta", "fechada", "paga", "atrasada", "parcial"]);
+
+const PayInvoiceSchema = z.object({
+  id: z.string().min(1),
+  amount: z.number().finite().positive(),
+});
+
 export async function payInvoice(formData: FormData) {
-  const id = String(formData.get("id"));
-  const amount = parseBRL(String(formData.get("amount") || "0"));
-  const inv = await prisma.creditCardInvoice.findUnique({ where: { id } });
-  if (!inv) return;
-  const newPaid = inv.paid + amount;
-  let status = "parcial";
-  if (newPaid >= inv.total) status = "paga";
-  if (newPaid <= 0) status = inv.status;
-  await prisma.creditCardInvoice.update({
-    where: { id },
-    data: { paid: newPaid, status },
+  await getViewer();
+  const parsed = PayInvoiceSchema.parse({
+    id: String(formData.get("id") ?? ""),
+    amount: parseBRL(String(formData.get("amount") || "0")),
   });
+
+  // Read-modify-write do valor pago em transação: evita lost update sob
+  // pagamentos concorrentes. O escopo de dono (extensão Prisma) faz o
+  // findUnique retornar null para fatura de outro dono → nada é alterado.
+  await prisma.$transaction(async (tx) => {
+    const inv = await tx.creditCardInvoice.findUnique({ where: { id: parsed.id } });
+    if (!inv) throw new Error("Registro não encontrado.");
+    const newPaid = inv.paid + parsed.amount;
+    const status = newPaid >= inv.total ? "paga" : "parcial";
+    await tx.creditCardInvoice.update({
+      where: { id: parsed.id },
+      data: { paid: newPaid, status },
+    });
+  });
+
   revalidatePath("/importar");
   revalidatePath("/dashboard");
 }
 
 export async function setInvoiceStatus(id: string, status: string) {
-  await prisma.creditCardInvoice.update({ where: { id }, data: { status } });
+  await getViewer();
+  const parsedId = z.string().min(1).parse(id);
+  const parsedStatus = InvoiceStatus.parse(status);
+  await prisma.creditCardInvoice.update({
+    where: { id: parsedId },
+    data: { status: parsedStatus },
+  });
   revalidatePath("/importar");
 }
 

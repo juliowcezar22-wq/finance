@@ -8,10 +8,20 @@ import { createHmac, timingSafeEqual, randomBytes } from "crypto";
  * Sem dependências externas (next-auth, jose, iron-session).
  */
 
-const SECRET =
-  process.env.SESSION_SECRET ??
-  // Fallback dev (avisar quando em produção)
-  "bugia-dev-secret-change-me-please-32chars-or-more";
+// Segredo obrigatório, sem fallback: boot falha explícito se ausente/curto.
+// (Princípio IV da constituição.) Gere um com generateSecret().
+function requireSecret(): string {
+  const s = process.env.SESSION_SECRET;
+  if (!s || s.length < 32) {
+    throw new Error(
+      "SESSION_SECRET ausente ou com menos de 32 caracteres. " +
+        "Defina-o no ambiente (veja .env.example)."
+    );
+  }
+  return s;
+}
+
+const SECRET = requireSecret();
 
 const DEFAULT_TTL_DAYS = 30;
 export const SESSION_COOKIE = "bugia_session";
@@ -19,6 +29,7 @@ export const SESSION_COOKIE = "bugia_session";
 export type SessionPayload = {
   uid: string;
   role: "ADMIN" | "USER";
+  sv: number; // sessionVersion do usuário no login (revogação no logout)
   exp: number; // epoch seconds
 };
 
@@ -63,6 +74,8 @@ export function verifySessionToken(token: string | undefined | null): SessionPay
   try {
     const payload = JSON.parse(b64urlDecode(body).toString("utf8")) as SessionPayload;
     if (!payload.exp || payload.exp < Math.floor(Date.now() / 1000)) return null;
+    // Tokens do formato antigo (sem `sv`) são rejeitados → relogin único.
+    if (typeof payload.sv !== "number") return null;
     return payload;
   } catch {
     return null;

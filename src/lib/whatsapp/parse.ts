@@ -4,6 +4,8 @@ export type IncomingMessage = {
   imageUrl?: string;
   fromMe: boolean;
   waType: "text" | "image" | "audio" | "other";
+  /** Id da mensagem no gateway (Z-API messageId / Evolution key.id) — dedupe. */
+  providerMessageId?: string;
 };
 
 /** Parser tolerante para payloads de webhook (Z-API e Evolution API). */
@@ -24,6 +26,7 @@ export function parseIncoming(body: any): IncomingMessage {
       imageUrl,
       fromMe: !!body.fromMe,
       waType: imageUrl ? "image" : audioUrl ? "audio" : "text",
+      providerMessageId: body.messageId ?? body.id ?? undefined,
     };
   }
 
@@ -47,6 +50,7 @@ export function parseIncoming(body: any): IncomingMessage {
       imageUrl,
       fromMe: !!key.fromMe,
       waType: imageUrl ? "image" : audio ? "audio" : "text",
+      providerMessageId: key.id ?? undefined,
     };
   }
 

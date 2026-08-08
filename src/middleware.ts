@@ -11,31 +11,25 @@ import { NextResponse, type NextRequest } from "next/server";
 
 const SESSION_COOKIE = "bugia_session";
 
-const SECRET =
-  process.env.SESSION_SECRET ??
-  "bugia-dev-secret-change-me-please-32chars-or-more";
+// Sem fallback: se o segredo faltar, nenhuma sessão é considerada válida
+// (fail-closed → o usuário cai em /login). Princípio IV da constituição.
+const SECRET = process.env.SESSION_SECRET ?? "";
 
 const PUBLIC_PATHS = new Set<string>(["/login"]);
 
+// atob/btoa existem no Edge runtime e no Node 18+ — sem fallback de Buffer.
 function b64urlDecodeToBytes(s: string): Uint8Array {
   const pad = s.length % 4 === 0 ? "" : "=".repeat(4 - (s.length % 4));
-  const b64 = s.replace(/-/g, "+").replace(/_/g, "/") + pad;
-  if (typeof atob === "function") {
-    const bin = atob(b64);
-    const out = new Uint8Array(bin.length);
-    for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
-    return out;
-  }
-  // @ts-ignore - Buffer existe em Node runtime
-  return new Uint8Array(Buffer.from(b64, "base64"));
+  const bin = atob(s.replace(/-/g, "+").replace(/_/g, "/") + pad);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
 }
 
 function bytesToB64Url(bytes: Uint8Array): string {
   let bin = "";
   for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
-  // @ts-ignore
-  const b64 = typeof btoa === "function" ? btoa(bin) : Buffer.from(bin, "binary").toString("base64");
-  return b64.replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
+  return btoa(bin).replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
 }
 
 async function hmacSha256(key: string, data: string): Promise<string> {
@@ -52,6 +46,7 @@ async function hmacSha256(key: string, data: string): Promise<string> {
 }
 
 async function isSessionValid(token: string | undefined): Promise<boolean> {
+  if (!SECRET) return false; // fail-closed: sem segredo configurado
   if (!token) return false;
   const [body, sig] = token.split(".");
   if (!body || !sig) return false;
@@ -61,8 +56,10 @@ async function isSessionValid(token: string | undefined): Promise<boolean> {
 
   try {
     const json = new TextDecoder().decode(b64urlDecodeToBytes(body));
-    const payload = JSON.parse(json) as { exp?: number };
+    const payload = JSON.parse(json) as { exp?: number; sv?: number };
     if (!payload.exp || payload.exp < Math.floor(Date.now() / 1000)) return false;
+    // Token do formato antigo (sem sv) → inválido (relogin único pós-deploy).
+    if (typeof payload.sv !== "number") return false;
     return true;
   } catch {
     return false;
