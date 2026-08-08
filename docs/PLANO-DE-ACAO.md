@@ -55,36 +55,39 @@ O maior risco do sistema: um usuário logado pode alterar/apagar dados de outro.
 
 ## MÓDULO 2 — 🔴 Sessão e segredos de autenticação
 
-- [ ] Remover o fallback hardcoded de `SESSION_SECRET`
-      (`src/middleware.ts:19-21` e `src/lib/auth/session.ts:15-17`):
-      em produção (`NODE_ENV==="production"`), lançar erro se ausente;
-      em dev, gerar warning claro.
-- [ ] Reduzir TTL da sessão (30 dias é longo para app financeiro — sugestão:
-      7 dias) e implementar revogação: campo `sessionVersion` no `User`
-      (incrementa no logout/troca de senha/desativação) validado em
-      `getCurrentUser()`; ou tabela de sessões.
-- [ ] Garantir que desativar usuário em `/usuarios` derruba a sessão dele.
+- [x] Remover o fallback hardcoded de `SESSION_SECRET`. **Feito** (feature 001):
+      sem fallback em nenhum ambiente — `session.ts` falha no boot se ausente
+      ou < 32 chars; `middleware.ts` trata como fail-closed (redirect a /login).
+- [x] Revogação de sessão: campo `sessionVersion` no `User`, embutido no token
+      e validado em `getUserFromToken()`; logout incrementa (derruba todas as
+      sessões). **Feito** (feature 001). TTL mantido em 30 dias por decisão do
+      dono (aceitável agora que há revogação — ver clarify da 001).
+- [x] Desativar usuário derruba a sessão: `getUserFromToken()` rejeita usuário
+      `active=false`. **Feito** (feature 001).
 - [ ] Trocar a senha default do seed (`prisma/seed.ts:6-10`, `admin123`):
-      exigir `ADMIN_PASSWORD` via env, sem default.
-- [ ] Rate limit no login (`src/lib/actions/auth.ts`): limitar tentativas por
-      e-mail+IP (ex.: 5/15min, em memória ou Upstash).
+      exigir `ADMIN_PASSWORD` via env, sem default. ⏳ **Pendente** (não coberto
+      pela feature 001; candidato à feature 003).
+- [x] Rate limit no login: 5 falhas / 15 min por e-mail (tabela `LoginAttempt`
+      no Postgres, fail-closed). **Feito** (feature 001); IP só auditoria.
 
 ## MÓDULO 3 — 🔴 WhatsApp: autenticar o webhook
 
-- [ ] Adicionar segredo de webhook: token em header (ou path secreto) conferido
-      com comparação timing-safe em `src/app/api/whatsapp/webhook/route.ts`;
-      configurável em `WhatsAppSetting`. Rejeitar sem o token (401).
-- [ ] Mover o secret de reminders da query string para header
-      (`Authorization: Bearer`) em `src/app/api/whatsapp/reminders/route.ts`,
-      com comparação timing-safe (`crypto.timingSafeEqual`).
-- [ ] Endurecer `isAllowedSender` (`src/lib/whatsapp/*`): comparação exata de
-      número normalizado (E.164), não `endsWith` frouxo.
-- [ ] Deduplicação por message-id do gateway (campo único em
-      `WhatsAppMessage`) para reentregas não duplicarem lançamentos.
-- [ ] Rate limit no webhook (ex.: 30 req/min) — hoje qualquer POST consome
-      tokens de IA.
-- [ ] Remover `src/app/whatsapp/simulator.tsx` de produção (ou proteger atrás
-      de flag de dev).
+- [x] Segredo de webhook: header `client-token` conferido timing-safe contra
+      `WhatsAppSetting.clientToken` em `webhook/route.ts`; sem token configurado
+      → 501, token errado/ausente → 401 (antes de gravar ou chamar IA).
+      **Feito** (feature 001).
+- [x] Reminders via `Authorization: Bearer <CRON_SECRET>` timing-safe; segredo
+      em query string ignorado; POST removido (Vercel Cron usa GET). **Feito**
+      (feature 001) — `vercel.json` ganhou o cron diário.
+- [x] `isAllowedSender`: igualdade exata do número canônico BR (remove DDI 55,
+      insere 9º dígito), sem `endsWith`. **Feito** (feature 001).
+- [x] Deduplicação por `providerMessageId` (`@unique` em `WhatsAppMessage`):
+      reentrega → P2002 → ignorada. **Feito** (feature 001).
+- [ ] Rate limit no webhook (ex.: 30 req/min). ⏳ **Pendente** — defesa em
+      profundidade; o webhook já exige o Client-Token, então abuso anônimo está
+      fechado. Candidato à feature 003.
+- [ ] Remover `src/app/whatsapp/simulator.tsx` de produção (ou atrás de flag de
+      dev). ⏳ **Pendente** (feature 004 — limpeza de arquitetura).
 
 ## MÓDULO 4 — 🟠 Segredos de IA/WhatsApp e hardening web
 

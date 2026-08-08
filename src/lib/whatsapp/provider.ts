@@ -37,13 +37,25 @@ export function normalizeNumber(n: string | null | undefined): string {
   return (n ?? "").replace(/\D/g, "");
 }
 
+/**
+ * Número nacional canônico BR para comparação: remove o DDI 55 quando presente
+ * e insere o 9º dígito quando faltar (DDD+8 → DDD+9+8). Assim
+ * `5511987654321`, `11987654321` e `1187654321` colapsam no mesmo valor.
+ * Números não-BR passam sem alteração.
+ */
+function canonicalNumber(n: string): string {
+  let x = n;
+  if ((x.length === 12 || x.length === 13) && x.startsWith("55")) x = x.slice(2);
+  if (x.length === 10) x = x.slice(0, 2) + "9" + x.slice(2); // DDD + 8 → DDD + 9 + 8
+  return x;
+}
+
 export function isAllowedSender(from: string | null | undefined, s: WhatsAppSettings): boolean {
   const a = normalizeNumber(from);
   const b = normalizeNumber(s.myNumber);
   if (!a || !b) return false;
-  // tolera DDI/9 extra: compara os últimos 8–11 dígitos
-  const tail = (x: string) => x.slice(-Math.min(11, x.length));
-  return tail(a) === tail(b) || a.endsWith(b) || b.endsWith(a);
+  // Igualdade exata do número canônico — sem `endsWith`/sufixo (forjável).
+  return canonicalNumber(a) === canonicalNumber(b);
 }
 
 /**
