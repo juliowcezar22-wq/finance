@@ -8,7 +8,7 @@ O projeto original e sua produção antiga seguem intocados, em separado.
 
 | Ambiente | Projeto Supabase | Arquivo de env | Uso | Pode ser apagado? |
 |---|---|---|---|---|
-| **Produção** | `Nummiq Prod` | Nenhum aqui — envs só na Vercel | App publicado | ❌ Nunca |
+| **Produção** | `Nummiq Prod` (ref `gqokfjvaaneivzccdnlu`) | Nenhum aqui — envs só na Vercel | App publicado | ❌ Nunca |
 | **Desenvolvimento** | `Nummiq Dev` (ref `xryrusjctdnkiljnomlw`) | `.env` | `npm run dev` + scripts `db:*` | Com cuidado |
 | **Testes locais** | `Nummiq Dev` — **mesmo banco de dev** | `.env.test` | scripts `db:test:*` | ⚠️ ver aviso |
 
@@ -54,6 +54,9 @@ Testes (usa `.env.test` — hoje o mesmo banco de dev):
 - Projeto Supabase `Nummiq Prod`, dedicado — criado vazio; as migrations são
   aplicadas automaticamente pelo primeiro deploy da Vercel (o script `build`
   roda `prisma generate && prisma migrate deploy && next build`).
+- Hardening pré-aplicado (revogações + default privileges do papel `postgres`);
+  **re-rodar o `rls-hardening.sql` completo após o primeiro deploy** para
+  ligar RLS nas tabelas recém-criadas (item do checklist de go-live).
 - Envs necessárias na Vercel: `POSTGRES_PRISMA_URL`, `POSTGRES_URL_NON_POOLING`
   (do Nummiq Prod), `SESSION_SECRET` forte e, para o seed manual inicial,
   `ADMIN_NAME/ADMIN_EMAIL/ADMIN_PASSWORD`.
