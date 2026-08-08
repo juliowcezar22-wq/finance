@@ -74,17 +74,30 @@ export async function updateUser(formData: FormData) {
     personId: (formData.get("personId") as string) || null,
   });
 
-  const data: any = {
-    name: parsed.name,
-    email: parsed.email,
-    role: parsed.role,
-    active: parsed.active,
-  };
-  if (parsed.password) {
-    data.passwordHash = await bcrypt.hash(parsed.password, 10);
-  }
+  const newHash = parsed.password ? await bcrypt.hash(parsed.password, 10) : null;
 
-  await prisma.user.update({ where: { id: parsed.id }, data });
+  // Update ATÔMICO com guarda de "último admin ativo" (FR-008): a mudança só
+  // é aplicada se o novo estado mantém ESTE usuário como admin ativo, OU se
+  // existe outro admin ativo. Senão, 0 linhas afetadas → erro. Cobre também a
+  // via de edição (papel/status), não só desativar/excluir.
+  const affected = await prisma.$executeRaw`
+    UPDATE "User" SET
+      name = ${parsed.name},
+      email = ${parsed.email},
+      role = ${parsed.role},
+      active = ${parsed.active},
+      "passwordHash" = COALESCE(${newHash}, "passwordHash"),
+      "updatedAt" = now()
+    WHERE id = ${parsed.id}
+      AND (
+        (${parsed.active} AND ${parsed.role} = 'ADMIN')
+        OR EXISTS (SELECT 1 FROM "User" u2 WHERE u2.role = 'ADMIN' AND u2.active = true AND u2.id <> ${parsed.id})
+      )`;
+  if (affected === 0) {
+    throw new Error(
+      "Não é possível remover o último administrador ativo (desativar ou rebaixar de ADMIN)."
+    );
+  }
 
   // Sincroniza vínculo com Person:
   // 1. desvincula qualquer Person que apontava para esse user mas não é a selecionada
@@ -105,27 +118,31 @@ export async function updateUser(formData: FormData) {
 }
 
 /**
- * Impede deixar o sistema sem nenhum administrador ativo (FR-008): recusa
- * desativar o ÚLTIMO admin ainda ativo.
+ * Desativa um usuário de forma ATÔMICA sem deixar o sistema sem admin ativo
+ * (FR-008): a linha só é atualizada se o alvo NÃO for o último admin ativo — a
+ * checagem e a escrita são um único statement (fecha a corrida check-then-act).
  */
-async function assertNotLastActiveAdmin(id: string) {
-  const target = await prisma.user.findUnique({
-    where: { id },
-    select: { role: true, active: true },
-  });
-  if (target?.role === "ADMIN" && target.active) {
-    const activeAdmins = await prisma.user.count({ where: { role: "ADMIN", active: true } });
-    if (activeAdmins <= 1) {
-      throw new Error("Não é possível desativar o último administrador ativo.");
-    }
+export async function deactivateGuarded(id: string) {
+  const affected = await prisma.$executeRaw`
+    UPDATE "User" SET active = false, "updatedAt" = now()
+    WHERE id = ${id}
+      AND (
+        NOT (role = 'ADMIN' AND active = true)
+        OR EXISTS (SELECT 1 FROM "User" u2 WHERE u2.role = 'ADMIN' AND u2.active = true AND u2.id <> ${id})
+      )`;
+  if (affected === 0) {
+    throw new Error("Não é possível desativar o último administrador ativo.");
   }
 }
 
 /** Aprova (ativa) ou suspende (desativa) uma conta. Usado no botão rápido de /usuarios. */
 export async function setUserActive(id: string, active: boolean) {
   await requireAdmin();
-  if (!active) await assertNotLastActiveAdmin(id);
-  await prisma.user.update({ where: { id }, data: { active } });
+  if (active) {
+    await prisma.user.update({ where: { id }, data: { active: true } });
+  } else {
+    await deactivateGuarded(id);
+  }
   revalidatePath("/usuarios");
 }
 
@@ -138,8 +155,7 @@ export async function setUserActive(id: string, active: boolean) {
  */
 export async function deleteUser(id: string) {
   await requireAdmin();
-  await assertNotLastActiveAdmin(id);
-  await prisma.user.update({ where: { id }, data: { active: false } });
+  await deactivateGuarded(id);
   revalidatePath("/usuarios");
   revalidatePath("/pessoas");
 }

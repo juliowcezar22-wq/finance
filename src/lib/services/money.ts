@@ -16,10 +16,19 @@ export function fromCents(cents: number): number {
   return cents / 100;
 }
 
-/** Converte Prisma.Decimal | number | null | undefined para number (0 se nulo). */
-export function toNum(v: Prisma.Decimal | number | null | undefined): number {
+/**
+ * Converte Prisma.Decimal | number | string | null para number (0 se nulo).
+ * Tolera string porque um Decimal cruzando a fronteira Server→Client Component
+ * é serializado pelo React como string.
+ */
+export function toNum(v: Prisma.Decimal | number | string | null | undefined): number {
   if (v == null) return 0;
-  return typeof v === "number" ? v : v.toNumber();
+  if (typeof v === "number") return v;
+  if (typeof v === "string") {
+    const n = Number(v);
+    return isNaN(n) ? 0 : n;
+  }
+  return v.toNumber();
 }
 
 /**

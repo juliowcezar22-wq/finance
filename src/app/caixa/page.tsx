@@ -83,7 +83,7 @@ export default async function CaixaPage() {
                   <p className="text-2xl font-bold text-emerald-600">
                     {formatBRL(box.currentAmount)}
                   </p>
-                  {box.targetAmount && (
+                  {box.targetAmount && toNum(box.targetAmount) > 0 && (
                     <p className="text-xs text-muted-foreground">
                       Meta: {formatBRL(box.targetAmount)}
                     </p>

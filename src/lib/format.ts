@@ -4,13 +4,18 @@ export const BRL = new Intl.NumberFormat("pt-BR", {
   minimumFractionDigits: 2,
 });
 
-// Aceita number OU Prisma.Decimal (estruturalmente, sem importar o client
-// Prisma em bundles de UI). Decimal tem toNumber()/valueOf, então Number()
-// funciona em runtime — aqui só alargamos o tipo.
+// Aceita number, string OU Prisma.Decimal. Importante: um Prisma.Decimal
+// passado de um Server Component para um Client Component é serializado pelo
+// React como STRING (Decimal.toJSON() retorna string). Por isso formatBRL
+// tolera string — é a defesa raiz contra o Decimal cruzar a fronteira RSC.
+// (Sem importar o client Prisma em bundles de UI: tipo estrutural.)
 type DecimalLike = { toNumber: () => number };
-export function formatBRL(value: number | DecimalLike | null | undefined): string {
+export function formatBRL(value: number | string | DecimalLike | null | undefined): string {
   if (value == null) return "R$ 0,00";
-  const n = typeof value === "number" ? value : value.toNumber();
+  const n =
+    typeof value === "number" ? value
+    : typeof value === "string" ? Number(value)
+    : value.toNumber();
   if (isNaN(n)) return "R$ 0,00";
   return BRL.format(n);
 }

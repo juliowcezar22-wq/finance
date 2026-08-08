@@ -241,7 +241,10 @@ export default async function CardDetailPage({
         </Card>
       </div>
 
-      <AccountCardsSection cardId={card.id} accountCards={card.accountCards} />
+      <AccountCardsSection
+        cardId={card.id}
+        accountCards={card.accountCards.map((c) => ({ ...c, limit: toNum(c.limit) }))}
+      />
 
       <Card className="mb-6">
         <CardHeader>
