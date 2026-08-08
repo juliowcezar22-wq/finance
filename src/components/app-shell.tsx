@@ -1,6 +1,7 @@
 "use client";
 import { usePathname } from "next/navigation";
 import { Sidebar } from "./sidebar";
+import { Header } from "./header";
 import { MobileNav } from "./mobile-nav";
 
 const NO_SHELL = ["/login"];
@@ -21,12 +22,15 @@ export function AppShell({
     <>
       <div className="flex min-h-screen app-shell">
         <Sidebar user={user} />
-        <main
-          key={path}
-          className="page-enter flex-1 p-4 md:p-10 pb-24 md:pb-10 max-w-7xl mx-auto w-full"
-        >
-          {children}
-        </main>
+        <div className="flex min-w-0 flex-1 flex-col">
+          <Header user={user} />
+          <main
+            key={path}
+            className="page-enter flex-1 px-4 py-6 md:px-8 md:py-8 pb-24 md:pb-8 w-full max-w-[1440px] mx-auto"
+          >
+            {children}
+          </main>
+        </div>
       </div>
       <MobileNav user={user} />
     </>
