@@ -53,26 +53,33 @@ export async function reserveAttempt(email: string, ip: string | null): Promise<
   // `inserted = 0` ⇒ bloqueado.
   const id = randomUUID();
   const windowSecs = Math.floor(WINDOW_MS / 1000);
+  // `win` é MATERIALIZED e é referenciada por `fails` → o Postgres NÃO poda o
+  // CTE e o pg_advisory_xact_lock realmente executa (fence antes da contagem),
+  // serializando execuções concorrentes do mesmo e-mail ENTRE conexões/
+  // instâncias até o fim do statement. Datas em UTC-naive (AT TIME ZONE 'UTC')
+  // para casar com o armazenamento do Prisma, sem depender do TimeZone da sessão.
   const rows = await prisma.$queryRaw<Array<{ inserted: number }>>`
-    WITH lock AS (SELECT pg_advisory_xact_lock(hashtext(${email}))),
-    last_success AS (
-      SELECT COALESCE(MAX("createdAt"), to_timestamp(0)) AS ts
-      FROM "LoginAttempt" WHERE email = ${email} AND success = true
-    ),
-    bound AS (
-      SELECT GREATEST(
-        (SELECT ts FROM last_success),
-        now() - make_interval(secs => ${windowSecs})
-      ) AS f
+    WITH win AS MATERIALIZED (
+      SELECT
+        pg_advisory_xact_lock(hashtext(${email})) AS _lock,
+        GREATEST(
+          COALESCE(
+            (SELECT MAX("createdAt") FROM "LoginAttempt"
+              WHERE email = ${email} AND success = true),
+            '1970-01-01 00:00:00'::timestamp
+          ),
+          (now() AT TIME ZONE 'UTC') - make_interval(secs => ${windowSecs})
+        ) AS floor_ts
     ),
     fails AS (
       SELECT count(*)::int AS c
-      FROM "LoginAttempt", bound
-      WHERE email = ${email} AND success = false AND "createdAt" > bound.f
+      FROM "LoginAttempt", win
+      WHERE email = ${email} AND success = false AND "createdAt" > win.floor_ts
     ),
     ins AS (
       INSERT INTO "LoginAttempt" (id, email, ip, success, "createdAt")
-      SELECT ${id}, ${email}, ${ip}, false, now() FROM fails WHERE fails.c < ${MAX_FAILS}
+      SELECT ${id}, ${email}, ${ip}, false, (now() AT TIME ZONE 'UTC')
+      FROM fails WHERE fails.c < ${MAX_FAILS}
       RETURNING 1
     )
     SELECT (SELECT count(*)::int FROM ins) AS inserted
