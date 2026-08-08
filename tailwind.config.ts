@@ -11,24 +11,45 @@ const config: Config = {
     container: {
       center: true,
       padding: "2rem",
-      screens: { "2xl": "1400px" },
+      screens: { "2xl": "1440px" },
     },
     extend: {
+      screens: {
+        sm: "640px",
+        md: "768px",
+        lg: "1024px",
+        xl: "1280px",
+        "2xl": "1536px",
+      },
       fontFamily: {
-        display: ['"Orbitron"', "ui-sans-serif", "sans-serif"],
-        sans: ['"Inter"', "ui-sans-serif", "system-ui", "sans-serif"],
+        // Inter injetada via next/font (variável --font-inter)
+        sans: ["var(--font-inter)", "ui-sans-serif", "system-ui", "sans-serif"],
         mono: ["ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
       },
       colors: {
+        // Namespace oficial Nummiq (DS §79)
+        nummiq: {
+          black: "#050505",
+          soft: "#080808",
+          surface1: "#0C0C0D",
+          surface2: "#111113",
+          surface3: "#161618",
+          surface4: "#1D1D20",
+          platinum: "#DCDCDD",
+          silver: "#A7A7AA",
+          white: "#F5F5F5",
+          muted: "#6D6D72",
+          success: "#3DDC84",
+          danger: "#FF5C5C",
+          warning: "#F2B94B",
+          info: "#5B9CFF",
+        },
+        // Semânticos legados (rebaseados aos valores Nummiq em globals.css)
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
-        gold: {
-          DEFAULT: "hsl(var(--gold))",
-          soft: "hsl(var(--gold-soft))",
-        },
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -57,11 +78,24 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        success: "var(--nq-success)",
+        danger: "var(--nq-danger)",
+        warning: "var(--nq-warning)",
+        info: "var(--nq-info)",
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        sm: "8px",
+        md: "12px",
+        lg: "16px",
+        xl: "20px",
+        // aliases legados (shadcn) para não quebrar componentes existentes
+        DEFAULT: "10px",
+      },
+      transitionTimingFunction: {
+        nq: "cubic-bezier(0.2, 0.8, 0.2, 1)",
+      },
+      boxShadow: {
+        nq: "0 0 0 1px rgba(255,255,255,.04), 0 12px 40px rgba(0,0,0,.35)",
       },
     },
   },

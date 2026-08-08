@@ -1,171 +1,230 @@
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================
+   NQ UI — Nummiq Design System (fonte de verdade: docs/NUMMIQ_DESIGN_SYSTEM.md)
+   Identidade: Black Finance + Platinum + Precision (dark-first).
+   Estratégia: os tokens --nq-* são a fonte de verdade; as variáveis
+   semânticas legadas (shadcn) são REBASEADAS para os valores Nummiq,
+   para que todo componente existente (bg-card, text-foreground,
+   bg-primary, border-border…) já adote a nova identidade.
+   ============================================================ */
+
 @layer base {
   :root {
-    /* Bugia Finance — claro (variação secundária) */
-    --background: 240 20% 98%;
-    --foreground: 240 24% 8%;
+    /* ---- Tokens Nummiq (DS §78) — sempre dark (dark-first) ---- */
+    --nq-bg: #050505;
+    --nq-bg-soft: #080808;
+    --nq-surface-1: #0c0c0d;
+    --nq-surface-2: #111113;
+    --nq-surface-3: #161618;
+    --nq-surface-4: #1d1d20;
 
+    --nq-border: rgba(255, 255, 255, 0.07);
+    --nq-border-hover: rgba(255, 255, 255, 0.12);
+    --nq-border-active: rgba(255, 255, 255, 0.18);
+
+    --nq-text-primary: #f5f5f5;
+    --nq-text-secondary: #a7a7aa;
+    --nq-text-muted: #6d6d72;
+    --nq-text-disabled: #48484c;
+
+    --nq-platinum-50: #fafafa;
+    --nq-platinum-100: #f1f1f2;
+    --nq-platinum-200: #dcdcdd;
+    --nq-platinum-300: #c6c6c8;
+    --nq-platinum-400: #a7a7aa;
+    --nq-platinum-500: #858589;
+    --nq-platinum-600: #656569;
+    --nq-platinum-700: #464649;
+
+    --nq-success: #3ddc84;
+    --nq-danger: #ff5c5c;
+    --nq-warning: #f2b94b;
+    --nq-info: #5b9cff;
+
+    --nq-radius-sm: 8px;
+    --nq-radius-md: 12px;
+    --nq-radius-lg: 16px;
+    --nq-radius-xl: 20px;
+
+    /* Gradiente metálico oficial (DS §9) — usar com moderação */
+    --nq-gradient-metal: linear-gradient(
+      135deg,
+      #ffffff 0%,
+      #d8d8da 28%,
+      #9b9b9f 55%,
+      #f5f5f5 78%,
+      #a7a7aa 100%
+    );
+    /* Gradiente do botão primário (DS §38) */
+    --nq-gradient-primary: linear-gradient(135deg, #fafafa, #b8b8bb);
+
+    /* Transições (DS §56/§57) */
+    --nq-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+    /* ---- Legado (shadcn) rebaseado — modo claro neutro (deprioritizado) ---- */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 4%;
     --card: 0 0% 100%;
-    --card-foreground: 240 24% 8%;
-
+    --card-foreground: 0 0% 4%;
     --popover: 0 0% 100%;
-    --popover-foreground: 240 24% 8%;
-
-    --primary: 259 100% 59%;          /* roxo primário #6F2CFF */
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 240 20% 95%;
-    --secondary-foreground: 240 24% 12%;
-
-    --muted: 240 16% 95%;
-    --muted-foreground: 240 8% 42%;
-
-    --accent: 258 100% 96%;
-    --accent-foreground: 259 60% 32%;
-
-    --destructive: 0 84% 58%;
+    --popover-foreground: 0 0% 4%;
+    --primary: 0 0% 10%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 10%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 40%;
+    --accent: 0 0% 94%;
+    --accent-foreground: 0 0% 10%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-
-    --border: 240 16% 90%;
-    --input: 240 16% 90%;
-    --ring: 259 100% 59%;
-
-    --gold: 41 72% 45%;
-    --gold-soft: 41 80% 92%;
-
-    --radius: 0.875rem;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 0 0% 60%;
+    --radius: 1rem;
   }
 
   .dark {
-    /* Bugia Finance — escuro premium (experiência principal) */
-    --background: 240 24% 5%;          /* #0A0A0F */
-    --foreground: 240 16% 94%;         /* #EDEEF2 prata */
+    /* ---- Legado (shadcn) REBASEADO para a paleta Nummiq (experiência principal) ---- */
+    --background: 0 0% 2%;              /* #050505 */
+    --foreground: 0 0% 96%;            /* #F5F5F5 */
 
-    --card: 240 16% 11%;               /* #1A1A23 grafite */
-    --card-foreground: 240 16% 94%;
+    --card: 240 4% 5%;                 /* #0C0C0D surface-1 */
+    --card-foreground: 0 0% 96%;
 
-    --popover: 240 16% 11%;
-    --popover-foreground: 240 16% 94%;
+    --popover: 240 4% 9%;             /* #161618 surface-3 (dropdowns) */
+    --popover-foreground: 0 0% 96%;
 
-    --primary: 259 100% 64%;           /* roxo #6F2CFF (mais vivo no escuro) */
-    --primary-foreground: 0 0% 100%;
+    --primary: 0 0% 88%;              /* platinum — bg-primary vira botão prata */
+    --primary-foreground: 0 0% 3%;    /* texto escuro sobre platinum */
 
-    --secondary: 240 10% 16%;          /* #2A2A32 */
-    --secondary-foreground: 240 16% 94%;
+    --secondary: 240 4% 9%;          /* #161618 */
+    --secondary-foreground: 0 0% 96%;
 
-    --muted: 240 12% 13%;
-    --muted-foreground: 240 10% 66%;
+    --muted: 240 5% 7%;              /* #111113 */
+    --muted-foreground: 240 2% 66%;  /* #A7A7AA */
 
-    --accent: 261 55% 24%;             /* roxo profundo (hover suave) */
-    --accent-foreground: 258 100% 92%;
+    --accent: 240 4% 9%;             /* hover discreto */
+    --accent-foreground: 0 0% 96%;
 
-    --destructive: 0 84% 60%;          /* #EF4444 */
+    --destructive: 0 100% 68%;       /* #FF5C5C */
     --destructive-foreground: 0 0% 100%;
 
-    --border: 240 10% 18%;             /* #2A2A32 */
-    --input: 240 10% 18%;
-    --ring: 261 100% 68%;
-
-    --gold: 46 65% 55%;                /* dourado premium #D4AF37 */
-    --gold-soft: 46 40% 16%;
+    --border: 0 0% 14%;              /* ~ white .07 sobre preto */
+    --input: 0 0% 16%;
+    --ring: 0 0% 78%;               /* foco platinum */
   }
 }
 
 @layer base {
-  * { @apply border-border; }
+  * {
+    @apply border-border;
+  }
   html {
     scroll-behavior: smooth;
     scrollbar-width: thin;
-    scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent;
+    scrollbar-color: rgba(255, 255, 255, 0.14) transparent;
   }
   body {
     @apply bg-background text-foreground;
-    font-family:
-      "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
-      "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
-  h1, h2, h3, h4 { letter-spacing: -0.01em; }
-
-  /* seleção de texto na cor da marca */
-  ::selection { background: hsl(var(--primary) / 0.28); }
-
-  /* scrollbar temática (WebKit) */
+  /* Hierarquia por espaço e contraste, não por peso (DS §14) */
+  h1, h2, h3, h4 {
+    letter-spacing: -0.011em;
+    font-weight: 600;
+  }
+  /* Valores financeiros: números tabulares (DS §16) */
+  .tabular, .stat-number, [data-numeric] {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+  ::selection {
+    background: rgba(216, 216, 218, 0.22);
+  }
+  /* Foco visível padrão (DS §76) */
+  :focus-visible {
+    outline: 2px solid rgba(220, 220, 221, 0.55);
+    outline-offset: 2px;
+  }
   ::-webkit-scrollbar { width: 10px; height: 10px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb {
-    background: hsl(var(--muted-foreground) / 0.25);
+    background: rgba(255, 255, 255, 0.12);
     border-radius: 9999px;
     border: 2px solid transparent;
     background-clip: padding-box;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--muted-foreground) / 0.45);
+    background: rgba(255, 255, 255, 0.2);
     background-clip: padding-box;
   }
 }
 
 @layer components {
-  .card-premium {
-    background:
-      radial-gradient(600px 240px at 100% 0%, hsl(var(--primary) / 0.14), transparent 60%),
-      radial-gradient(500px 220px at 0% 100%, hsl(var(--gold) / 0.08), transparent 60%),
-      hsl(var(--card));
-    @apply rounded-xl border shadow-sm transition-shadow hover:shadow-md;
+  /* App shell: fundo silencioso, sem glow colorido (DS §70) */
+  .app-shell {
+    background: var(--nq-bg);
   }
+
+  /* Card premium (DS §36) — glass sutil, uso pontual */
+  .card-premium {
+    background: linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.09),
+      rgba(255, 255, 255, 0.025)
+    );
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--nq-border);
+    border-radius: var(--nq-radius-lg);
+  }
+
+  /* Assinatura metálica — usar com moderação (DS §9) */
+  .text-metal {
+    background: var(--nq-gradient-metal);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .bg-metal { background: var(--nq-gradient-metal); }
+  .bg-primary-metal { background: var(--nq-gradient-primary); }
+
   .stat-number {
     @apply tabular-nums tracking-tight;
-  }
-  .ring-gold {
-    box-shadow: 0 0 0 1px hsl(var(--gold) / 0.4);
-  }
-  .text-gold {
-    color: hsl(var(--gold));
-  }
-  .bg-gold-soft {
-    background-color: hsl(var(--gold-soft));
-  }
-  /* Fundo imersivo: brilho roxo + dourado discretos sobre o grafite */
-  .app-shell {
-    background:
-      radial-gradient(1200px 600px at -10% -10%, hsl(var(--primary) / 0.12), transparent 60%),
-      radial-gradient(900px 500px at 110% 0%, hsl(var(--gold) / 0.06), transparent 55%),
-      hsl(var(--background));
   }
 }
 
 @layer utilities {
-  /* Sombra suave premium para superfícies elevadas */
-  .shadow-soft {
+  /* Sombra premium (DS §37) */
+  .shadow-nq {
     box-shadow:
-      0 1px 2px hsl(240 30% 4% / 0.06),
-      0 8px 24px -8px hsl(240 30% 4% / 0.12);
-  }
-  .dark .shadow-soft {
-    box-shadow:
-      0 1px 2px hsl(0 0% 0% / 0.4),
-      0 12px 32px -10px hsl(0 0% 0% / 0.55);
+      0 0 0 1px rgba(255, 255, 255, 0.04),
+      0 12px 40px rgba(0, 0, 0, 0.35);
   }
 
-  /* Entrada suave de conteúdo ao navegar entre páginas */
+  /* Skeleton shimmer (DS §60) */
+  .skeleton-nq {
+    background: linear-gradient(90deg, #111113, #19191b, #111113);
+    background-size: 200% 100%;
+    animation: nq-shimmer 1.4s ease-in-out infinite;
+  }
+  @keyframes nq-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* Entrada suave ao navegar (DS §56 — 220ms) */
   .page-enter {
-    animation: page-enter 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: page-enter 0.22s var(--nq-ease) both;
   }
   @keyframes page-enter {
-    from {
-      opacity: 0;
-      transform: translateY(8px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 }
 
