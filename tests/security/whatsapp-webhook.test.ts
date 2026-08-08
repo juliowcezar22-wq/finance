@@ -94,6 +94,16 @@ describe("Autenticação do webhook", () => {
   });
 });
 
+describe("Mensagem sem id do provedor", () => {
+  it("ignora entrada sem providerMessageId (não dá para deduplicar → não processa)", async () => {
+    mockSettings = { enabled: true, clientToken: TOKEN, myNumber: TEST_PHONE };
+    // payload Z-API sem messageId/id
+    const res = await POST(post({ "client-token": TOKEN }, { phone: TEST_PHONE, text: { message: "oi" } }));
+    expect(res.status).toBe(200);
+    expect((await res.json()).ignored).toBe("no_message_id");
+  });
+});
+
 describe("Deduplicação por providerMessageId", () => {
   it("mesma mensagem entregue 2× → processa 1×, 2ª ignorada como duplicata", async () => {
     mockSettings = { enabled: true, clientToken: TOKEN, myNumber: TEST_PHONE };

@@ -5,11 +5,16 @@ import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { createSessionToken, verifySessionToken, SESSION_COOKIE } from "@/lib/auth/session";
-import { isLockedOut, recordLoginAttempt, pruneOldAttempts } from "@/lib/auth/login-throttle";
+import { reserveAttempt, recordLoginAttempt, pruneOldAttempts } from "@/lib/auth/login-throttle";
 
 const GENERIC_LOGIN_ERROR = "E-mail ou senha incorretos";
 const LOCKED_LOGIN_ERROR =
   "Muitas tentativas. Aguarde alguns minutos e tente novamente.";
+
+// Hash descartável usado quando o e-mail não existe: garante que bcrypt.compare
+// rode SEMPRE, equalizando a latência entre e-mail existente e inexistente
+// (fecha o canal de enumeração por timing).
+const DUMMY_HASH = bcrypt.hashSync("nao-e-uma-senha-real", 10);
 
 /** Primeiro hop de x-forwarded-for (apenas auditoria). */
 function clientIp(): string | null {
@@ -44,21 +49,22 @@ export async function loginAction(_prev: LoginState, formData: FormData): Promis
   const email = parsed.data.email;
   const ip = clientIp();
 
-  // Lockout: falha de banco aqui NEGA o login (fail-closed, FR-013).
+  // Lockout atômico: reserva a tentativa e checa o limite sob advisory lock por
+  // e-mail (sem corrida). Falha de banco NEGA o login (fail-closed, FR-013).
+  let blocked: boolean;
   try {
-    if (await isLockedOut(email)) {
-      await recordLoginAttempt(email, ip, false).catch(() => {});
-      return { error: LOCKED_LOGIN_ERROR };
-    }
+    blocked = await reserveAttempt(email, ip);
   } catch {
     return { error: GENERIC_LOGIN_ERROR };
   }
+  if (blocked) return { error: LOCKED_LOGIN_ERROR };
 
   const user = await prisma.user.findUnique({ where: { email } });
-  const ok = user ? await bcrypt.compare(parsed.data.password, user.passwordHash) : false;
+  // Compara SEMPRE (hash descartável se o e-mail não existe) para não vazar
+  // existência por timing. A falha já foi reservada acima.
+  const ok = await bcrypt.compare(parsed.data.password, user?.passwordHash ?? DUMMY_HASH);
 
   if (!user || !ok) {
-    await recordLoginAttempt(email, ip, false).catch(() => {});
     return { error: GENERIC_LOGIN_ERROR };
   }
 
@@ -110,34 +116,51 @@ export async function signUpAction(
     return { error: parsed.error.issues[0]?.message ?? "Dados inválidos" };
   }
 
-  const exists = await prisma.user.findUnique({ where: { email: parsed.data.email } });
-  if (exists) {
-    return { error: "Já existe uma conta com este e-mail." };
-  }
-
+  // Resposta neutra: NÃO revela se o e-mail já existe (sem oráculo de
+  // enumeração). Tenta criar; colisão de e-mail (P2002) é silenciada e
+  // respondida como sucesso, igual ao cadastro novo.
   const passwordHash = await bcrypt.hash(parsed.data.password, 10);
-  await prisma.user.create({
-    data: {
-      name: parsed.data.name,
-      email: parsed.data.email,
-      passwordHash,
-      role: "USER",
-      active: false,
-    },
-  });
+  try {
+    await prisma.user.create({
+      data: {
+        name: parsed.data.name,
+        email: parsed.data.email,
+        passwordHash,
+        role: "USER",
+        active: false,
+      },
+    });
+  } catch (e: any) {
+    if (e?.code !== "P2002") throw e; // erro real → propaga
+  }
 
   return { success: true };
 }
 
 export async function logoutAction() {
   // Revogação: incrementa sessionVersion → todos os tokens ativos do usuário
-  // passam a divergir e são rejeitados por getUserFromToken.
+  // passam a divergir e são rejeitados por getUserFromToken. É a ÚNICA via de
+  // invalidação além da expiração, então a falha não pode passar despercebida:
+  // tenta com um retry e registra o erro (não silencia).
   const token = cookies().get(SESSION_COOKIE)?.value;
   const payload = verifySessionToken(token);
   if (payload?.uid) {
-    await prisma.user
-      .update({ where: { id: payload.uid }, data: { sessionVersion: { increment: 1 } } })
-      .catch(() => {});
+    const revoke = () =>
+      prisma.user.update({
+        where: { id: payload.uid },
+        data: { sessionVersion: { increment: 1 } },
+      });
+    try {
+      await revoke();
+    } catch (err1) {
+      try {
+        await revoke();
+      } catch (err2) {
+        // Sem observabilidade estruturada ainda (feature 012): ao menos loga,
+        // para que uma revogação falha seja visível e possa ser reprocessada.
+        console.error("logout: falha ao revogar sessão (sessionVersion)", err2);
+      }
+    }
   }
   cookies().delete(SESSION_COOKIE);
   redirect("/login");

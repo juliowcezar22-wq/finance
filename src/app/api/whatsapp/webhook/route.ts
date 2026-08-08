@@ -47,6 +47,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true, ignored: "sender_not_allowed" });
   }
 
+  // Sem id do provedor não há como deduplicar com segurança (múltiplos NULL não
+  // colidem no índice único → reentrega reprocessaria e duplicaria lançamentos).
+  // Gateways reais (Z-API/Evolution) sempre enviam id; ausência = payload
+  // malformado/forjado → ignora.
+  if (!msg.providerMessageId) {
+    return NextResponse.json({ ok: true, ignored: "no_message_id" });
+  }
+
   // Deduplicação atômica por providerMessageId (unicidade no banco). Grava o log
   // de entrada ANTES de processar; reentrega do gateway → P2002 → ignora.
   try {

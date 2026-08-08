@@ -4,6 +4,7 @@ import { runWithoutScope } from "@/lib/auth/owner-scope";
 import {
   isLockedOut,
   recordLoginAttempt,
+  reserveAttempt,
   MAX_FAILS,
   WINDOW_MS,
 } from "@/lib/auth/login-throttle";
@@ -63,5 +64,28 @@ describe("isLockedOut", () => {
     const email = emailFor("e");
     vi.spyOn(prisma.loginAttempt, "findFirst").mockRejectedValueOnce(new Error("db down"));
     await expect(isLockedOut(email)).rejects.toThrow();
+  });
+});
+
+describe("reserveAttempt — atômico sob concorrência", () => {
+  it("rajada paralela de 12 reservas do mesmo e-mail: no máx. 5 permitidas (sem burlar o teto)", async () => {
+    const email = emailFor("race");
+    const results = await Promise.all(
+      Array.from({ length: 12 }, () => reserveAttempt(email, null))
+    );
+    const allowed = results.filter((blocked) => blocked === false).length;
+    const blocked = results.filter((blocked) => blocked === true).length;
+    expect(allowed).toBe(MAX_FAILS); // exatamente 5 passaram
+    expect(blocked).toBe(12 - MAX_FAILS);
+    // e o estado persistido reflete as 5 reservas
+    expect(await isLockedOut(email)).toBe(true);
+  });
+
+  it("um sucesso posterior libera novas reservas", async () => {
+    const email = emailFor("reset");
+    for (let i = 0; i < MAX_FAILS; i++) await reserveAttempt(email, null);
+    expect(await reserveAttempt(email, null)).toBe(true); // bloqueado
+    await recordLoginAttempt(email, null, true); // sucesso reseta a janela
+    expect(await reserveAttempt(email, null)).toBe(false); // permitido de novo
   });
 });

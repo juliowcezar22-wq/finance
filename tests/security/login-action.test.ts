@@ -15,9 +15,9 @@ vi.mock("next/headers", () => ({
 }));
 vi.mock("next/navigation", () => ({ redirect: vi.fn() }));
 
-const isLockedOut = vi.fn();
+const reserveAttempt = vi.fn();
 vi.mock("@/lib/auth/login-throttle", () => ({
-  isLockedOut: (...a: unknown[]) => isLockedOut(...a),
+  reserveAttempt: (...a: unknown[]) => reserveAttempt(...a),
   recordLoginAttempt: vi.fn().mockResolvedValue(undefined),
   pruneOldAttempts: vi.fn(),
 }));
@@ -32,20 +32,20 @@ function form(email: string, password: string): FormData {
 }
 
 beforeEach(() => {
-  isLockedOut.mockReset();
+  reserveAttempt.mockReset();
   cookieSet.mockReset();
 });
 
 describe("loginAction — perímetro de segurança", () => {
-  it("fail-closed: erro no check de lockout nega login com erro genérico", async () => {
-    isLockedOut.mockRejectedValueOnce(new Error("db down"));
+  it("fail-closed: erro na reserva/lockout nega login com erro genérico", async () => {
+    reserveAttempt.mockRejectedValueOnce(new Error("db down"));
     const res = await loginAction(null, form("alguem@example.test", "seja-o-que-for"));
     expect(res?.error).toMatch(/incorretos/i);
     expect(cookieSet).not.toHaveBeenCalled();
   });
 
   it("conta bloqueada: mensagem genérica de espera, sem revelar existência", async () => {
-    isLockedOut.mockResolvedValueOnce(true);
+    reserveAttempt.mockResolvedValueOnce(true);
     const res = await loginAction(null, form("alvo@example.test", "brute"));
     expect(res?.error).toMatch(/tentativas|aguarde/i);
     expect(cookieSet).not.toHaveBeenCalled();
