@@ -10,6 +10,7 @@ import {
 } from "@/lib/services/import-engine";
 import { invoiceReferenceFor, recalcInvoiceTotal } from "@/lib/services/invoices";
 import { getViewer } from "@/lib/auth/viewer";
+import { toNum } from "@/lib/services/money";
 import type { CreditCard } from "@prisma/client";
 
 export type PreviewRow = {
@@ -284,7 +285,7 @@ export async function deleteImportBatch(id: string) {
       prisma.creditCardInvoice.findUnique({ where: { id: invId } }),
     ]);
     if (!inv) continue;
-    if (remaining === 0 && inv.paid <= 0) {
+    if (remaining === 0 && toNum(inv.paid) <= 0) {
       await prisma.creditCardInvoice.delete({ where: { id: invId } });
     } else {
       await recalcInvoiceTotal(invId);

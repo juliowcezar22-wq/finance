@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { monthRange } from "@/lib/format";
+import { toNum } from "@/lib/services/money";
 
 export async function totalDespesasMes(reference: Date = new Date()) {
   const { start, end } = monthRange(reference);
@@ -7,7 +8,7 @@ export async function totalDespesasMes(reference: Date = new Date()) {
     where: { type: "despesa", date: { gte: start, lt: end }, status: { not: "cancelado" } },
     _sum: { amount: true },
   });
-  return result._sum.amount ?? 0;
+  return toNum(result._sum.amount);
 }
 
 export async function totalReceitasMes(reference: Date = new Date()) {
@@ -21,7 +22,7 @@ export async function totalReceitasMes(reference: Date = new Date()) {
     where: { receivedAt: { gte: start, lt: end }, status: "RECEIVED" },
     _sum: { amount: true },
   });
-  return (tx._sum.amount ?? 0) + (inc._sum.amount ?? 0);
+  return toNum(tx._sum.amount) + toNum(inc._sum.amount);
 }
 
 export async function receitasPrevistasMes(reference: Date = new Date()) {
@@ -33,7 +34,7 @@ export async function receitasPrevistasMes(reference: Date = new Date()) {
     },
     _sum: { amount: true },
   });
-  return inc._sum.amount ?? 0;
+  return toNum(inc._sum.amount);
 }
 
 export async function despesasPrevistasMes(reference: Date = new Date()) {
@@ -46,7 +47,7 @@ export async function despesasPrevistasMes(reference: Date = new Date()) {
     },
     _sum: { amount: true },
   });
-  return r._sum.amount ?? 0;
+  return toNum(r._sum.amount);
 }
 
 export async function despesasPagasMes(reference: Date = new Date()) {
@@ -59,7 +60,7 @@ export async function despesasPagasMes(reference: Date = new Date()) {
     },
     _sum: { amount: true },
   });
-  return r._sum.amount ?? 0;
+  return toNum(r._sum.amount);
 }
 
 export async function faturasPagasMes(reference: Date = new Date()) {
@@ -68,12 +69,12 @@ export async function faturasPagasMes(reference: Date = new Date()) {
     where: { status: "paga", dueDate: { gte: start, lt: end } },
     _sum: { paid: true },
   });
-  return r._sum.paid ?? 0;
+  return toNum(r._sum.paid);
 }
 
 export async function totalEmCaixa() {
   const r = await prisma.cashBox.aggregate({ _sum: { currentAmount: true } });
-  return r._sum.currentAmount ?? 0;
+  return toNum(r._sum.currentAmount);
 }
 
 export async function totalReservaEmergencia() {
@@ -81,7 +82,7 @@ export async function totalReservaEmergencia() {
     where: { type: "EMERGENCY" },
     _sum: { currentAmount: true },
   });
-  return r._sum.currentAmount ?? 0;
+  return toNum(r._sum.currentAmount);
 }
 
 export async function taxaEndividamento(reference: Date = new Date()) {
@@ -144,7 +145,7 @@ export async function totalPorPessoa() {
   return rows.map((r) => ({
     personId: r.responsibleId,
     name: people.find((p) => p.id === r.responsibleId)?.name ?? "Sem responsável",
-    total: r._sum.amount ?? 0,
+    total: toNum(r._sum.amount),
   }));
 }
 
@@ -158,7 +159,7 @@ export async function totalPorCartao() {
   return rows.map((r) => ({
     cardId: r.cardId,
     name: cards.find((c) => c.id === r.cardId)?.name ?? "?",
-    total: r._sum.amount ?? 0,
+    total: toNum(r._sum.amount),
   }));
 }
 
@@ -167,7 +168,7 @@ export async function totalAReceber() {
     where: { status: { in: ["aberto", "atrasado", "renegociado"] } },
     _sum: { amount: true },
   });
-  return r._sum.amount ?? 0;
+  return toNum(r._sum.amount);
 }
 
 export async function totalFaturas(status?: string[]) {
@@ -175,8 +176,8 @@ export async function totalFaturas(status?: string[]) {
     where: status ? { status: { in: status } } : undefined,
     _sum: { total: true, paid: true },
   });
-  const total = r._sum.total ?? 0;
-  const paid = r._sum.paid ?? 0;
+  const total = toNum(r._sum.total);
+  const paid = toNum(r._sum.paid);
   return { total, paid, openAmount: total - paid };
 }
 
@@ -196,7 +197,7 @@ export async function limitesUsadosPorCartao(
   return new Map(
     rows.map((r) => [
       r.cardId,
-      Math.max(0, (r._sum.total ?? 0) - (r._sum.paid ?? 0)),
+      Math.max(0, toNum(r._sum.total) - toNum(r._sum.paid)),
     ])
   );
 }
@@ -212,7 +213,7 @@ export async function limiteDisponivel(cardId: string) {
     limiteUsado(cardId),
   ]);
   if (!card) return 0;
-  return Math.max(0, card.limitTotal - used);
+  return Math.max(0, toNum(card.limitTotal) - used);
 }
 
 /**
@@ -246,7 +247,7 @@ export async function parcelasFuturasEstimadasPorCartao(
   // Última parcela vista por grupo (sem grupo → trata a própria linha como grupo)
   const latestByGroup = new Map<string, (typeof txs)[number]>();
   for (const t of txs) {
-    const key = t.installmentGroupKey ?? `solo:${t.cardId}:${t.date.getTime()}:${t.amount}`;
+    const key = t.installmentGroupKey ?? `solo:${t.cardId}:${t.date.getTime()}:${toNum(t.amount)}`;
     const prev = latestByGroup.get(key);
     if (!prev || (t.installmentNumber ?? 0) > (prev.installmentNumber ?? 0)) {
       latestByGroup.set(key, t);
@@ -256,7 +257,7 @@ export async function parcelasFuturasEstimadasPorCartao(
   for (const t of latestByGroup.values()) {
     if (!t.cardId || !t.installmentTotal) continue;
     const current = t.installmentNumber ?? 1;
-    const remaining = Math.max(0, t.installmentTotal - current) * t.amount;
+    const remaining = Math.max(0, t.installmentTotal - current) * toNum(t.amount);
     result.set(t.cardId, (result.get(t.cardId) ?? 0) + remaining);
   }
   return result;
@@ -274,8 +275,9 @@ export async function parcelasFuturas() {
 export async function progressoMeta(goalId: string) {
   const g = await prisma.goal.findUnique({ where: { id: goalId } });
   if (!g) return 0;
-  if (g.targetAmount <= 0) return 0;
-  return Math.min(100, (g.currentAmount / g.targetAmount) * 100);
+  const target = toNum(g.targetAmount);
+  if (target <= 0) return 0;
+  return Math.min(100, (toNum(g.currentAmount) / target) * 100);
 }
 
 export async function gastosPorPertenceA(belongsTo: string, reference: Date = new Date()) {
@@ -289,7 +291,7 @@ export async function gastosPorPertenceA(belongsTo: string, reference: Date = ne
     },
     _sum: { amount: true },
   });
-  return r._sum.amount ?? 0;
+  return toNum(r._sum.amount);
 }
 
 export async function quemMeDeve() {
@@ -302,7 +304,7 @@ export async function quemMeDeve() {
   return rows.map((r) => ({
     personId: r.personId,
     name: people.find((p) => p.id === r.personId)?.name ?? "?",
-    total: r._sum.amount ?? 0,
+    total: toNum(r._sum.amount),
   }));
 }
 
@@ -389,31 +391,31 @@ export async function getDashboardSummary(
     }),
   ]);
 
-  const receitas = (txReceitaAgg._sum.amount ?? 0) + (incomeReceivedAgg._sum.amount ?? 0);
-  const faturaTotal = faturasAgg._sum.total ?? 0;
-  const faturaPaid = faturasAgg._sum.paid ?? 0;
+  const receitas = toNum(txReceitaAgg._sum.amount) + toNum(incomeReceivedAgg._sum.amount);
+  const faturaTotal = toNum(faturasAgg._sum.total);
+  const faturaPaid = toNum(faturasAgg._sum.paid);
   const faturas = { total: faturaTotal, paid: faturaPaid, openAmount: faturaTotal - faturaPaid };
-  const despesasPrevistas = despesasPrevAgg._sum.amount ?? 0;
+  const despesasPrevistas = toNum(despesasPrevAgg._sum.amount);
 
-  const byBelongs = new Map(belongsToRows.map((r) => [r.belongsTo, r._sum.amount ?? 0]));
+  const byBelongs = new Map(belongsToRows.map((r) => [r.belongsTo, toNum(r._sum.amount)]));
   const obrig = faturas.openAmount + despesasPrevistas;
 
   return {
     receitas,
-    despesas: despesasAgg._sum.amount ?? 0,
+    despesas: toNum(despesasAgg._sum.amount),
     faturas,
-    aReceber: aReceberAgg._sum.amount ?? 0,
+    aReceber: toNum(aReceberAgg._sum.amount),
     porPertenceA: {
       pessoal: byBelongs.get("pessoal") ?? 0,
       empresa: byBelongs.get("empresa") ?? 0,
       terceiro: byBelongs.get("terceiro") ?? 0,
       familiar: byBelongs.get("familiar") ?? 0,
     },
-    caixa: caixaAgg._sum.currentAmount ?? 0,
+    caixa: toNum(caixaAgg._sum.currentAmount),
     taxaEndividamento: receitas <= 0 ? (obrig > 0 ? 1 : 0) : obrig / receitas,
     sobraReal:
-      receitas - (despesasPagasAgg._sum.amount ?? 0) - (faturasPagasAgg._sum.paid ?? 0),
-    receitasPrevistas: receitasPrevAgg._sum.amount ?? 0,
+      receitas - toNum(despesasPagasAgg._sum.amount) - toNum(faturasPagasAgg._sum.paid),
+    receitasPrevistas: toNum(receitasPrevAgg._sum.amount),
     despesasPrevistas,
   };
 }

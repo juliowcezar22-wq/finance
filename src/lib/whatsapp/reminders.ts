@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { formatBRL, formatDateBR } from "@/lib/format";
+import { toNum } from "@/lib/services/money";
 import { getWhatsAppSettings, isWhatsAppReady, sendText } from "./provider";
 
 /** Monta o texto de lembretes (faturas + despesas a vencer/atrasadas). */
@@ -28,7 +29,7 @@ export async function buildReminders(daysAhead = 7): Promise<string | null> {
   if (invoices.length) {
     lines.push("*Faturas:*");
     for (const i of invoices) {
-      const open = i.total - i.paid;
+      const open = toNum(i.total) - toNum(i.paid);
       const tag = isLate(i.dueDate) ? "⚠️ atrasada" : "a vencer";
       lines.push(`• ${i.card.name} — ${formatBRL(open)} (${tag} ${formatDateBR(i.dueDate)})`);
     }

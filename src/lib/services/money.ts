@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 
 /**
  * Aritmética monetária centralizada. Trabalha em CENTAVOS inteiros onde a

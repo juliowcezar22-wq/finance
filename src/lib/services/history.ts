@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { toNum } from "@/lib/services/money";
 
 export type MonthlyHistory = {
   labels: string[];
@@ -33,7 +34,7 @@ export async function getMonthlyHistory(maxMonths = 12): Promise<MonthlyHistory>
     prisma.cashBox.aggregate({ _sum: { currentAmount: true } }),
   ]);
 
-  const caixaNow = caixaAgg._sum.currentAmount ?? 0;
+  const caixaNow = toNum(caixaAgg._sum.currentAmount);
   const dataDates = [firstIncome?.receivedAt, firstTx?.date, firstMov?.date].filter(
     Boolean
   ) as Date[];
@@ -75,19 +76,19 @@ export async function getMonthlyHistory(maxMonths = 12): Promise<MonthlyHistory>
 
   for (const inc of incomes) {
     const i = idxOf(inc.receivedAt);
-    if (i >= 0) receitas[i] += inc.amount;
+    if (i >= 0) receitas[i] += toNum(inc.amount);
   }
   for (const t of txs) {
     const i = idxOf(t.date);
     if (i < 0) continue;
-    if (t.type === "despesa") despesas[i] += t.amount;
-    else receitas[i] += t.amount;
+    if (t.type === "despesa") despesas[i] += toNum(t.amount);
+    else receitas[i] += toNum(t.amount);
   }
 
   const caixa = months.map((m) => {
     let netAfter = 0;
     for (const mv of movements) {
-      if (mv.date >= m.end) netAfter += mv.type === "IN" ? mv.amount : -mv.amount;
+      if (mv.date >= m.end) netAfter += mv.type === "IN" ? toNum(mv.amount) : -toNum(mv.amount);
     }
     return caixaNow - netAfter;
   });

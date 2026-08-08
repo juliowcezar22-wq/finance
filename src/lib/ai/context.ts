@@ -14,6 +14,7 @@ import {
   totalFaturas,
   quemMeDeve,
 } from "@/lib/services/calculations";
+import { toNum } from "@/lib/services/money";
 
 const TYPE_BELONG = ["pessoal", "empresa", "terceiro", "familiar"];
 
@@ -87,7 +88,7 @@ export async function buildFinancialSnapshot(ref = new Date()) {
   const topCategorias = catRows
     .map((r) => ({
       categoria: r.categoryId ? catName.get(r.categoryId) ?? "—" : "Sem categoria",
-      total: r._sum.amount ?? 0,
+      total: toNum(r._sum.amount),
       qtde: r._count._all,
     }))
     .sort((a, b) => b.total - a.total)
@@ -99,7 +100,7 @@ export async function buildFinancialSnapshot(ref = new Date()) {
       where: { belongsTo: b, type: "despesa", status: { not: "cancelado" }, date: { gte: start, lt: end } },
       _sum: { amount: true },
     });
-    porPertence[b] = r._sum.amount ?? 0;
+    porPertence[b] = toNum(r._sum.amount);
   }
 
   return {
@@ -127,7 +128,7 @@ export async function buildFinancialSnapshot(ref = new Date()) {
       referencia: `${String(i.referenceMonth).padStart(2, "0")}/${i.referenceYear}`,
       vencimento: formatDateBR(i.dueDate),
       total: i.total,
-      emAberto: i.total - i.paid,
+      emAberto: toNum(i.total) - toNum(i.paid),
       status: i.status,
     })),
     quemMeDeve: devedores.map((d: any) => ({ pessoa: d.name, total: d.total })),
@@ -136,7 +137,7 @@ export async function buildFinancialSnapshot(ref = new Date()) {
       tipo: g.type,
       alvo: g.targetAmount,
       atual: g.currentAmount,
-      pct: g.targetAmount > 0 ? Math.round((g.currentAmount / g.targetAmount) * 100) : 0,
+      pct: toNum(g.targetAmount) > 0 ? Math.round((toNum(g.currentAmount) / toNum(g.targetAmount)) * 100) : 0,
       prazo: g.deadline ? formatDateBR(g.deadline) : null,
     })),
     transacoesRecentes: recentes.map((t) => ({

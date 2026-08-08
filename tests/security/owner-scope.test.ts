@@ -5,12 +5,11 @@ import { describe, it, expect, beforeAll, afterAll, vi } from "vitest";
 vi.mock("@/lib/auth/owner-scope", () => import("../setup/owner-scope-double"));
 
 import { prisma } from "@/lib/prisma";
+import { runWithoutScope } from "@/lib/auth/owner-scope";
 import {
   asUser,
   createTwoUsers,
   cleanupTestData,
-  createOrphanAccount,
-  deleteOrphanAccount,
   TEST_PREFIX,
   type TestUser,
 } from "../setup/db";
@@ -18,23 +17,20 @@ import {
 /**
  * Teste de intrusão entre dois usuários (US1). Valida o mecanismo real de
  * isolamento — a extensão de escopo de dono em src/lib/prisma.ts — cobrindo
- * leitura, atualização e exclusão cruzadas, além do bloqueio de registros
- * órfãos (ownerId null). FR-001, FR-002, FR-003; SC-001, SC-002.
+ * leitura, atualização e exclusão cruzadas. Após a feature 002 (ownerId NOT
+ * NULL) o banco também REJEITA inserir registro sem dono. FR-001, FR-002, FR-005.
  */
 
 let userA: TestUser;
 let userB: TestUser;
-let orphanId: string;
 
 beforeAll(async () => {
   const users = await createTwoUsers();
   userA = users.a;
   userB = users.b;
-  orphanId = await createOrphanAccount();
 });
 
 afterAll(async () => {
-  await deleteOrphanAccount(orphanId).catch(() => {});
   await cleanupTestData([userA.id, userB.id]);
 });
 
@@ -115,7 +111,7 @@ describe("Isolamento cross-tenant (extensão Prisma)", () => {
     const inv = await asUser(userA.id, () =>
       prisma.creditCardInvoice.findUnique({ where: { id: a.invoiceId } })
     );
-    expect(inv?.paid).toBe(0);
+    expect(Number(inv?.paid)).toBe(0); // paid agora é Decimal
     expect(inv?.status).toBe("aberta");
   });
 
@@ -132,22 +128,13 @@ describe("Isolamento cross-tenant (extensão Prisma)", () => {
     expect(still).not.toBeNull();
   });
 
-  it("registro órfão (ownerId null) é invisível e imutável para usuário comum", async () => {
-    await asUser(userB.id, async () => {
-      // leitura
-      expect(await prisma.account.findUnique({ where: { id: orphanId } })).toBeNull();
-      const all = await prisma.account.findMany({});
-      expect(all.some((x) => x.id === orphanId)).toBe(false);
-      // escrita
-      await expect(
-        prisma.account.update({ where: { id: orphanId }, data: { name: "capturado" } })
-      ).rejects.toThrow();
-      await expect(
-        prisma.account.delete({ where: { id: orphanId } })
-      ).rejects.toThrow();
-    });
-    // o órfão continua existindo (bloqueio não foi exclusão)
-    const orphan = await prisma.account.findUnique({ where: { id: orphanId } }).catch(() => null);
-    // via acesso completo, ainda existe
+  it("banco REJEITA inserir registro sem dono (ownerId null) — FR-005", async () => {
+    // Após a 002, ownerId é NOT NULL: mesmo forçando (bypass do escopo), o
+    // banco recusa um registro órfão. Órfãos deixam de ser possíveis na origem.
+    await expect(
+      runWithoutScope(() =>
+        prisma.account.create({ data: { name: `${TEST_PREFIX}null`, ownerId: null } as any })
+      )
+    ).rejects.toThrow();
   });
 });

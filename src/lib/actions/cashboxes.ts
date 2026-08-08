@@ -4,6 +4,7 @@ import { getViewer } from "@/lib/auth/viewer";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { parseBRL, parseDateBR } from "@/lib/format";
+import { toNum } from "@/lib/services/money";
 
 const TYPES = [
   "PERSONAL",
@@ -88,7 +89,7 @@ export async function registerCashMovement(formData: FormData) {
   if (!box) throw new Error("Caixa não encontrado");
 
   const delta = parsed.type === "IN" ? parsed.amount : -parsed.amount;
-  const next = box.currentAmount + delta;
+  const next = toNum(box.currentAmount) + delta;
 
   await prisma.$transaction([
     prisma.cashBoxMovement.create({
@@ -114,7 +115,7 @@ export async function deleteCashMovement(id: string) {
   await getViewer();
   const mov = await prisma.cashBoxMovement.findUnique({ where: { id } });
   if (!mov) return;
-  const delta = mov.type === "IN" ? -mov.amount : mov.amount;
+  const delta = mov.type === "IN" ? -toNum(mov.amount) : toNum(mov.amount);
   const box = await prisma.cashBox.findUnique({ where: { id: mov.cashBoxId } });
   if (!box) return;
 
@@ -122,7 +123,7 @@ export async function deleteCashMovement(id: string) {
     prisma.cashBoxMovement.delete({ where: { id } }),
     prisma.cashBox.update({
       where: { id: mov.cashBoxId },
-      data: { currentAmount: box.currentAmount + delta },
+      data: { currentAmount: toNum(box.currentAmount) + delta },
     }),
   ]);
   revalidatePath("/caixa");

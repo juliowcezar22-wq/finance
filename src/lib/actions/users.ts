@@ -104,18 +104,42 @@ export async function updateUser(formData: FormData) {
   revalidatePath("/pessoas");
 }
 
+/**
+ * Impede deixar o sistema sem nenhum administrador ativo (FR-008): recusa
+ * desativar o ÚLTIMO admin ainda ativo.
+ */
+async function assertNotLastActiveAdmin(id: string) {
+  const target = await prisma.user.findUnique({
+    where: { id },
+    select: { role: true, active: true },
+  });
+  if (target?.role === "ADMIN" && target.active) {
+    const activeAdmins = await prisma.user.count({ where: { role: "ADMIN", active: true } });
+    if (activeAdmins <= 1) {
+      throw new Error("Não é possível desativar o último administrador ativo.");
+    }
+  }
+}
+
 /** Aprova (ativa) ou suspende (desativa) uma conta. Usado no botão rápido de /usuarios. */
 export async function setUserActive(id: string, active: boolean) {
   await requireAdmin();
+  if (!active) await assertNotLastActiveAdmin(id);
   await prisma.user.update({ where: { id }, data: { active } });
   revalidatePath("/usuarios");
 }
 
+/**
+ * "Excluir usuário" agora DESATIVA (feature 002). As FKs de dono são
+ * ON DELETE RESTRICT: excluir de fato um usuário com dados vinculados é
+ * bloqueado pelo banco (evita orfanizar o histórico financeiro). Desativar
+ * derruba a sessão (getUserFromToken rejeita usuário inativo) e preserva os
+ * dados; a exclusão dura exigiria remover/reatribuir os dados antes.
+ */
 export async function deleteUser(id: string) {
   await requireAdmin();
-  // Solta vínculo de Person, se houver
-  await prisma.person.updateMany({ where: { userId: id }, data: { userId: null } });
-  await prisma.user.delete({ where: { id } });
+  await assertNotLastActiveAdmin(id);
+  await prisma.user.update({ where: { id }, data: { active: false } });
   revalidatePath("/usuarios");
   revalidatePath("/pessoas");
 }
