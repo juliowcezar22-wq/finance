@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { AppShell } from "@/components/app-shell";
+import { Toaster } from "@/components/ui/toast";
 import { getCurrentUser } from "@/lib/auth/current-user";
 
 const inter = Inter({
@@ -30,6 +31,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body className="min-h-screen antialiased">
         <AppShell user={user}>{children}</AppShell>
+        <Toaster />
       </body>
     </html>
   );

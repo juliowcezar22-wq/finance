@@ -7,8 +7,8 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(({ classNa
   return (
     <textarea
       className={cn(
-        // text-base (16px) no mobile evita o zoom automático do iOS ao focar; sm:text-sm mantém o visual do desktop
-        "flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-base sm:text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+        // text-base (16px) no mobile evita o zoom do iOS; alinhado ao Input (DS §42)
+        "flex min-h-[88px] w-full rounded-[10px] border border-border bg-nummiq-surface2 px-3 py-2.5 text-base sm:text-sm text-nummiq-white transition-colors duration-150 hover:border-white/12 placeholder:text-nummiq-muted focus-visible:outline-none focus-visible:border-nummiq-silver focus-visible:ring-2 focus-visible:ring-ring/30 disabled:cursor-not-allowed disabled:opacity-50",
         className
       )}
       ref={ref}
