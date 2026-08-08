@@ -1,4 +1,5 @@
 "use server";
+import { getViewer } from "@/lib/auth/viewer";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -50,6 +51,7 @@ async function rebuildInstallments(
 }
 
 export async function saveExpense(formData: FormData) {
+  await getViewer();
   const date = parseDateBR(String(formData.get("date") || "")) ?? new Date();
   const dueRaw = String(formData.get("dueDate") || "");
   const dueDate = dueRaw ? parseDateBR(dueRaw) : null;
@@ -110,6 +112,7 @@ export async function saveExpense(formData: FormData) {
 }
 
 export async function deleteExpense(id: string) {
+  await getViewer();
   await prisma.transaction.delete({ where: { id } });
   revalidatePath("/despesas");
   revalidatePath("/dashboard");
@@ -118,6 +121,7 @@ export async function deleteExpense(id: string) {
 }
 
 export async function setExpenseStatus(id: string, status: (typeof STATUS)[number]) {
+  await getViewer();
   await prisma.transaction.update({ where: { id }, data: { status } });
   revalidatePath("/despesas");
   revalidatePath("/dashboard");

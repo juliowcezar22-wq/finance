@@ -2,6 +2,7 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { requireAdmin } from "@/lib/auth/viewer";
 
 const CategorySchema = z.object({
   id: z.string().optional(),
@@ -11,6 +12,8 @@ const CategorySchema = z.object({
 });
 
 export async function saveCategory(formData: FormData) {
+  // Categorias são um catálogo GLOBAL (sem ownerId): só admin escreve.
+  await requireAdmin();
   const parsed = CategorySchema.parse({
     id: formData.get("id") || undefined,
     name: formData.get("name"),
@@ -31,6 +34,7 @@ export async function saveCategory(formData: FormData) {
 }
 
 export async function deleteCategory(id: string) {
+  await requireAdmin();
   await prisma.category.delete({ where: { id } });
   revalidatePath("/configuracoes");
 }

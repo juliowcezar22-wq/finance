@@ -84,9 +84,10 @@ function makeClient() {
         }
 
         // findUnique/update/delete/upsert usam `where` único (não aceita
-        // ownerId). Como os IDs só chegam de listas já escopadas, o risco de
-        // acessar registro de outro dono é residual; ainda assim, filtramos
-        // as LEITURAS por dono para defesa em profundidade.
+        // ownerId). Leituras: pós-filtro por dono. Escritas: pré-checagem de
+        // dono no client base (sem escopo → sem recursão) antes de executar;
+        // registro de outro dono → mesmo erro de "não encontrado", sem vazar
+        // a existência do registro.
         if (operation === "findUnique" || operation === "findUniqueOrThrow") {
           const res: any = await query(a);
           if (res && res.ownerId != null && res.ownerId !== ownerId) {
@@ -96,6 +97,21 @@ function makeClient() {
             return null;
           }
           return res;
+        }
+
+        if (operation === "update" || operation === "delete" || operation === "upsert") {
+          const delegate = (base as any)[model.charAt(0).toLowerCase() + model.slice(1)];
+          const existing = await delegate.findUnique({
+            where: a.where,
+            select: { ownerId: true },
+          });
+          if (existing && existing.ownerId != null && existing.ownerId !== ownerId) {
+            throw new Error("Registro não encontrado.");
+          }
+          if (operation === "upsert") {
+            a.create = injectOwnerData(a.create ?? {}, ownerId);
+          }
+          return query(a);
         }
 
         return query(a);

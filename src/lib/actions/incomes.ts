@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { parseBRL, parseDateBR } from "@/lib/format";
+import { getViewer } from "@/lib/auth/viewer";
 
 const SOURCE_TYPES = ["BANK_ACCOUNT", "PIX", "TRANSFER", "CASH"] as const;
 const INCOME_TYPES = [
@@ -33,6 +34,7 @@ const Schema = z.object({
 });
 
 export async function saveIncome(formData: FormData) {
+  await getViewer();
   const receivedAt =
     parseDateBR(String(formData.get("receivedAt") || "")) ?? new Date();
 
@@ -77,6 +79,7 @@ export async function saveIncome(formData: FormData) {
 }
 
 export async function deleteIncome(id: string) {
+  await getViewer();
   await prisma.income.delete({ where: { id } });
   revalidatePath("/receitas");
   revalidatePath("/dashboard");
@@ -86,6 +89,7 @@ export async function setIncomeStatus(
   id: string,
   status: (typeof STATUS)[number]
 ) {
+  await getViewer();
   await prisma.income.update({ where: { id }, data: { status } });
   revalidatePath("/receitas");
   revalidatePath("/dashboard");

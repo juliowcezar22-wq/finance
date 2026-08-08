@@ -1,4 +1,5 @@
 "use server";
+import { getViewer } from "@/lib/auth/viewer";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -15,6 +16,7 @@ const AccountCardSchema = z.object({
 });
 
 export async function saveAccountCard(formData: FormData) {
+  await getViewer();
   const parsed = AccountCardSchema.parse({
     id: formData.get("id") || undefined,
     cardId: formData.get("cardId"),
@@ -44,6 +46,7 @@ export async function saveAccountCard(formData: FormData) {
 }
 
 export async function deleteAccountCard(id: string) {
+  await getViewer();
   const existing = await prisma.accountCard.findUnique({ where: { id } });
   await prisma.accountCard.delete({ where: { id } });
   if (existing) {

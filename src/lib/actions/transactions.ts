@@ -1,4 +1,5 @@
 "use server";
+import { getViewer } from "@/lib/auth/viewer";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -48,6 +49,7 @@ function readForm(formData: FormData) {
 }
 
 export async function saveTransaction(formData: FormData) {
+  await getViewer();
   const parsed = readForm(formData);
 
   // Correção conceitual: receita não pode estar vinculada a cartão de crédito.
@@ -117,6 +119,7 @@ export async function saveTransaction(formData: FormData) {
 }
 
 export async function deleteTransaction(id: string) {
+  await getViewer();
   await prisma.transaction.delete({ where: { id } });
   revalidatePath("/transacoes");
   revalidatePath("/dashboard");
@@ -124,6 +127,7 @@ export async function deleteTransaction(id: string) {
 }
 
 export async function setTransactionStatus(id: string, status: string) {
+  await getViewer();
   await prisma.transaction.update({ where: { id }, data: { status } });
   revalidatePath("/transacoes");
   revalidatePath("/dashboard");
@@ -151,6 +155,7 @@ export async function setTransactionResponsible(
   transactionId: string,
   personId: string | null
 ) {
+  await getViewer();
   const tx = await prisma.transaction.findUnique({
     where: { id: transactionId },
     include: { card: { include: { holder: true } } },

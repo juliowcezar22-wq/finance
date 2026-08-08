@@ -20,7 +20,16 @@ export type OwnerContext = {
   bypass?: boolean;
 };
 
-const storage = new AsyncLocalStorage<OwnerContext>();
+// Singleton via globalThis: garante UMA única instância mesmo se este módulo
+// for carregado em duplicidade (HMR do Next em dev, ou tsx com path aliases).
+// Sem isso, a extensão do Prisma poderia ler um storage diferente do que
+// runWithOwner escreveu → perda de contexto de dono (fail-closed silencioso).
+const globalForScope = globalThis as unknown as {
+  __ownerScopeStorage?: AsyncLocalStorage<OwnerContext>;
+};
+const storage: AsyncLocalStorage<OwnerContext> =
+  globalForScope.__ownerScopeStorage ??
+  (globalForScope.__ownerScopeStorage = new AsyncLocalStorage<OwnerContext>());
 
 /** Executa `fn` com um dono fixado (jobs sem sessão, testes, migração). */
 export function runWithOwner<T>(ownerId: string | null, fn: () => Promise<T>): Promise<T> {
