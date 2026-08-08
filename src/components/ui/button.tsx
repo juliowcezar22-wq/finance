@@ -3,27 +3,31 @@ import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
+// NQ UI — Button (DS §38–§40, §82). Variantes preservam a API existente
+// (default/destructive/outline/secondary/ghost/link) com estilo Nummiq.
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[10px] text-sm font-medium transition-all duration-150 ease-nq focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-45 active:scale-[0.985] [&_svg]:shrink-0 [&_svg]:size-[18px]",
   {
     variants: {
       variant: {
+        // Primário: gradiente platinum, texto escuro (assinatura visual)
         default:
-          "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 hover:shadow",
+          "bg-primary-metal text-[#080808] shadow-nq hover:brightness-105",
+        // Destrutivo: contido — sem bloco vermelho (DS §41)
         destructive:
-          "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
+          "bg-nummiq-danger/10 text-nummiq-danger border border-nummiq-danger/25 hover:bg-nummiq-danger/15",
         outline:
-          "border border-input bg-background hover:bg-accent hover:text-accent-foreground hover:border-primary/30",
+          "border border-border bg-transparent text-foreground hover:bg-accent hover:border-white/15",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
+          "bg-secondary text-secondary-foreground border border-border hover:bg-nummiq-surface4",
+        ghost: "text-foreground hover:bg-accent",
+        link: "text-foreground underline-offset-4 hover:underline hover:text-nummiq-silver",
       },
       size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-md px-3",
-        lg: "h-11 rounded-md px-8",
-        icon: "h-10 w-10",
+        default: "h-11 px-4 py-2",
+        sm: "h-9 px-3 text-[13px]",
+        lg: "h-12 px-6 text-[15px]",
+        icon: "h-10 w-10 p-0",
       },
     },
     defaultVariants: { variant: "default", size: "default" },
