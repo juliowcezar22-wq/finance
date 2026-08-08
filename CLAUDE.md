@@ -1,15 +1,16 @@
-# Bugia Finance — projeto paralelo (dev/test)
+# Nummiq (ex-Bugia Finance)
 
 App de finanças pessoais: Next.js 14 (App Router) + Prisma 5 + Postgres
-(Supabase). Este repositório é o **clone paralelo** do projeto original —
-a produção vive no projeto/Vercel original e **não é tocada daqui**.
+(Supabase). Nasceu como clone paralelo do projeto original e foi promovido a
+produto próprio (**Nummiq**), com produção independente na Vercel.
 
 ## Ambientes
 
-- `.env` → banco de DESENVOLVIMENTO (Supabase próprio). Usado por `npm run dev`
-  e pelos scripts `db:*`.
-- `.env.test` → banco de TESTES (descartável). Usado pelos scripts `db:test:*`.
-- Produção: só no projeto original. Credenciais de prod nunca entram aqui.
+- `.env` → Supabase **Nummiq Dev**. Usado por `npm run dev` e scripts `db:*`.
+- `.env.test` → **mesmo banco** Nummiq Dev (limite do plano free). Scripts
+  `db:test:*`; ⚠️ `db:test:reset` apaga os dados de dev junto.
+- Produção → Supabase **Nummiq Prod**, migrada só pelo build da Vercel.
+  Credenciais de prod nunca entram neste repositório.
 
 Detalhes, bootstrap e papéis: `docs/AMBIENTES.md`.
 
