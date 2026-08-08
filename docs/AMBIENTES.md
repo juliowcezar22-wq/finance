@@ -58,10 +58,22 @@ Testes (usa `.env.test` — hoje o mesmo banco de dev):
   **re-rodar o `rls-hardening.sql` completo após o primeiro deploy** para
   ligar RLS nas tabelas recém-criadas (item do checklist de go-live).
 - Envs necessárias na Vercel: `POSTGRES_PRISMA_URL`, `POSTGRES_URL_NON_POOLING`
-  (do Nummiq Prod), `SESSION_SECRET` forte e, para o seed manual inicial,
-  `ADMIN_NAME/ADMIN_EMAIL/ADMIN_PASSWORD`.
+  (do Nummiq Prod), `SESSION_SECRET` forte (**obrigatório, ≥ 32 chars — sem ele
+  o app não sobe**), `CRON_SECRET` (para o cron de lembretes via header Bearer)
+  e, para o seed manual inicial, `ADMIN_NAME/ADMIN_EMAIL/ADMIN_PASSWORD`.
 - Checklist de go-live: ver Módulo 15 de `docs/PLANO-DE-ACAO.md` (inclui
   rodar o `rls-hardening.sql` no SQL Editor do Nummiq Prod, backups e monitor).
+
+### Segredos obrigatórios e sessão (feature 001)
+
+- `SESSION_SECRET` e `CRON_SECRET` não têm mais fallback no código: em qualquer
+  ambiente, a ausência de `SESSION_SECRET` (ou < 32 chars) faz o app falhar no
+  boot; o webhook/cron recusam sem os respectivos segredos. Configure-os em
+  `.env`, `.env.test` e na Vercel (ver `.env.example`).
+- **Relogin único após o deploy desta feature:** os tokens de sessão passaram a
+  carregar `sv` (sessionVersion). Tokens antigos (sem `sv`) são rejeitados —
+  todos os usuários precisam entrar de novo uma vez. Logout agora revoga de
+  fato (incrementa `sessionVersion`, invalidando todas as sessões do usuário).
 
 ## 4. Papéis e responsabilidades
 

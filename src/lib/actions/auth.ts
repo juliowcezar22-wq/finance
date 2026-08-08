@@ -1,10 +1,21 @@
 "use server";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
-import { createSessionToken, SESSION_COOKIE } from "@/lib/auth/session";
+import { createSessionToken, verifySessionToken, SESSION_COOKIE } from "@/lib/auth/session";
+import { isLockedOut, recordLoginAttempt, pruneOldAttempts } from "@/lib/auth/login-throttle";
+
+const GENERIC_LOGIN_ERROR = "E-mail ou senha incorretos";
+const LOCKED_LOGIN_ERROR =
+  "Muitas tentativas. Aguarde alguns minutos e tente novamente.";
+
+/** Primeiro hop de x-forwarded-for (apenas auditoria). */
+function clientIp(): string | null {
+  const fwd = headers().get("x-forwarded-for");
+  return fwd ? fwd.split(",")[0]!.trim() || null : null;
+}
 
 const LoginSchema = z.object({
   email: z.string().email("E-mail inválido"),
@@ -30,14 +41,25 @@ export async function loginAction(_prev: LoginState, formData: FormData): Promis
     return { error: parsed.error.issues[0]?.message ?? "Dados inválidos" };
   }
 
-  const user = await prisma.user.findUnique({ where: { email: parsed.data.email } });
-  if (!user) {
-    return { error: "E-mail ou senha incorretos" };
+  const email = parsed.data.email;
+  const ip = clientIp();
+
+  // Lockout: falha de banco aqui NEGA o login (fail-closed, FR-013).
+  try {
+    if (await isLockedOut(email)) {
+      await recordLoginAttempt(email, ip, false).catch(() => {});
+      return { error: LOCKED_LOGIN_ERROR };
+    }
+  } catch {
+    return { error: GENERIC_LOGIN_ERROR };
   }
 
-  const ok = await bcrypt.compare(parsed.data.password, user.passwordHash);
-  if (!ok) {
-    return { error: "E-mail ou senha incorretos" };
+  const user = await prisma.user.findUnique({ where: { email } });
+  const ok = user ? await bcrypt.compare(parsed.data.password, user.passwordHash) : false;
+
+  if (!user || !ok) {
+    await recordLoginAttempt(email, ip, false).catch(() => {});
+    return { error: GENERIC_LOGIN_ERROR };
   }
 
   // Conta criada via autocadastro fica inativa até o admin aprovar em /usuarios.
@@ -48,9 +70,13 @@ export async function loginAction(_prev: LoginState, formData: FormData): Promis
     };
   }
 
+  await recordLoginAttempt(email, ip, true).catch(() => {});
+  void pruneOldAttempts();
+
   const token = createSessionToken({
     uid: user.id,
     role: (user.role as "ADMIN" | "USER") ?? "USER",
+    sv: user.sessionVersion,
   });
 
   cookies().set(SESSION_COOKIE, token, {
@@ -104,6 +130,15 @@ export async function signUpAction(
 }
 
 export async function logoutAction() {
+  // Revogação: incrementa sessionVersion → todos os tokens ativos do usuário
+  // passam a divergir e são rejeitados por getUserFromToken.
+  const token = cookies().get(SESSION_COOKIE)?.value;
+  const payload = verifySessionToken(token);
+  if (payload?.uid) {
+    await prisma.user
+      .update({ where: { id: payload.uid }, data: { sessionVersion: { increment: 1 } } })
+      .catch(() => {});
+  }
   cookies().delete(SESSION_COOKIE);
   redirect("/login");
 }
