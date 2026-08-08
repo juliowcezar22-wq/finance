@@ -47,6 +47,16 @@ function injectOwnerData<T extends Record<string, any>>(data: T, uid: string): T
   return data.ownerId == null ? { ...data, ownerId: uid } : data;
 }
 
+// Escrita escopada que não casou (dono errado / registro órfão / inexistente):
+// Prisma lança P2025. Traduzimos para um erro genérico que não revela se o
+// registro existe. Qualquer outro erro é repassado intacto.
+function asNotFound(e: unknown): Error {
+  if (e && typeof e === "object" && (e as any).code === "P2025") {
+    return new Error("Registro não encontrado.");
+  }
+  return e instanceof Error ? e : new Error(String(e));
+}
+
 function makeClient() {
   const base = new PrismaClient({
     log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
@@ -83,35 +93,46 @@ function makeClient() {
           return query(a);
         }
 
-        // findUnique/update/delete/upsert usam `where` único (não aceita
-        // ownerId). Leituras: pós-filtro por dono. Escritas: pré-checagem de
-        // dono no client base (sem escopo → sem recursão) antes de executar;
-        // registro de outro dono → mesmo erro de "não encontrado", sem vazar
-        // a existência do registro.
-        if (operation === "findUnique" || operation === "findUniqueOrThrow") {
-          const res: any = await query(a);
-          if (res && res.ownerId != null && res.ownerId !== ownerId) {
-            if (operation === "findUniqueOrThrow") {
-              throw new Error("Registro não encontrado.");
-            }
-            return null;
-          }
-          return res;
+        // findUnique/update/delete/upsert usam `where` único. Injetamos
+        // `ownerId` no próprio `where` (extendedWhereUnique, GA no Prisma 5):
+        // a operação vira um único `... WHERE id = ? AND ownerId = ?`, atômico
+        // e sem janela TOCTOU. Registro de outro dono OU órfão (ownerId null)
+        // não casa: leitura → null; escrita → P2025, traduzido para o mesmo
+        // erro genérico, sem vazar a existência do registro.
+        if (operation === "findUnique") {
+          a.where = { ...(a.where ?? {}), ownerId };
+          return query(a);
         }
 
-        if (operation === "update" || operation === "delete" || operation === "upsert") {
-          const delegate = (base as any)[model.charAt(0).toLowerCase() + model.slice(1)];
-          const existing = await delegate.findUnique({
-            where: a.where,
-            select: { ownerId: true },
-          });
-          if (existing && existing.ownerId != null && existing.ownerId !== ownerId) {
-            throw new Error("Registro não encontrado.");
+        if (operation === "findUniqueOrThrow") {
+          a.where = { ...(a.where ?? {}), ownerId };
+          try {
+            return await query(a);
+          } catch (e) {
+            throw asNotFound(e);
           }
-          if (operation === "upsert") {
-            a.create = injectOwnerData(a.create ?? {}, ownerId);
+        }
+
+        if (operation === "update" || operation === "delete") {
+          a.where = { ...(a.where ?? {}), ownerId };
+          try {
+            return await query(a);
+          } catch (e) {
+            throw asNotFound(e);
           }
-          return query(a);
+        }
+
+        if (operation === "upsert") {
+          // where escopado impede sequestrar registro de outro dono; se não
+          // casar, o create injeta o dono atual (id de outro dono colidiria no
+          // unique → P2002, fail-closed).
+          a.where = { ...(a.where ?? {}), ownerId };
+          a.create = injectOwnerData(a.create ?? {}, ownerId);
+          try {
+            return await query(a);
+          } catch (e) {
+            throw asNotFound(e);
+          }
         }
 
         return query(a);

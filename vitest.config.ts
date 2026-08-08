@@ -16,9 +16,8 @@ export default defineConfig({
     globals: true,
     setupFiles: ["./tests/setup/env.ts"],
     include: ["tests/**/*.test.ts"],
+    // Banco compartilhado dev/test → execução serial entre arquivos.
     fileParallelism: false,
-    pool: "forks",
-    poolOptions: { forks: { singleFork: true } },
     hookTimeout: 30_000,
     testTimeout: 30_000,
   },

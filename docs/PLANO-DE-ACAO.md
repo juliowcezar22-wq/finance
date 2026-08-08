@@ -29,21 +29,29 @@ real · 🟡 P2 = primeiras semanas · ⚪ P3 = melhoria contínua.
 
 O maior risco do sistema: um usuário logado pode alterar/apagar dados de outro.
 
-- [ ] Estender a extensão do Prisma (`src/lib/prisma.ts:88-91`) para escopar
-      também `update`, `delete` e `upsert` por `ownerId` (hoje só cobre
-      findMany/create/etc.). Para `update`/`delete` por `id`: buscar antes com
-      escopo ou usar `updateMany/deleteMany` com `{ id, ownerId }` e checar count.
-- [ ] Adicionar `getViewer()` no topo de TODAS as actions dos 11 arquivos sem
-      guard: `account-cards, cards, cashboxes, categories, expenses, goals,
-      incomes, people, receivables, rules, transactions` (em `src/lib/actions/`).
-- [ ] Corrigir as chamadas diretas por id sem escopo já identificadas:
-      `incomes.ts:80`, `cards.ts:95`, `people.ts:35`, `cashboxes.ts:58`,
-      `invoices.ts:25` e `:54`.
-- [ ] Decidir o modelo de `Category` (hoje é global, `name @unique` global,
-      sem `ownerId`): ou torná-la por usuário (migration + backfill) ou
-      documentar como catálogo global e restringir escrita a ADMIN.
-- [ ] Teste de intrusão manual: com 2 usuários no banco de dev, invocar cada
-      action com id do outro usuário e confirmar que falha. Registrar resultado.
+- [x] Estender a extensão do Prisma (`src/lib/prisma.ts`) para escopar também
+      `update`, `delete` e `upsert` por `ownerId`. **Feito** (feature 001): usa
+      `extendedWhereUnique` — injeta `ownerId` no `where` de
+      findUnique/update/delete/upsert, virando um único `... WHERE id=? AND
+      ownerId=?` (atômico, sem TOCTOU). Registro órfão (`ownerId NULL`) não casa
+      → bloqueado. Sem match na escrita → P2025 traduzido para erro genérico.
+- [x] Adicionar `getViewer()` no topo de TODAS as actions dos 11 arquivos sem
+      guard. **Feito** no commit `fbcd86c` + `payInvoice`/`setInvoiceStatus`
+      (`invoices.ts`) na feature 001.
+- [x] Corrigir as chamadas diretas por id sem escopo (`incomes`, `cards`,
+      `people`, `cashboxes`, `invoices`). **Feito**: agora todas passam pelo
+      escopo atômico da extensão; `payInvoice` também virou transação
+      (read-modify-write do valor pago) com validação zod.
+- [x] Decidir o modelo de `Category`. **Decisão (feature 001): catálogo GLOBAL**,
+      `name @unique` global, sem `ownerId`; escrita restrita a ADMIN via
+      `requireAdmin()` nas actions de `src/lib/actions/categories.ts` (commit
+      `fbcd86c`). Motivo: categorias são um vocabulário compartilhado de
+      classificação, não dado financeiro privado; por usuário traria duplicação
+      e atrito sem ganho. Leitura permanece disponível a todos.
+- [x] Teste de intrusão automatizado: `tests/security/owner-scope.test.ts` cobre
+      2 usuários em leitura/lista/update/delete cruzados + faturas + órfãos
+      (feature 001). ⏳ Falta o teste manual com 2 usuários reais no go-live
+      (roteiro no `specs/001-seguranca-acesso/quickstart.md`).
 
 ## MÓDULO 2 — 🔴 Sessão e segredos de autenticação
 
