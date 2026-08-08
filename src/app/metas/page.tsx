@@ -5,6 +5,7 @@ import { formatBRL } from "@/lib/format";
 import { GoalDialog } from "./goal-dialog";
 import { GoalsGrid, type GoalRow } from "./goals-grid";
 import { getViewer } from "@/lib/auth/viewer";
+import { toNum } from "@/lib/services/money";
 
 export default async function MetasPage() {
   await getViewer();
@@ -17,8 +18,8 @@ export default async function MetasPage() {
     name: g.name,
     type: g.type,
     priority: g.priority,
-    targetAmount: g.targetAmount,
-    currentAmount: g.currentAmount,
+    targetAmount: toNum(g.targetAmount),
+    currentAmount: toNum(g.currentAmount),
     deadline: g.deadline ? g.deadline.toISOString() : null,
     notes: g.notes,
   }));

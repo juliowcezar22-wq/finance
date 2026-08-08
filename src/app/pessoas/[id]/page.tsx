@@ -34,6 +34,7 @@ import { PaymentDeleteButton } from "./payment-row-actions";
 import { LinkUserPicker } from "./link-user";
 import { PersonMonthFilter } from "./month-filter";
 import { getViewer } from "@/lib/auth/viewer";
+import { toNum } from "@/lib/services/money";
 
 function parseMonthRef(mes?: string): Date {
   if (mes && /^\d{4}-\d{2}$/.test(mes)) {
@@ -131,23 +132,23 @@ export default async function PersonDetailPage({
   const transactionsMonth = transactions.filter((t) => t.date >= start && t.date < end);
   const totalGastoMes = transactionsMonth
     .filter((t) => t.type === "despesa")
-    .reduce((s, t) => s + t.amount, 0);
+    .reduce((s, t) => s + toNum(t.amount), 0);
   const totalGastoTotal = transactions
     .filter((t) => t.type === "despesa")
-    .reduce((s, t) => s + t.amount, 0);
+    .reduce((s, t) => s + toNum(t.amount), 0);
   const totalDevendo = receivables
     .filter((r) => ["aberto", "atrasado", "renegociado"].includes(r.status))
-    .reduce((s, r) => s + r.amount, 0);
+    .reduce((s, r) => s + toNum(r.amount), 0);
   const totalPagoReceivables = receivables
     .filter((r) => r.status === "pago")
-    .reduce((s, r) => s + r.amount, 0);
-  const totalPagamentos = payments.reduce((s, p) => s + p.amount, 0);
+    .reduce((s, r) => s + toNum(r.amount), 0);
+  const totalPagamentos = payments.reduce((s, p) => s + toNum(p.amount), 0);
   const totalAtrasado = receivables
     .filter((r) => r.status === "atrasado")
-    .reduce((s, r) => s + r.amount, 0);
+    .reduce((s, r) => s + toNum(r.amount), 0);
   const totalReembolsavel = transactions
     .filter((t) => t.reimbursable)
-    .reduce((s, t) => s + t.amount, 0);
+    .reduce((s, t) => s + toNum(t.amount), 0);
 
   const lastPayment = payments[0] ?? null;
 
@@ -174,9 +175,9 @@ export default async function PersonDetailPage({
       pago: 0,
       count: 0,
     };
-    e.total += t.amount;
-    if (t.status === "devendo") e.devendo += t.amount;
-    else if (t.status === "pago" || t.status === "reembolsado") e.pago += t.amount;
+    e.total += toNum(t.amount);
+    if (t.status === "devendo") e.devendo += toNum(t.amount);
+    else if (t.status === "pago" || t.status === "reembolsado") e.pago += toNum(t.amount);
     e.count += 1;
     byCardMap.set(key, e);
   }
@@ -203,9 +204,9 @@ export default async function PersonDetailPage({
       pago: 0,
       pendente: 0,
     };
-    e.total += t.amount;
-    if (t.status === "pago") e.pago += t.amount;
-    else if (t.status === "pendente" || t.status === "devendo") e.pendente += t.amount;
+    e.total += toNum(t.amount);
+    if (t.status === "pago") e.pago += toNum(t.amount);
+    else if (t.status === "pendente" || t.status === "devendo") e.pendente += toNum(t.amount);
     byAccountMap.set(key, e);
   }
   const byAccount = Array.from(byAccountMap.values()).sort((a, b) => b.total - a.total);
@@ -221,7 +222,7 @@ export default async function PersonDetailPage({
       total: 0,
       count: 0,
     };
-    e.total += t.amount;
+    e.total += toNum(t.amount);
     e.count += 1;
     byCatMap.set(key, e);
   }

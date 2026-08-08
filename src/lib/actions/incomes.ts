@@ -63,9 +63,6 @@ export async function saveIncome(formData: FormData) {
     personId: parsed.personId,
     categoryId: parsed.categoryId,
     notes: parsed.notes,
-    // mantém compat com campos legados
-    date: parsed.receivedAt,
-    source: parsed.sourceType,
   };
 
   if (parsed.id) {

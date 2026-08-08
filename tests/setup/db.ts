@@ -57,20 +57,6 @@ export async function cleanupTestData(userIds: string[]): Promise<void> {
   });
 }
 
-/** Cria um registro órfão (ownerId NULL) para testar bloqueio. Retorna o id. */
-export async function createOrphanAccount(): Promise<string> {
-  return runWithoutScope(async () => {
-    const acc = await prisma.account.create({
-      data: { name: `${TEST_PREFIX}orphan-${cuidish()}`, ownerId: null } as any,
-    });
-    return acc.id;
-  });
-}
-
-export async function deleteOrphanAccount(id: string): Promise<void> {
-  await runWithoutScope(() => prisma.account.delete({ where: { id } }).then(() => {}));
-}
-
 // Sufixo aleatório simples para nomes únicos (sem depender de libs).
 function cuidish(): string {
   return Math.abs(hashNow()).toString(36);

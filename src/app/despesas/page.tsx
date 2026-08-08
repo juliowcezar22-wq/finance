@@ -24,6 +24,7 @@ import { ExpenseDialog } from "./expense-dialog";
 import { ExpenseActions } from "./row-actions";
 import { ExpenseFilters } from "./filters";
 import { getViewer } from "@/lib/auth/viewer";
+import { toNum } from "@/lib/services/money";
 
 type Search = { mes?: string; status?: string; pessoa?: string };
 
@@ -89,13 +90,13 @@ export default async function DespesasPage({ searchParams }: { searchParams: Sea
 
   const totalMes = monthExpenses
     .filter((e) => e.status !== "cancelado")
-    .reduce((s, e) => s + e.amount, 0);
+    .reduce((s, e) => s + toNum(e.amount), 0);
   const totalPago = monthExpenses
     .filter((e) => e.status === "pago")
-    .reduce((s, e) => s + e.amount, 0);
+    .reduce((s, e) => s + toNum(e.amount), 0);
   const totalPendente = monthExpenses
     .filter((e) => e.status === "pendente")
-    .reduce((s, e) => s + e.amount, 0);
+    .reduce((s, e) => s + toNum(e.amount), 0);
   const qtd = monthExpenses.filter((e) => e.status !== "cancelado").length;
 
   return (

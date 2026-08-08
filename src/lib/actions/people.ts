@@ -4,6 +4,7 @@ import { getViewer } from "@/lib/auth/viewer";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { parseBRL, parseDateBR, formatBRL } from "@/lib/format";
+import { toNum } from "@/lib/services/money";
 
 const PersonSchema = z.object({
   id: z.string().optional(),
@@ -90,8 +91,8 @@ export async function registerPersonPayment(formData: FormData) {
 
   for (const r of open) {
     if (remaining <= 0) break;
-    if (r.amount <= remaining) {
-      remaining -= r.amount;
+    if (toNum(r.amount) <= remaining) {
+      remaining -= toNum(r.amount);
       await prisma.receivable.update({
         where: { id: r.id },
         data: { status: "pago", paidAt: parsed.paidAt },
@@ -107,7 +108,7 @@ export async function registerPersonPayment(formData: FormData) {
       // Quitação parcial: reduz o valor restante
       await prisma.receivable.update({
         where: { id: r.id },
-        data: { amount: r.amount - remaining },
+        data: { amount: toNum(r.amount) - remaining },
       });
       remaining = 0;
     }
@@ -197,7 +198,7 @@ export async function generateBillingText(personId: string): Promise<string> {
     include: { transaction: true },
   });
 
-  const total = open.reduce((s, r) => s + r.amount, 0);
+  const total = open.reduce((s, r) => s + toNum(r.amount), 0);
 
   const suggested = new Date();
   suggested.setDate(suggested.getDate() + 5);

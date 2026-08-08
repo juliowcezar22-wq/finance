@@ -5,6 +5,7 @@ import { formatBRL } from "@/lib/format";
 import { PersonDialog } from "./person-dialog";
 import { PeopleList, type PersonRow } from "./people-list";
 import { getViewer } from "@/lib/auth/viewer";
+import { toNum } from "@/lib/services/money";
 
 const OPEN_RECEIVABLE = ["aberto", "atrasado", "renegociado"];
 
@@ -27,13 +28,13 @@ export default async function PessoasPage() {
 
   const gastoMap = new Map<string, number>();
   for (const g of gastoByPerson) {
-    if (g.responsibleId) gastoMap.set(g.responsibleId, g._sum.amount ?? 0);
+    if (g.responsibleId) gastoMap.set(g.responsibleId, toNum(g._sum.amount ?? 0));
   }
 
   const aReceberMap = new Map<string, number>();
   const pagoMap = new Map<string, number>();
   for (const r of recvByPerson) {
-    const amt = r._sum.amount ?? 0;
+    const amt = toNum(r._sum.amount ?? 0);
     if (OPEN_RECEIVABLE.includes(r.status)) {
       aReceberMap.set(r.personId, (aReceberMap.get(r.personId) ?? 0) + amt);
     } else if (r.status === "pago") {

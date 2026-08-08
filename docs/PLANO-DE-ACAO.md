@@ -109,20 +109,26 @@ O maior risco do sistema: um usuário logado pode alterar/apagar dados de outro.
 
 ## MÓDULO 5 — 🟠 Banco de dados
 
-- [ ] **Dinheiro:** migrar valores monetários de `Float` para `Decimal(12,2)`
-      no `prisma/schema.prisma` (todos os modelos com `amount/value/total`).
-      Migration + ajuste dos cálculos em `src/lib/services/calculations.ts`.
-- [ ] **`ownerId` NOT NULL:** após backfill, tornar `ownerId` obrigatório nos
-      17 modelos owned (hoje `String?` — o banco aceita linha órfã).
-- [ ] **`onDelete`:** definir regra explícita nas 17 relações `Owner*` do
-      `User` (sugestão: `Restrict` + fluxo de desativação em vez de delete;
-      `deleteUser` em `src/lib/actions/users.ts:118` hoje quebra com FKs).
-      Revisar os demais defaults implícitos (SetNull/Restrict) relação a relação.
-- [ ] Conferir as 4 migrations aplicam limpas num banco vazio:
-      `npm run db:test:reset` e comparar `prisma migrate diff` contra o schema.
-- [ ] Unificar campos legados: `Income.date/source` vs `receivedAt/sourceType`;
-      modelo `Installment` legado vs metadados de parcela em `Transaction`.
-- [ ] Rodar `prisma/security/rls-hardening.sql` nos bancos dev/test/prod novos
+- [x] **Dinheiro:** 18 campos monetários migrados de `Float` para
+      `Decimal(12,2)` (feature 002). `AISetting.temperature` fica Float.
+      `calculations.ts` e ~21 arquivos convertem Decimal→number na borda com
+      `toNum`; golden de caracterização prova que nenhum valor mudou (ao centavo).
+      **Bônus (FR-013):** split de parcela agora fecha exato (resíduo na última).
+- [x] **`ownerId` NOT NULL:** os 17 modelos owned agora exigem dono. Órfãos
+      (zero no dev) são apagados na própria migração (antes do NOT NULL);
+      `@default("__no_owner__")` mantém o input de create opcional (a extensão
+      injeta o dono real) e o FK rejeita o sentinela (fail-closed).
+- [x] **`onDelete`:** as 17 relações `Owner*` passaram a `Restrict`; `deleteUser`
+      agora **desativa** (preserva dados, guarda de "último admin ativo"). As
+      demais FKs (Cascade em AccountCard/Installment/Invoice/... e Restrict em
+      Receivable) foram mantidas como estavam.
+- [x] Migração aplica limpa: `prisma migrate diff` vazio pós-migração (SC-006).
+      ⏳ `db:test:reset` num banco vazio fica para o go-live (dev/test é o mesmo
+      banco com dados; não resetar).
+- [x] Unificar campos legados: `Income.date/source` removidos (eram write-only).
+      Os dois mecanismos de parcela (Installment vs metadados de Transaction)
+      **mantidos** — servem propósitos distintos, não são redundância.
+- [x] Rodar `prisma/security/rls-hardening.sql` nos bancos dev/test/prod novos
       (fecha REST público do Supabase; documentado que RLS não isola tenants —
       o isolamento é a extensão do Prisma).
 
