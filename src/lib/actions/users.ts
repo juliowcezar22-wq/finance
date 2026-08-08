@@ -5,6 +5,36 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth/viewer";
 
+/**
+ * Roda `fn` numa transação SERIALIZABLE com retry. Usada nas mutações que podem
+ * reduzir o número de administradores ativos: o SERIALIZABLE detecta o conflito
+ * de duas desativações concorrentes de admins DIFERENTES (que sob READ COMMITTED
+ * ambas passariam, zerando os admins) e aborta uma; o retry reavalia já com a
+ * mudança visível e rejeita corretamente.
+ */
+async function txSerializable<T>(fn: (tx: any) => Promise<T>): Promise<T> {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await prisma.$transaction(fn, { isolationLevel: "Serializable" });
+    } catch (e: any) {
+      // P2034: falha de serialização / conflito de escrita / deadlock.
+      if (e?.code === "P2034" && attempt < 2) continue;
+      throw e;
+    }
+  }
+}
+
+const LAST_ADMIN_ERROR =
+  "Não é possível remover o último administrador ativo (desativar ou rebaixar de ADMIN).";
+
+/** Lança se `id` é o único admin ativo (dentro da transação `tx`). */
+async function assertOtherActiveAdmin(tx: any, id: string) {
+  const others = await tx.user.count({
+    where: { role: "ADMIN", active: true, id: { not: id } },
+  });
+  if (others < 1) throw new Error(LAST_ADMIN_ERROR);
+}
+
 const CreateSchema = z.object({
   name: z.string().min(1, "Nome obrigatório"),
   email: z.string().email("E-mail inválido"),
@@ -76,28 +106,30 @@ export async function updateUser(formData: FormData) {
 
   const newHash = parsed.password ? await bcrypt.hash(parsed.password, 10) : null;
 
-  // Update ATÔMICO com guarda de "último admin ativo" (FR-008): a mudança só
-  // é aplicada se o novo estado mantém ESTE usuário como admin ativo, OU se
-  // existe outro admin ativo. Senão, 0 linhas afetadas → erro. Cobre também a
-  // via de edição (papel/status), não só desativar/excluir.
-  const affected = await prisma.$executeRaw`
-    UPDATE "User" SET
-      name = ${parsed.name},
-      email = ${parsed.email},
-      role = ${parsed.role},
-      active = ${parsed.active},
-      "passwordHash" = COALESCE(${newHash}, "passwordHash"),
-      "updatedAt" = now()
-    WHERE id = ${parsed.id}
-      AND (
-        (${parsed.active} AND ${parsed.role} = 'ADMIN')
-        OR EXISTS (SELECT 1 FROM "User" u2 WHERE u2.role = 'ADMIN' AND u2.active = true AND u2.id <> ${parsed.id})
-      )`;
-  if (affected === 0) {
-    throw new Error(
-      "Não é possível remover o último administrador ativo (desativar ou rebaixar de ADMIN)."
-    );
-  }
+  // Guarda de "último admin ativo" (FR-008), cobrindo a via de edição
+  // (papel/status), não só desativar/excluir. Se a mudança remove a condição
+  // de admin ativo do alvo, exige que exista outro admin ativo — checado e
+  // aplicado sob SERIALIZABLE (race-safe).
+  const removesAdmin = !parsed.active || parsed.role !== "ADMIN";
+  await txSerializable(async (tx) => {
+    if (removesAdmin) {
+      const target = await tx.user.findUnique({
+        where: { id: parsed.id },
+        select: { role: true, active: true },
+      });
+      if (target?.role === "ADMIN" && target.active) await assertOtherActiveAdmin(tx, parsed.id);
+    }
+    await tx.user.update({
+      where: { id: parsed.id },
+      data: {
+        name: parsed.name,
+        email: parsed.email,
+        role: parsed.role,
+        active: parsed.active,
+        ...(newHash ? { passwordHash: newHash } : {}),
+      },
+    });
+  });
 
   // Sincroniza vínculo com Person:
   // 1. desvincula qualquer Person que apontava para esse user mas não é a selecionada
@@ -118,21 +150,20 @@ export async function updateUser(formData: FormData) {
 }
 
 /**
- * Desativa um usuário de forma ATÔMICA sem deixar o sistema sem admin ativo
- * (FR-008): a linha só é atualizada se o alvo NÃO for o último admin ativo — a
- * checagem e a escrita são um único statement (fecha a corrida check-then-act).
+ * Desativa um usuário sem deixar o sistema sem admin ativo (FR-008): checa e
+ * escreve sob SERIALIZABLE (com retry), fechando a corrida de desativações
+ * concorrentes de admins diferentes.
  */
 export async function deactivateGuarded(id: string) {
-  const affected = await prisma.$executeRaw`
-    UPDATE "User" SET active = false, "updatedAt" = now()
-    WHERE id = ${id}
-      AND (
-        NOT (role = 'ADMIN' AND active = true)
-        OR EXISTS (SELECT 1 FROM "User" u2 WHERE u2.role = 'ADMIN' AND u2.active = true AND u2.id <> ${id})
-      )`;
-  if (affected === 0) {
-    throw new Error("Não é possível desativar o último administrador ativo.");
-  }
+  await txSerializable(async (tx) => {
+    const target = await tx.user.findUnique({
+      where: { id },
+      select: { role: true, active: true },
+    });
+    if (!target) throw new Error("Usuário não encontrado.");
+    if (target.role === "ADMIN" && target.active) await assertOtherActiveAdmin(tx, id);
+    await tx.user.update({ where: { id }, data: { active: false } });
+  });
 }
 
 /** Aprova (ativa) ou suspende (desativa) uma conta. Usado no botão rápido de /usuarios. */
