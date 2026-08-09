@@ -63,7 +63,7 @@ function Distribution({ items }: { items: { label: string; value: number }[] }) 
             <span className="text-nummiq-silver">{it.label}</span>
             <span className="tabular-nums text-nummiq-white">{formatBRL(it.value)}</span>
           </div>
-          <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-white/[0.04]">
+          <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-accent">
             <div
               className="h-full rounded-full bg-gradient-to-r from-nummiq-platinum/40 to-nummiq-platinum/80"
               style={{ width: `${(it.value / max) * 100}%` }}

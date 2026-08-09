@@ -10,14 +10,14 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        // Primário: gradiente platinum, texto escuro (assinatura visual)
+        // Primário: gradiente que troca por tema (platinum no escuro, grafite no claro)
         default:
-          "bg-primary-metal text-[#080808] shadow-nq hover:brightness-105",
+          "bg-primary-metal text-primary-metal-fg shadow-nq hover:brightness-105",
         // Destrutivo: contido — sem bloco vermelho (DS §41)
         destructive:
           "bg-nummiq-danger/10 text-nummiq-danger border border-nummiq-danger/25 hover:bg-nummiq-danger/15",
         outline:
-          "border border-border bg-transparent text-foreground hover:bg-accent hover:border-white/15",
+          "border border-border bg-transparent text-foreground hover:bg-accent hover:border-nummiq-silver/40",
         secondary:
           "bg-secondary text-secondary-foreground border border-border hover:bg-nummiq-surface4",
         ghost: "text-foreground hover:bg-accent",

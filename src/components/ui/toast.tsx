@@ -75,7 +75,7 @@ export function Toaster() {
           <ToastPrimitive.Close
             aria-label="Fechar"
             className={cn(
-              "absolute right-2.5 top-2.5 flex h-6 w-6 items-center justify-center rounded-md text-nummiq-muted transition-colors hover:bg-white/5 hover:text-nummiq-white"
+              "absolute right-2.5 top-2.5 flex h-6 w-6 items-center justify-center rounded-md text-nummiq-muted transition-colors hover:bg-accent hover:text-nummiq-white"
             )}
           >
             <X size={14} />

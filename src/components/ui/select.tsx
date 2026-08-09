@@ -14,7 +14,7 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(({ className, ch
       ref={ref}
       className={cn(
         // text-base (16px) no mobile evita zoom do iOS; appearance-none p/ chevron custom
-        "flex h-11 w-full appearance-none rounded-[10px] border border-border bg-nummiq-surface2 pl-3 pr-9 text-base sm:text-sm text-nummiq-white transition-colors duration-150 hover:border-white/12 cursor-pointer focus-visible:outline-none focus-visible:border-nummiq-silver focus-visible:ring-2 focus-visible:ring-ring/30 disabled:cursor-not-allowed disabled:opacity-50",
+        "flex h-11 w-full appearance-none rounded-[10px] border border-border bg-nummiq-surface2 pl-3 pr-9 text-base sm:text-sm text-nummiq-white transition-colors duration-150 hover:border-nummiq-silver/30 cursor-pointer focus-visible:outline-none focus-visible:border-nummiq-silver focus-visible:ring-2 focus-visible:ring-ring/30 disabled:cursor-not-allowed disabled:opacity-50",
         className
       )}
       style={{

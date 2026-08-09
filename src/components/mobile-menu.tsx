@@ -77,8 +77,8 @@ export function MobileMenu({
                   className={cn(
                     "flex items-center gap-3 rounded-[10px] px-3 min-h-[48px] text-[15px] font-medium transition-colors",
                     active
-                      ? "bg-white/[0.07] border border-white/[0.08] text-nummiq-white"
-                      : "border border-transparent text-nummiq-silver hover:bg-white/[0.04] hover:text-nummiq-white"
+                      ? "bg-accent border border-border text-nummiq-white"
+                      : "border border-transparent text-nummiq-silver hover:bg-accent hover:text-nummiq-white"
                   )}
                 >
                   <Icon size={20} strokeWidth={1.75} className="shrink-0" />

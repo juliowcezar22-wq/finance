@@ -24,7 +24,7 @@ export function StatCard({
           : "text-nummiq-white";
 
   return (
-    <Card className="p-5 transition-colors duration-150 ease-nq hover:border-white/12">
+    <Card className="p-5 transition-colors duration-150 ease-nq hover:border-nummiq-silver/30">
       <p className="text-[11px] uppercase tracking-[0.14em] text-nummiq-muted font-medium">
         {title}
       </p>

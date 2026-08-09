@@ -24,7 +24,7 @@ export function Header({ user }: { user: UserLike }) {
         <button
           type="button"
           aria-label="Buscar na Nummiq"
-          className="group flex h-10 w-full max-w-sm items-center gap-2.5 rounded-[10px] border border-border bg-nummiq-surface2 px-3 text-sm text-nummiq-muted transition-colors hover:border-white/12"
+          className="group flex h-10 w-full max-w-sm items-center gap-2.5 rounded-[10px] border border-border bg-nummiq-surface2 px-3 text-sm text-nummiq-muted transition-colors hover:border-nummiq-silver/30"
         >
           <Search size={18} strokeWidth={1.75} />
           <span className="flex-1 text-left">Buscar na Nummiq</span>
@@ -46,7 +46,7 @@ export function Header({ user }: { user: UserLike }) {
 
           {user && (
             <div className="flex items-center gap-2 pl-1.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-nummiq-surface3 text-xs font-semibold text-nummiq-white ring-1 ring-white/10">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-nummiq-surface3 text-xs font-semibold text-nummiq-white ring-1 ring-nummiq-silver/25">
                 {initials}
               </div>
               <div className="hidden lg:block leading-tight">
