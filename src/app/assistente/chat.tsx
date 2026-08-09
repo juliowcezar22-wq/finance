@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { sendChatMessage } from "@/lib/actions/ai";
 import { SimpleMarkdown } from "./markdown";
-import { BugiaAvatar, BugiaMascot } from "@/components/mascot";
+import { NummiqSymbol } from "@/components/brand";
 import { Send, User } from "lucide-react";
 
 type Msg = { role: "user" | "assistant"; content: string };
@@ -65,7 +65,7 @@ export function Chat({
       <div className="flex-1 overflow-y-auto space-y-4 pr-1">
         {messages.length === 0 && (
           <div className="h-full flex flex-col items-center justify-center text-center text-muted-foreground gap-3">
-            <BugiaMascot pose="hero" width={150} className="drop-shadow-xl" />
+            <NummiqSymbol size={56} className="opacity-70" />
             <p className="text-sm max-w-sm">
               Pergunte qualquer coisa sobre suas finanças. O copiloto enxerga suas transações,
               faturas, gastos, pessoas e metas.
@@ -90,7 +90,7 @@ export function Chat({
           <div key={i} className={`flex gap-2 ${m.role === "user" ? "justify-end" : "justify-start"}`}>
             {m.role === "assistant" && (
               <div className="shrink-0 h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
-                <BugiaAvatar size={26} />
+                <NummiqSymbol size={24} />
               </div>
             )}
             <div
@@ -117,7 +117,7 @@ export function Chat({
         {pending && (
           <div className="flex gap-2 items-center text-muted-foreground text-sm">
             <div className="shrink-0 h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
-              <BugiaAvatar size={26} />
+              <NummiqSymbol size={24} />
             </div>
             <span className="animate-pulse">Analisando seus dados…</span>
           </div>

@@ -63,7 +63,7 @@ export async function testWhatsAppSend(): Promise<{ ok: boolean; message: string
   if (!isWhatsAppReady(s)) return { ok: false, message: "Configure URL, número e ative o WhatsApp antes." };
   const r = await sendText(
     s.myNumber!,
-    "✅ Bugia Finance conectado! Este é um teste do seu agente financeiro no WhatsApp."
+    "✅ Nummiq conectado! Este é um teste do seu agente financeiro no WhatsApp."
   );
   return r.ok
     ? { ok: true, message: "Mensagem de teste enviada para o seu número." }

@@ -1,5 +1,6 @@
 "use client";
 import { useMemo, useState } from "react";
+import { NummiqSymbol } from "@/components/brand";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -66,11 +67,7 @@ export function GoalsGrid({ goals }: { goals: GoalRow[] }) {
       {filtered.length === 0 ? (
         <Card>
           <CardContent className="p-10 text-center text-sm text-muted-foreground">
-            <img
-              src="/brand/empty-metas.svg"
-              alt=""
-              className="mx-auto mb-3 w-48 max-w-full opacity-95"
-            />
+            <NummiqSymbol size={44} className="mx-auto mb-3 opacity-40" />
             {goals.length === 0
               ? "Nenhuma meta cadastrada ainda. Toda liberdade começa com uma direção — crie sua primeira meta!"
               : "Nenhuma meta desse tipo."}

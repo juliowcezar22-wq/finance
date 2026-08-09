@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { simulateMessage, sendRemindersNow } from "@/lib/actions/whatsapp";
-import { BugiaAvatar } from "@/components/mascot";
+import { NummiqSymbol } from "@/components/brand";
 import { Send, Bell } from "lucide-react";
 
 const EXAMPLES = [
@@ -80,12 +80,12 @@ export function WhatsAppSimulator() {
         </Button>
       </div>
 
-      {pending && <p className="text-sm text-muted-foreground animate-pulse">Bugia está pensando…</p>}
+      {pending && <p className="text-sm text-muted-foreground animate-pulse">Nummiq está pensando…</p>}
 
       {result && (
         <div className="flex gap-2">
           <div className="shrink-0 h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
-            <BugiaAvatar size={30} />
+            <NummiqSymbol size={26} />
           </div>
           <div className="flex-1 rounded-2xl bg-muted px-3.5 py-2.5">
             <Badge variant={result.error ? "destructive" : "secondary"} className="mb-1.5 text-[10px]">

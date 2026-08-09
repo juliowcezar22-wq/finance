@@ -1,4 +1,5 @@
 import { PageHeader } from "@/components/page-header";
+import { NummiqSymbol } from "@/components/brand";
 import { StatCard } from "@/components/stat-card";
 import { prisma } from "@/lib/prisma";
 import { formatBRL, formatDateBR, monthRange } from "@/lib/format";
@@ -161,11 +162,7 @@ export default async function ReceitasPage({ searchParams }: { searchParams: Sea
               {incomes.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={9} className="text-center text-muted-foreground py-10">
-                    <img
-                      src="/brand/empty-receitas.svg"
-                      alt=""
-                      className="mx-auto mb-3 w-56 max-w-full opacity-95"
-                    />
+                    <NummiqSymbol size={44} className="mx-auto mb-3 opacity-40" />
                     Nenhuma receita registrada neste período. Adicione uma entrada para começar.
                   </TableCell>
                 </TableRow>
@@ -204,11 +201,7 @@ export default async function ReceitasPage({ searchParams }: { searchParams: Sea
           <MobileCards>
             {incomes.length === 0 ? (
               <MobileEmpty>
-                <img
-                  src="/brand/empty-receitas.svg"
-                  alt=""
-                  className="mx-auto mb-3 w-44 max-w-full opacity-95"
-                />
+                <NummiqSymbol size={44} className="mx-auto mb-3 opacity-40" />
                 Nenhuma receita registrada neste período. Adicione uma entrada para começar.
               </MobileEmpty>
             ) : (
