@@ -164,7 +164,7 @@ export default async function DespesasPage({ searchParams }: { searchParams: Sea
                     <TableCell>
                       <Badge variant={st.variant}>{st.label}</Badge>
                     </TableCell>
-                    <TableCell className="text-right font-medium text-red-600 dark:text-red-400">
+                    <TableCell className="text-right font-medium text-nummiq-danger">
                       -{formatBRL(e.amount)}
                     </TableCell>
                     <TableCell className="text-right">
@@ -197,7 +197,7 @@ export default async function DespesasPage({ searchParams }: { searchParams: Sea
                     <MobileCardHeader
                       title={e.description}
                       aside={
-                        <span className="font-semibold text-red-600 dark:text-red-400">
+                        <span className="font-semibold text-nummiq-danger">
                           -{formatBRL(e.amount)}
                         </span>
                       }

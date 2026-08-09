@@ -84,7 +84,7 @@ export function GoalsGrid({ goals }: { goals: GoalRow[] }) {
             const remaining = Math.max(0, g.targetAmount - g.currentAmount);
             const days = g.deadline ? daysUntil(g.deadline) : null;
             return (
-              <Card key={g.id} className={done ? "ring-1 ring-emerald-500/40" : undefined}>
+              <Card key={g.id} className={done ? "ring-1 ring-nummiq-success/40" : undefined}>
                 <CardHeader className="pb-2">
                   <CardTitle className="flex items-center justify-between text-base gap-2">
                     <span className="truncate">{g.name}</span>
@@ -107,7 +107,7 @@ export function GoalsGrid({ goals }: { goals: GoalRow[] }) {
                     </div>
                     <Progress value={Math.min(100, pct)} />
                     <div className="flex justify-between text-xs mt-1">
-                      <span className={done ? "text-emerald-600" : "text-muted-foreground"}>
+                      <span className={done ? "text-nummiq-success" : "text-muted-foreground"}>
                         {pct.toFixed(0)}%
                       </span>
                       {!done && (
@@ -120,7 +120,7 @@ export function GoalsGrid({ goals }: { goals: GoalRow[] }) {
                     <p className="text-xs text-muted-foreground">
                       Prazo: {formatDateBR(new Date(g.deadline))}
                       {days !== null && !done && (
-                        <span className={days < 0 ? "text-red-600" : days <= 30 ? "text-amber-600" : ""}>
+                        <span className={days < 0 ? "text-nummiq-danger" : days <= 30 ? "text-nummiq-warning" : ""}>
                           {" "}
                           ·{" "}
                           {days < 0

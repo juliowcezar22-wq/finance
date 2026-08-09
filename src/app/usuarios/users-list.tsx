@@ -119,7 +119,7 @@ export function UsersList({ users, people }: { users: UserRow[]; people: any[] }
                   </TableCell>
                   <TableCell>
                     {u.personName ? (
-                      <span className="inline-flex items-center gap-1 text-sm text-emerald-700 dark:text-emerald-400">
+                      <span className="inline-flex items-center gap-1 text-sm text-nummiq-success">
                         <UserCheck className="h-3.5 w-3.5" />
                         {u.personName}
                       </span>
@@ -164,7 +164,7 @@ export function UsersList({ users, people }: { users: UserRow[]; people: any[] }
                   </Field>
                   <Field label="Pessoa vinculada">
                     {u.personName ? (
-                      <span className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400">
+                      <span className="inline-flex items-center gap-1 text-nummiq-success">
                         <UserCheck className="h-3.5 w-3.5" />
                         {u.personName}
                       </span>

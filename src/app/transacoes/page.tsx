@@ -119,7 +119,7 @@ export default async function TransacoesPage({ searchParams }: { searchParams: S
                   <TableCell>
                     <Badge variant={statusVariant(t.status)}>{t.status}</Badge>
                   </TableCell>
-                  <TableCell className={`text-right font-medium ${t.type === "receita" ? "text-emerald-600" : ""}`}>
+                  <TableCell className={`text-right font-medium ${t.type === "receita" ? "text-nummiq-success" : ""}`}>
                     {t.type === "despesa" ? "-" : "+"}
                     {formatBRL(t.amount)}
                   </TableCell>
@@ -141,7 +141,7 @@ export default async function TransacoesPage({ searchParams }: { searchParams: S
                     aside={
                       <span
                         className={`font-semibold ${
-                          t.type === "receita" ? "text-emerald-600" : ""
+                          t.type === "receita" ? "text-nummiq-success" : ""
                         }`}
                       >
                         {t.type === "despesa" ? "-" : "+"}

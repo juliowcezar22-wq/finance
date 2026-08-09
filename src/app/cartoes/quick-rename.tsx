@@ -60,7 +60,7 @@ export function QuickRenameCard({ id, name }: { id: string; name: string }) {
           })
         }
       >
-        <Check className="h-3 w-3 text-emerald-600" />
+        <Check className="h-3 w-3 text-nummiq-success" />
       </Button>
       <Button
         variant="ghost"

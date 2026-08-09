@@ -183,7 +183,7 @@ export default async function ReceitasPage({ searchParams }: { searchParams: Sea
                       {STATUS_LABEL[i.status] ?? i.status}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-right font-medium text-emerald-600">
+                  <TableCell className="text-right font-medium text-nummiq-success">
                     +{formatBRL(i.amount)}
                   </TableCell>
                   <TableCell className="text-right">
@@ -217,7 +217,7 @@ export default async function ReceitasPage({ searchParams }: { searchParams: Sea
                   <MobileCardHeader
                     title={i.description}
                     aside={
-                      <span className="font-semibold text-emerald-600">
+                      <span className="font-semibold text-nummiq-success">
                         +{formatBRL(i.amount)}
                       </span>
                     }

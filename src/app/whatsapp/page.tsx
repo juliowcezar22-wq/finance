@@ -42,10 +42,10 @@ export default async function WhatsAppPage() {
       />
 
       {!connected && (
-        <Card className="mb-6 border-amber-500/40 bg-amber-500/5">
+        <Card className="mb-6 border-nummiq-warning/40 bg-nummiq-warning/5">
           <CardContent className="p-5 flex flex-col sm:flex-row sm:items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-emerald-500/15 flex items-center justify-center shrink-0">
-              <MessageCircle className="h-5 w-5 text-emerald-600" />
+            <div className="h-10 w-10 rounded-full bg-nummiq-success/15 flex items-center justify-center shrink-0">
+              <MessageCircle className="h-5 w-5 text-nummiq-success" />
             </div>
             <div className="flex-1">
               <p className="font-semibold">Conecte seu WhatsApp</p>

@@ -121,7 +121,7 @@ export function PeopleList({ people }: { people: PersonRow[] }) {
                   </TableCell>
                   <TableCell>
                     {p.userEmail ? (
-                      <span className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400 text-sm">
+                      <span className="inline-flex items-center gap-1 text-nummiq-success text-sm">
                         <UserCheck className="h-3.5 w-3.5" />
                         {p.userEmail}
                       </span>
@@ -137,7 +137,7 @@ export function PeopleList({ people }: { people: PersonRow[] }) {
                       <span className="text-muted-foreground">{formatBRL(0)}</span>
                     )}
                   </TableCell>
-                  <TableCell className="text-right text-emerald-600">{formatBRL(p.pago)}</TableCell>
+                  <TableCell className="text-right text-nummiq-success">{formatBRL(p.pago)}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2 items-center">
                       <Link href={`/pessoas/${p.id}`}>
@@ -179,7 +179,7 @@ export function PeopleList({ people }: { people: PersonRow[] }) {
                   </Field>
                   <Field label="Usuário vinculado">
                     {p.userEmail ? (
-                      <span className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400">
+                      <span className="inline-flex items-center gap-1 text-nummiq-success">
                         <UserCheck className="h-3.5 w-3.5" />
                         {p.userEmail}
                       </span>
@@ -195,7 +195,7 @@ export function PeopleList({ people }: { people: PersonRow[] }) {
                     )}
                   </Field>
                   <Field label="Já pago">
-                    <span className="text-emerald-600">{formatBRL(p.pago)}</span>
+                    <span className="text-nummiq-success">{formatBRL(p.pago)}</span>
                   </Field>
                 </div>
                 <MobileCardActions>

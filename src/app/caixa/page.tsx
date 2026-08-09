@@ -80,7 +80,7 @@ export default async function CaixaPage() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <div>
-                  <p className="text-2xl font-bold text-emerald-600">
+                  <p className="text-2xl font-bold text-nummiq-success">
                     {formatBRL(box.currentAmount)}
                   </p>
                   {box.targetAmount && toNum(box.targetAmount) > 0 && (
@@ -123,7 +123,7 @@ export default async function CaixaPage() {
                           <span className="flex shrink-0 items-center gap-1">
                             <span
                               className={
-                                m.type === "IN" ? "text-emerald-600" : "text-red-600"
+                                m.type === "IN" ? "text-nummiq-success" : "text-nummiq-danger"
                               }
                             >
                               {m.type === "IN" ? "+" : "-"}

@@ -254,7 +254,7 @@ export default async function PersonDetailPage({
           {person.type}
         </Badge>
         {person.user ? (
-          <span className="inline-flex items-center gap-1 text-sm text-emerald-700 dark:text-emerald-400">
+          <span className="inline-flex items-center gap-1 text-sm text-nummiq-success">
             <UserCheck className="h-4 w-4" /> {person.user.email}
           </span>
         ) : (
@@ -295,7 +295,7 @@ export default async function PersonDetailPage({
             </p>
             {lastPayment ? (
               <>
-                <p className="text-2xl font-bold mt-1 text-emerald-600">
+                <p className="text-2xl font-bold mt-1 text-nummiq-success">
                   {formatBRL(lastPayment.amount)}
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
@@ -342,8 +342,8 @@ export default async function PersonDetailPage({
                     <TableCell className="font-medium">{c.name}</TableCell>
                     <TableCell>{c.bank ?? "—"}</TableCell>
                     <TableCell className="text-right">{formatBRL(c.total)}</TableCell>
-                    <TableCell className="text-right text-red-600">{formatBRL(c.devendo)}</TableCell>
-                    <TableCell className="text-right text-emerald-600">{formatBRL(c.pago)}</TableCell>
+                    <TableCell className="text-right text-nummiq-danger">{formatBRL(c.devendo)}</TableCell>
+                    <TableCell className="text-right text-nummiq-success">{formatBRL(c.pago)}</TableCell>
                     <TableCell className="text-right">{c.count}</TableCell>
                   </TableRow>
                 ))}
@@ -365,10 +365,10 @@ export default async function PersonDetailPage({
                     <div className="space-y-1.5">
                       <Field label="Banco">{c.bank ?? "—"}</Field>
                       <Field label="Devendo">
-                        <span className="text-red-600">{formatBRL(c.devendo)}</span>
+                        <span className="text-nummiq-danger">{formatBRL(c.devendo)}</span>
                       </Field>
                       <Field label="Pago">
-                        <span className="text-emerald-600">{formatBRL(c.pago)}</span>
+                        <span className="text-nummiq-success">{formatBRL(c.pago)}</span>
                       </Field>
                       <Field label="Qtd">{c.count}</Field>
                     </div>
@@ -409,8 +409,8 @@ export default async function PersonDetailPage({
                     <TableCell className="font-medium">{a.name}</TableCell>
                     <TableCell>{a.bank ?? "—"}</TableCell>
                     <TableCell className="text-right">{formatBRL(a.total)}</TableCell>
-                    <TableCell className="text-right text-emerald-600">{formatBRL(a.pago)}</TableCell>
-                    <TableCell className="text-right text-amber-600">{formatBRL(a.pendente)}</TableCell>
+                    <TableCell className="text-right text-nummiq-success">{formatBRL(a.pago)}</TableCell>
+                    <TableCell className="text-right text-nummiq-warning">{formatBRL(a.pendente)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -431,10 +431,10 @@ export default async function PersonDetailPage({
                     <div className="space-y-1.5">
                       <Field label="Banco">{a.bank ?? "—"}</Field>
                       <Field label="Pago">
-                        <span className="text-emerald-600">{formatBRL(a.pago)}</span>
+                        <span className="text-nummiq-success">{formatBRL(a.pago)}</span>
                       </Field>
                       <Field label="Pendente">
-                        <span className="text-amber-600">{formatBRL(a.pendente)}</span>
+                        <span className="text-nummiq-warning">{formatBRL(a.pendente)}</span>
                       </Field>
                     </div>
                   </MobileCard>
@@ -532,7 +532,7 @@ export default async function PersonDetailPage({
                   <TableCell>{PAYMENT_METHOD_LABEL[p.method] ?? p.method}</TableCell>
                   <TableCell>{p.account?.name ?? "—"}</TableCell>
                   <TableCell className="max-w-xs truncate">{p.notes ?? "—"}</TableCell>
-                  <TableCell className="text-right font-medium text-emerald-600">
+                  <TableCell className="text-right font-medium text-nummiq-success">
                     +{formatBRL(p.amount)}
                   </TableCell>
                   <TableCell className="text-right">
@@ -554,7 +554,7 @@ export default async function PersonDetailPage({
                   <MobileCardHeader
                     title={PAYMENT_METHOD_LABEL[p.method] ?? p.method}
                     aside={
-                      <span className="font-semibold text-emerald-600">
+                      <span className="font-semibold text-nummiq-success">
                         +{formatBRL(p.amount)}
                       </span>
                     }

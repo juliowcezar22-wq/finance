@@ -78,7 +78,7 @@ export default async function CartoesPage() {
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
                     <p className="text-muted-foreground">Disponível</p>
-                    <p className="font-medium text-emerald-600">{formatBRL(available)}</p>
+                    <p className="font-medium text-nummiq-success">{formatBRL(available)}</p>
                   </div>
                   <div>
                     <p className="text-muted-foreground">Parcelas futuras (estimativa)</p>

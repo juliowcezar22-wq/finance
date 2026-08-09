@@ -487,7 +487,7 @@ function CsvDiagnostics({ preview }: { preview: Extract<PreviewResult, { ok: tru
       </div>
 
       {validRows.length === 0 && (
-        <div className="rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-sm">
+        <div className="rounded-md border border-nummiq-warning/40 bg-nummiq-warning/10 p-3 text-sm">
           Lemos {preview.total} linhas, mas nenhuma tinha data/descrição/valor reconhecíveis.
           Confira as colunas detectadas acima e o exemplo de linhas brutas abaixo.
         </div>

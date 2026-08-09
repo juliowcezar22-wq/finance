@@ -378,9 +378,9 @@ export default async function CardDetailPage({
                 <TableRow key={s.personId ?? "none"}>
                   <TableCell className="font-medium">{s.name}</TableCell>
                   <TableCell className="text-right">{formatBRL(s.total)}</TableCell>
-                  <TableCell className="text-right text-emerald-600">{formatBRL(s.pago)}</TableCell>
+                  <TableCell className="text-right text-nummiq-success">{formatBRL(s.pago)}</TableCell>
                   <TableCell className="text-right">{formatBRL(s.pendente)}</TableCell>
-                  <TableCell className="text-right text-red-600">{formatBRL(s.devendo)}</TableCell>
+                  <TableCell className="text-right text-nummiq-danger">{formatBRL(s.devendo)}</TableCell>
                   <TableCell className="text-right">{formatBRL(s.reembolsavel)}</TableCell>
                 </TableRow>
               ))}
@@ -401,11 +401,11 @@ export default async function CardDetailPage({
                   />
                   <div className="space-y-1.5">
                     <Field label="Pago">
-                      <span className="text-emerald-600">{formatBRL(s.pago)}</span>
+                      <span className="text-nummiq-success">{formatBRL(s.pago)}</span>
                     </Field>
                     <Field label="Pendente">{formatBRL(s.pendente)}</Field>
                     <Field label="Devendo">
-                      <span className="text-red-600">{formatBRL(s.devendo)}</span>
+                      <span className="text-nummiq-danger">{formatBRL(s.devendo)}</span>
                     </Field>
                     <Field label="Reembolsável">{formatBRL(s.reembolsavel)}</Field>
                   </div>
