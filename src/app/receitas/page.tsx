@@ -24,6 +24,7 @@ import { IncomeDialog } from "./income-dialog";
 import { IncomeActions } from "./row-actions";
 import { IncomeFilters } from "./filters";
 import { getViewer } from "@/lib/auth/viewer";
+import { toNum } from "@/lib/services/money";
 
 type Search = {
   mes?: string;
@@ -108,13 +109,13 @@ export default async function ReceitasPage({ searchParams }: { searchParams: Sea
   });
   const totalRecebido = monthIncomes
     .filter((i) => i.status === "RECEIVED")
-    .reduce((s, i) => s + i.amount, 0);
+    .reduce((s, i) => s + toNum(i.amount), 0);
   const totalPrevisto = monthIncomes
     .filter((i) => i.status === "EXPECTED")
-    .reduce((s, i) => s + i.amount, 0);
+    .reduce((s, i) => s + toNum(i.amount), 0);
   const totalAtrasado = monthIncomes
     .filter((i) => i.status === "LATE")
-    .reduce((s, i) => s + i.amount, 0);
+    .reduce((s, i) => s + toNum(i.amount), 0);
 
   return (
     <div>

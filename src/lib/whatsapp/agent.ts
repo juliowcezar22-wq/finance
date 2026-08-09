@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { getAISettings, isConfigured, chatComplete, type AISettings } from "@/lib/ai/provider";
 import { buildFinancialSnapshot, snapshotToText, loadMemoryText } from "@/lib/ai/context";
+import { splitReais, toNum } from "@/lib/services/money";
 
 export type AgentResult = {
   reply: string;
@@ -119,14 +120,15 @@ ${snapshot}${memory ? "\n\n===== MEMÓRIA =====\n" + memory : ""}`;
           },
         });
         if (installments > 1) {
-          const each = Number((amount / installments).toFixed(2));
+          // Soma exata: a última parcela absorve o resíduo (FR-013).
+          const parts = splitReais(amount, installments);
           const first = due ?? parseDate(f.date);
           await prisma.installment.createMany({
             data: Array.from({ length: installments }, (_, i) => ({
               transactionId: tx.id,
               number: i + 1,
               total: installments,
-              amount: each,
+              amount: parts[i],
               dueDate: new Date(first.getFullYear(), first.getMonth() + i, first.getDate()),
               paid: false,
             })),
@@ -147,8 +149,6 @@ ${snapshot}${memory ? "\n\n===== MEMÓRIA =====\n" + memory : ""}`;
             status: f.status === "EXPECTED" ? "EXPECTED" : "RECEIVED",
             personId: findPerson(f.personName)?.id ?? null,
             categoryId: findCat(f.categoryName)?.id ?? null,
-            date: parseDate(f.receivedAt),
-            source: f.sourceType || "BANK_ACCOUNT",
           },
         });
         revalidateAll();
@@ -191,7 +191,7 @@ ${snapshot}${memory ? "\n\n===== MEMÓRIA =====\n" + memory : ""}`;
           }),
           prisma.cashBox.update({
             where: { id: box.id },
-            data: { currentAmount: cur + (type === "IN" ? amount : -amount) },
+            data: { currentAmount: toNum(cur) + (type === "IN" ? amount : -amount) },
           }),
         ]);
         revalidateAll();

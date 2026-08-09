@@ -26,6 +26,7 @@ import { PrismaClient } from "@prisma/client";
 import { mkdirSync, writeFileSync } from "fs";
 import { resolve } from "path";
 import { installmentGroupKeyFor } from "../src/lib/services/hash";
+import { toNum } from "../src/lib/services/money";
 
 const prisma = new PrismaClient();
 const APPLY = process.argv.includes("--apply");
@@ -63,7 +64,7 @@ async function main() {
             ? installmentGroupKeyFor({
                 cardId: t.cardId,
                 description: t.description,
-                amount: t.amount,
+                amount: toNum(t.amount),
                 installmentTotal: total,
               })
             : null,
@@ -139,10 +140,10 @@ async function main() {
     });
     let total = 0;
     for (const t of byType) {
-      const sum = t._sum.amount ?? 0;
+      const sum = toNum(t._sum.amount ?? 0);
       total += t.type === "despesa" ? sum : -sum;
     }
-    if (Math.abs(total - inv.total) > 0.005) {
+    if (Math.abs(total - toNum(inv.total)) > 0.005) {
       await prisma.creditCardInvoice.update({
         where: { id: inv.id },
         data: { total },

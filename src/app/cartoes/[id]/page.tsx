@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/page-header";
 import { StatCard } from "@/components/stat-card";
 import { prisma } from "@/lib/prisma";
 import { formatBRL, formatDateBR, monthRange } from "@/lib/format";
+import { toNum } from "@/lib/services/money";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -122,7 +123,7 @@ export default async function CardDetailPage({
   ]);
 
   const used = usedMap.get(card.id) ?? 0;
-  const available = Math.max(0, card.limitTotal - used);
+  const available = Math.max(0, toNum(card.limitTotal) - used);
   const futureEstimate = futureMap.get(card.id) ?? 0;
 
   const currentInvoice = invoices.find(
@@ -166,16 +167,16 @@ export default async function CardDetailPage({
       devendo: 0,
       reembolsavel: 0,
     };
-    s.total += t.amount;
-    if (t.status === "pago") s.pago += t.amount;
-    else if (t.status === "devendo") s.devendo += t.amount;
-    else if (t.status === "pendente") s.pendente += t.amount;
-    if (t.reimbursable) s.reembolsavel += t.amount;
+    s.total += toNum(t.amount);
+    if (t.status === "pago") s.pago += toNum(t.amount);
+    else if (t.status === "devendo") s.devendo += toNum(t.amount);
+    else if (t.status === "pendente") s.pendente += toNum(t.amount);
+    if (t.reimbursable) s.reembolsavel += toNum(t.amount);
     byPerson.set(key, s);
   }
   const personSummary = Array.from(byPerson.values()).sort((a, b) => b.total - a.total);
 
-  const pct = card.limitTotal > 0 ? (used / card.limitTotal) * 100 : 0;
+  const pct = toNum(card.limitTotal) > 0 ? (used / toNum(card.limitTotal)) * 100 : 0;
 
   return (
     <div>
@@ -213,7 +214,7 @@ export default async function CardDetailPage({
             <p className="text-2xl font-bold mt-1">Dia {card.dueDay}</p>
             {nextDueInvoice && (
               <p className="text-xs text-muted-foreground mt-1">
-                Próximo: {formatDateBR(nextDueInvoice.dueDate)} ({formatBRL(nextDueInvoice.total - nextDueInvoice.paid)})
+                Próximo: {formatDateBR(nextDueInvoice.dueDate)} ({formatBRL(toNum(nextDueInvoice.total) - toNum(nextDueInvoice.paid))})
               </p>
             )}
           </CardContent>
@@ -240,7 +241,10 @@ export default async function CardDetailPage({
         </Card>
       </div>
 
-      <AccountCardsSection cardId={card.id} accountCards={card.accountCards} />
+      <AccountCardsSection
+        cardId={card.id}
+        accountCards={card.accountCards.map((c) => ({ ...c, limit: toNum(c.limit) }))}
+      />
 
       <Card className="mb-6">
         <CardHeader>
@@ -280,7 +284,7 @@ export default async function CardDetailPage({
                   <TableCell className="text-right">{formatBRL(inv.total)}</TableCell>
                   <TableCell className="text-right">{formatBRL(inv.paid)}</TableCell>
                   <TableCell className="text-right font-medium">
-                    {formatBRL(inv.total - inv.paid)}
+                    {formatBRL(toNum(inv.total) - toNum(inv.paid))}
                   </TableCell>
                   <TableCell>
                     <Badge variant={invoiceStatusVariant(inv.status)} className="capitalize">
@@ -322,7 +326,7 @@ export default async function CardDetailPage({
                     <Field label="Total">{formatBRL(inv.total)}</Field>
                     <Field label="Pago">{formatBRL(inv.paid)}</Field>
                     <Field label="Em aberto">
-                      <span className="font-medium">{formatBRL(inv.total - inv.paid)}</span>
+                      <span className="font-medium">{formatBRL(toNum(inv.total) - toNum(inv.paid))}</span>
                     </Field>
                   </div>
                   <MobileCardActions>

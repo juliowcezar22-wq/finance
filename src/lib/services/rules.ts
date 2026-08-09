@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import type { CategorizationRule } from "@prisma/client";
+import { toNum } from "@/lib/services/money";
 
 export type RuleInput = {
   description: string;
@@ -64,10 +65,10 @@ export function applyRulesSync(ctx: RuleContext, input: RuleInput): RuleEffect {
       matches = matches && input.cardId === r.cardId;
     }
     if (r.amountGreaterThan != null) {
-      matches = matches && input.amount > r.amountGreaterThan;
+      matches = matches && input.amount > toNum(r.amountGreaterThan);
     }
     if (r.amountLessThan != null) {
-      matches = matches && input.amount < r.amountLessThan;
+      matches = matches && input.amount < toNum(r.amountLessThan);
     }
 
     if (!matches) continue;

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { parseBRL } from "@/lib/format";
+import { toNum } from "@/lib/services/money";
 import { getViewer } from "@/lib/auth/viewer";
 
 // Status válidos de fatura (schema: aberta | fechada | paga | atrasada | parcial).
@@ -26,8 +27,8 @@ export async function payInvoice(formData: FormData) {
   await prisma.$transaction(async (tx) => {
     const inv = await tx.creditCardInvoice.findUnique({ where: { id: parsed.id } });
     if (!inv) throw new Error("Registro não encontrado.");
-    const newPaid = inv.paid + parsed.amount;
-    const status = newPaid >= inv.total ? "paga" : "parcial";
+    const newPaid = toNum(inv.paid) + parsed.amount;
+    const status = newPaid >= toNum(inv.total) ? "paga" : "parcial";
     await tx.creditCardInvoice.update({
       where: { id: parsed.id },
       data: { paid: newPaid, status },

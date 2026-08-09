@@ -2,6 +2,7 @@ import { PageHeader } from "@/components/page-header";
 import { StatCard } from "@/components/stat-card";
 import { prisma } from "@/lib/prisma";
 import { formatBRL, formatDateBR } from "@/lib/format";
+import { toNum } from "@/lib/services/money";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -32,10 +33,10 @@ export default async function CaixaPage() {
     prisma.account.findMany({ orderBy: { name: "asc" } }),
   ]);
 
-  const totalCaixa = boxes.reduce((s, b) => s + b.currentAmount, 0);
+  const totalCaixa = boxes.reduce((s, b) => s + toNum(b.currentAmount), 0);
   const totalReserva = boxes
     .filter((b) => b.type === "EMERGENCY")
-    .reduce((s, b) => s + b.currentAmount, 0);
+    .reduce((s, b) => s + toNum(b.currentAmount), 0);
 
   return (
     <div>
@@ -62,8 +63,8 @@ export default async function CaixaPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {boxes.map((box) => {
           const pct =
-            box.targetAmount && box.targetAmount > 0
-              ? Math.min(100, (box.currentAmount / box.targetAmount) * 100)
+            box.targetAmount && toNum(box.targetAmount) > 0
+              ? Math.min(100, (toNum(box.currentAmount) / toNum(box.targetAmount)) * 100)
               : null;
           return (
             <Card key={box.id}>
@@ -82,7 +83,7 @@ export default async function CaixaPage() {
                   <p className="text-2xl font-bold text-emerald-600">
                     {formatBRL(box.currentAmount)}
                   </p>
-                  {box.targetAmount && (
+                  {box.targetAmount && toNum(box.targetAmount) > 0 && (
                     <p className="text-xs text-muted-foreground">
                       Meta: {formatBRL(box.targetAmount)}
                     </p>

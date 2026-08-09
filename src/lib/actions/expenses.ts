@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { parseBRL, parseDateBR } from "@/lib/format";
+import { splitReais } from "@/lib/services/money";
 
 const ORIGINS = ["debito", "pix", "dinheiro", "boleto"] as const;
 const STATUS = ["pendente", "pago", "cancelado"] as const;
@@ -35,14 +36,15 @@ async function rebuildInstallments(
 ) {
   await prisma.installment.deleteMany({ where: { transactionId } });
   if (count <= 1) return;
-  const each = Number((amount / count).toFixed(2));
+  // Soma exata: a última parcela absorve o resíduo (FR-013).
+  const parts = splitReais(amount, count);
   const rows = [];
   for (let i = 1; i <= count; i++) {
     rows.push({
       transactionId,
       number: i,
       total: count,
-      amount: each,
+      amount: parts[i - 1],
       dueDate: addMonths(firstDue, i - 1),
       paid: false,
     });

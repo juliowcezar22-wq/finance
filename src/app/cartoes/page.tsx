@@ -2,6 +2,7 @@ import Link from "next/link";
 import { PageHeader } from "@/components/page-header";
 import { prisma } from "@/lib/prisma";
 import { formatBRL } from "@/lib/format";
+import { toNum } from "@/lib/services/money";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
@@ -39,7 +40,7 @@ export default async function CartoesPage() {
     return {
       card: c,
       used,
-      available: Math.max(0, c.limitTotal - used),
+      available: Math.max(0, toNum(c.limitTotal) - used),
       futureInstallments: futureByCard.get(c.id) ?? 0,
     };
   });
@@ -50,7 +51,7 @@ export default async function CartoesPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {enriched.map(({ card: c, used, available, futureInstallments }) => {
-          const pct = c.limitTotal > 0 ? (used / c.limitTotal) * 100 : 0;
+          const pct = toNum(c.limitTotal) > 0 ? (used / toNum(c.limitTotal)) * 100 : 0;
           return (
             <Card key={c.id}>
               <CardHeader>

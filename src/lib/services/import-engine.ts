@@ -15,6 +15,7 @@ import {
   recalcInvoiceTotal,
   referenceKey,
 } from "@/lib/services/invoices";
+import { toNum } from "@/lib/services/money";
 
 /**
  * Motor de importação em LOTE.
@@ -376,11 +377,12 @@ export async function commitAnalyzedRows(
     status: string;
   }[] = [];
   if (data.length > 0) {
-    created = await prisma.transaction.createManyAndReturn({
+    const rows = await prisma.transaction.createManyAndReturn({
       data,
       skipDuplicates: true, // rede extra de segurança via unique(hash)
       select: { id: true, responsibleId: true, amount: true, date: true, status: true },
     });
+    created = rows.map((r) => ({ ...r, amount: toNum(r.amount) }));
   }
 
   // Recebíveis para parcelas herdadas atribuídas a terceiros (mesma semântica

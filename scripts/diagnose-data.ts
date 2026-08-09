@@ -10,6 +10,7 @@ import { loadEnv } from "./env";
 loadEnv();
 
 import { PrismaClient } from "@prisma/client";
+import { toNum } from "../src/lib/services/money";
 
 const prisma = new PrismaClient();
 
@@ -30,7 +31,7 @@ async function main() {
     },
   });
   const affectedTx = new Set(importedInstallments.map((i) => i.transactionId));
-  const sumGhost = importedInstallments.reduce((s, i) => s + i.amount, 0);
+  const sumGhost = importedInstallments.reduce((s, i) => s + toNum(i.amount), 0);
   console.log(`1) Parcelas fantasma (Installment de transações importadas):`);
   console.log(`   registros: ${importedInstallments.length}`);
   console.log(`   transações afetadas: ${affectedTx.size}`);
@@ -77,10 +78,10 @@ async function main() {
     });
     let expected = 0;
     for (const t of byType) {
-      const sum = t._sum.amount ?? 0;
+      const sum = toNum(t._sum.amount ?? 0);
       expected += t.type === "despesa" ? sum : -sum;
     }
-    if (Math.abs(expected - inv.total) > 0.01) {
+    if (Math.abs(expected - toNum(inv.total)) > 0.01) {
       mismatches++;
       console.log(
         `   - fatura ${String(inv.referenceMonth).padStart(2, "0")}/${inv.referenceYear} (${inv.id}): total gravado R$ ${inv.total.toFixed(2)} ≠ soma R$ ${expected.toFixed(2)}`
