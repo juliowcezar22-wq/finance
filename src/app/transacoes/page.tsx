@@ -73,8 +73,8 @@ export default async function TransacoesPage({ searchParams }: { searchParams: S
   return (
     <div>
       <PageHeader
-        title="Movimentações"
-        description="Histórico de todas as movimentações feitas na plataforma."
+        title="Transações"
+        description="Histórico de todas as transações da sua conta."
       />
 
       <Card className="mb-4">
