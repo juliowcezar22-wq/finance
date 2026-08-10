@@ -1,6 +1,7 @@
 "use client";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Input } from "@/components/ui/input";
+import { MonthPicker } from "@/components/ui/month-picker";
 import { Select } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -31,11 +32,7 @@ export function CardDetailFilters({
     <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 items-end">
       <div>
         <Label className="text-xs">Mês</Label>
-        <Input
-          type="month"
-          defaultValue={sp.get("mes") ?? ""}
-          onChange={(e) => update("mes", e.target.value)}
-        />
+        <MonthPicker value={sp.get("mes") ?? ""} onChange={(v) => update("mes", v)} />
       </div>
       <div>
         <Label className="text-xs">Pessoa</Label>
