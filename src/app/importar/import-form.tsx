@@ -615,7 +615,7 @@ function NewBankAccountDialog({
               setOpen(false);
             })
           }
-          className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+          className="grid grid-cols-1 sm:grid-cols-2 gap-4"
         >
           <div className="col-span-2">
             <Label>Nome</Label>

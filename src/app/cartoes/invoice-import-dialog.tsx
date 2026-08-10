@@ -110,7 +110,7 @@ export function InvoiceImportDialog({
               comuns (data, descrição/title, valor) em português ou inglês. Transações
               serão vinculadas automaticamente a este cartão.
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label>Arquivo CSV/XLSX do extrato</Label>
                 <Input
@@ -253,7 +253,7 @@ function PdfImportPanel({
         exporte em CSV/XLSX nesses casos.
       </p>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <Label>Arquivo PDF do extrato</Label>
           <Input
