@@ -54,10 +54,10 @@ export default async function AssistentePage() {
       />
 
       {!configured && (
-        <Card className="mb-6 border-amber-500/40 bg-amber-500/5">
+        <Card className="mb-6 border-nummiq-warning/40 bg-nummiq-warning/5">
           <CardContent className="p-5 flex flex-col sm:flex-row sm:items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-amber-500/15 flex items-center justify-center shrink-0">
-              <Sparkles className="h-5 w-5 text-amber-600" />
+            <div className="h-10 w-10 rounded-full bg-nummiq-warning/15 flex items-center justify-center shrink-0">
+              <Sparkles className="h-5 w-5 text-nummiq-warning" />
             </div>
             <div className="flex-1">
               <p className="font-semibold">

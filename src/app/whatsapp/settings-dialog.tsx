@@ -52,7 +52,7 @@ export function WhatsAppSettingsDialog({
               setOpen(false);
             })
           }
-          className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+          className="grid grid-cols-1 sm:grid-cols-2 gap-4"
         >
           <div className="col-span-2">
             <Label>Provedor (gateway)</Label>
@@ -124,7 +124,7 @@ export function WhatsAppSettingsDialog({
             <div
               className={`col-span-2 rounded-md border p-2 text-sm ${
                 test.ok
-                  ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                  ? "border-nummiq-success/40 bg-nummiq-success/10 text-nummiq-success"
                   : "border-destructive/40 bg-destructive/10 text-destructive"
               }`}
             >

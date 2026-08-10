@@ -1,5 +1,6 @@
 "use client";
 import { Input } from "@/components/ui/input";
+import { MonthPicker } from "@/components/ui/month-picker";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -21,11 +22,7 @@ export function ExpenseFilters({ people }: { people: any[] }) {
     <div className="flex flex-col sm:flex-row sm:items-end gap-3">
       <div>
         <Label className="text-xs">Mês</Label>
-        <Input
-          type="month"
-          defaultValue={sp.get("mes") ?? ""}
-          onChange={(e) => update("mes", e.target.value)}
-        />
+        <MonthPicker value={sp.get("mes") ?? ""} onChange={(v) => update("mes", v)} />
       </div>
       <div className="w-full sm:w-44">
         <Label className="text-xs">Status</Label>

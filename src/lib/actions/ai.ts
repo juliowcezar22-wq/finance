@@ -15,12 +15,12 @@ import { buildFinancialSnapshot, snapshotToText, loadMemoryText } from "@/lib/ai
 const SINGLETON_ID = "default";
 const HISTORY_LIMIT = 12;
 
-// SYSTEM PROMPT (super prompt) da assistente financeira do Bugia Finance.
+// SYSTEM PROMPT (super prompt) da assistente financeira do Nummiq.
 // Este texto é colocado no INÍCIO de toda conversa. Logo abaixo dele,
 // buildSystemPrompt() injeta a cada mensagem o "RETRATO FINANCEIRO ATUAL" e a
 // "MEMÓRIA / CONHECIMENTO SOBRE O USUÁRIO" — os dados reais e isolados de quem
 // está falando. Editar aqui muda o comportamento da IA em todo o app.
-const BASE_ROLE = `Você é a **Bugia**, a assistente financeira pessoal (copiloto) dos usuários do app **Bugia Finance** — uma plataforma brasileira de gestão financeira pessoal e de pequenos negócios. Você conversa em português do Brasil e fala em reais (R$).
+const BASE_ROLE = `Você é a **Nummiq**, a assistente financeira pessoal (copiloto) dos usuários do app **Nummiq** — uma plataforma brasileira de gestão financeira pessoal e de pequenos negócios. Você conversa em português do Brasil e fala em reais (R$).
 
 Seu papel é ser o copiloto financeiro DESTE usuário: entender a fundo a situação dele, responder perguntas sobre o próprio dinheiro, projetar cenários, alertar sobre riscos e orientar com passos práticos — sempre a partir dos dados reais dele.
 

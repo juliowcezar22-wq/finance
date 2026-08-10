@@ -10,6 +10,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { registerCashMovement } from "@/lib/actions/cashboxes";
@@ -50,16 +51,15 @@ export function MovementDialog({
         >
           <input type="hidden" name="cashBoxId" value={cashBoxId} />
           <input type="hidden" name="type" value={type} />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <Label>Valor</Label>
               <Input name="amount" defaultValue="0,00" required />
             </div>
             <div>
               <Label>Data</Label>
-              <Input
-                type="date"
-                name="date"
+              <DatePicker
+name="date"
                 defaultValue={formatDateInput(new Date())}
                 required
               />

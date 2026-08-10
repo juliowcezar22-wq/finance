@@ -1,4 +1,5 @@
 import { formatBRL, formatDateBR } from "@/lib/format";
+import { NummiqSymbol } from "@/components/brand";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { PayInvoiceDialog } from "../faturas/pay-dialog";
@@ -47,11 +48,7 @@ export function InvoicesHistory({ invoices }: { invoices: any[] }) {
         {invoices.length === 0 && (
           <TableRow>
             <TableCell colSpan={8} className="text-center text-muted-foreground py-10">
-              <img
-                src="/brand/empty-faturas.svg"
-                alt=""
-                className="mx-auto mb-3 w-56 max-w-full opacity-95"
-              />
+              <NummiqSymbol size={44} className="mx-auto mb-3 opacity-40" />
               Nenhuma fatura ainda. Importe a fatura de um cartão para gerá-las.
             </TableCell>
           </TableRow>
@@ -92,11 +89,7 @@ export function InvoicesHistory({ invoices }: { invoices: any[] }) {
     <MobileCards>
       {invoices.length === 0 ? (
         <MobileEmpty>
-          <img
-            src="/brand/empty-faturas.svg"
-            alt=""
-            className="mx-auto mb-3 w-56 max-w-full opacity-95"
-          />
+          <NummiqSymbol size={44} className="mx-auto mb-3 opacity-40" />
           Nenhuma fatura ainda. Importe a fatura de um cartão para gerá-las.
         </MobileEmpty>
       ) : (

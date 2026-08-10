@@ -10,6 +10,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -37,7 +38,7 @@ export function GoalDialog({ initial, trigger }: { initial?: any; trigger?: Reac
             await saveGoal(fd);
             setOpen(false);
           }}
-          className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+          className="grid grid-cols-1 sm:grid-cols-2 gap-4"
         >
           {initial?.id && <input type="hidden" name="id" value={initial.id} />}
           <div className="col-span-2">
@@ -49,9 +50,7 @@ export function GoalDialog({ initial, trigger }: { initial?: any; trigger?: Reac
             <Select name="type" defaultValue={initial?.type ?? "economia"}>
               <option value="economia">Economia</option>
               <option value="quitacao">Quitação</option>
-              <option value="investimento">Investimento</option>
-              <option value="reserva">Reserva</option>
-            </Select>
+              <option value="investimento">Investimento</option>            </Select>
           </div>
           <div>
             <Label>Prioridade (1-5)</Label>
@@ -67,9 +66,8 @@ export function GoalDialog({ initial, trigger }: { initial?: any; trigger?: Reac
           </div>
           <div className="col-span-2">
             <Label>Prazo</Label>
-            <Input
-              type="date"
-              name="deadline"
+            <DatePicker
+name="deadline"
               defaultValue={initial?.deadline ? formatDateInput(initial.deadline) : ""}
             />
           </div>

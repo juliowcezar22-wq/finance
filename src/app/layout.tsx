@@ -1,12 +1,21 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { AppShell } from "@/components/app-shell";
+import { Toaster } from "@/components/ui/toast";
 import { getCurrentUser } from "@/lib/auth/current-user";
 
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "Bugia Finance — Inteligência financeira",
+  title: "Nummiq — Inteligência financeira",
   description:
-    "Bugia Finance: inteligência financeira pessoal, familiar e empresarial — controle de receitas, caixa, contas, dívidas e metas com copiloto de IA.",
+    "Nummiq: precisão financeira em uma interface escura e sofisticada — patrimônio, receitas, despesas, contas e metas com inteligência.",
 };
 
 // Aplica o tema antes da pintura para evitar "flash" (FOUC).
@@ -16,12 +25,13 @@ const themeScript = `(function(){try{var t=localStorage.getItem('theme');var d=t
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const user = await getCurrentUser();
   return (
-    <html lang="pt-BR" suppressHydrationWarning>
+    <html lang="pt-BR" className={inter.variable} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className="min-h-screen antialiased">
         <AppShell user={user}>{children}</AppShell>
+        <Toaster />
       </body>
     </html>
   );

@@ -1,171 +1,242 @@
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================
+   NQ UI — Nummiq Design System (fonte de verdade: docs/NUMMIQ_DESIGN_SYSTEM.md)
+   Identidade: Black Finance + Platinum + Precision.
+   Tokens THEME-AWARE: cores nq como canais RGB (var --nq-*), com valores
+   para claro (:root) e escuro (.dark). Assim bg-nummiq-surface2, text-...,
+   /opacity e o toggle de tema funcionam em ambos os temas.
+   ============================================================ */
+
 @layer base {
   :root {
-    /* Bugia Finance — claro (variação secundária) */
+    /* ---- Cores Nummiq — TEMA CLARO (canais R G B) ---- */
+    --nq-bg: 250 250 251;
+    --nq-bg-soft: 244 244 246;
+    --nq-surface-1: 255 255 255;
+    --nq-surface-2: 249 249 251;
+    --nq-surface-3: 242 242 245;
+    --nq-surface-4: 233 233 237;
+
+    --nq-text-primary: 15 15 18;    /* "white" token = texto primário */
+    --nq-text-secondary: 82 82 90;
+    --nq-text-muted: 122 122 130;
+
+    --nq-platinum: 90 90 98;        /* acento legível sobre claro */
+    --nq-silver: 82 82 90;
+    --nq-white: 15 15 18;
+    --nq-muted: 122 122 130;
+
+    --nq-success: 21 128 61;        /* verde mais escuro p/ contraste no claro */
+    --nq-danger: 210 55 55;
+    --nq-warning: 168 120 20;
+    --nq-info: 37 99 235;
+
+    /* Overlays e bordas dependem do tema */
+    --nq-overlay: 0 0 0;            /* realces usam preto no claro */
+    --nq-border: rgba(0, 0, 0, 0.10);
+    --nq-border-hover: rgba(0, 0, 0, 0.16);
+    --nq-border-active: rgba(0, 0, 0, 0.24);
+
+    /* Botão primário no claro: grafite escuro + texto claro */
+    --nq-gradient-primary: linear-gradient(135deg, #1b1b1e, #3a3a40);
+    --nq-primary-fg: #fafafa;
+    --nq-gradient-metal: linear-gradient(135deg, #7a7a80, #b8b8bd 40%, #6a6a70 100%);
+    --nq-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+    --nq-radius-sm: 8px;
+    --nq-radius-md: 12px;
+    --nq-radius-lg: 16px;
+    --nq-radius-xl: 20px;
+
+    /* ---- shadcn (legado) — TEMA CLARO ---- */
     --background: 240 20% 98%;
-    --foreground: 240 24% 8%;
-
+    --foreground: 240 10% 6%;
     --card: 0 0% 100%;
-    --card-foreground: 240 24% 8%;
-
+    --card-foreground: 240 10% 6%;
     --popover: 0 0% 100%;
-    --popover-foreground: 240 24% 8%;
-
-    --primary: 259 100% 59%;          /* roxo primário #6F2CFF */
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 240 20% 95%;
-    --secondary-foreground: 240 24% 12%;
-
-    --muted: 240 16% 95%;
-    --muted-foreground: 240 8% 42%;
-
-    --accent: 258 100% 96%;
-    --accent-foreground: 259 60% 32%;
-
-    --destructive: 0 84% 58%;
+    --popover-foreground: 240 10% 6%;
+    --primary: 240 6% 11%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 6% 95%;
+    --secondary-foreground: 240 10% 12%;
+    --muted: 240 6% 95%;
+    --muted-foreground: 240 4% 42%;
+    --accent: 240 6% 93%;
+    --accent-foreground: 240 10% 12%;
+    --destructive: 0 72% 48%;
     --destructive-foreground: 0 0% 100%;
-
-    --border: 240 16% 90%;
-    --input: 240 16% 90%;
-    --ring: 259 100% 59%;
-
-    --gold: 41 72% 45%;
-    --gold-soft: 41 80% 92%;
-
-    --radius: 0.875rem;
+    --border: 240 8% 90%;
+    --input: 240 8% 88%;
+    --ring: 240 6% 40%;
+    --radius: 1rem;
   }
 
-  .dark {
-    /* Bugia Finance — escuro premium (experiência principal) */
-    --background: 240 24% 5%;          /* #0A0A0F */
-    --foreground: 240 16% 94%;         /* #EDEEF2 prata */
+  :root.dark {
+    /* ---- Cores Nummiq — TEMA ESCURO (experiência principal) ---- */
+    --nq-bg: 5 5 5;
+    --nq-bg-soft: 8 8 8;
+    --nq-surface-1: 12 12 13;
+    --nq-surface-2: 17 17 19;
+    --nq-surface-3: 22 22 24;
+    --nq-surface-4: 29 29 32;
 
-    --card: 240 16% 11%;               /* #1A1A23 grafite */
-    --card-foreground: 240 16% 94%;
+    --nq-text-primary: 245 245 245;
+    --nq-text-secondary: 167 167 170;
+    --nq-text-muted: 109 109 114;
 
-    --popover: 240 16% 11%;
-    --popover-foreground: 240 16% 94%;
+    --nq-platinum: 220 220 221;
+    --nq-silver: 167 167 170;
+    --nq-white: 245 245 245;
+    --nq-muted: 109 109 114;
 
-    --primary: 259 100% 64%;           /* roxo #6F2CFF (mais vivo no escuro) */
-    --primary-foreground: 0 0% 100%;
+    --nq-success: 61 220 132;
+    --nq-danger: 255 92 92;
+    --nq-warning: 242 185 75;
+    --nq-info: 91 156 255;
 
-    --secondary: 240 10% 16%;          /* #2A2A32 */
-    --secondary-foreground: 240 16% 94%;
+    --nq-overlay: 255 255 255;      /* realces usam branco no escuro */
+    --nq-border: rgba(255, 255, 255, 0.07);
+    --nq-border-hover: rgba(255, 255, 255, 0.12);
+    --nq-border-active: rgba(255, 255, 255, 0.18);
 
-    --muted: 240 12% 13%;
-    --muted-foreground: 240 10% 66%;
+    /* Botão primário no escuro: gradiente platinum + texto escuro (assinatura) */
+    --nq-gradient-primary: linear-gradient(135deg, #fafafa, #b8b8bb);
+    --nq-primary-fg: #080808;
+    --nq-gradient-metal: linear-gradient(135deg, #ffffff, #d8d8da 28%, #9b9b9f 55%, #f5f5f5 78%, #a7a7aa 100%);
 
-    --accent: 261 55% 24%;             /* roxo profundo (hover suave) */
-    --accent-foreground: 258 100% 92%;
-
-    --destructive: 0 84% 60%;          /* #EF4444 */
+    /* ---- shadcn (legado) — TEMA ESCURO (rebaseado à paleta Nummiq) ---- */
+    --background: 0 0% 2%;
+    --foreground: 0 0% 96%;
+    --card: 240 4% 5%;
+    --card-foreground: 0 0% 96%;
+    --popover: 240 4% 9%;
+    --popover-foreground: 0 0% 96%;
+    --primary: 0 0% 88%;
+    --primary-foreground: 0 0% 3%;
+    --secondary: 240 4% 9%;
+    --secondary-foreground: 0 0% 96%;
+    --muted: 240 5% 7%;
+    --muted-foreground: 240 2% 66%;
+    --accent: 240 4% 11%;
+    --accent-foreground: 0 0% 96%;
+    --destructive: 0 100% 68%;
     --destructive-foreground: 0 0% 100%;
-
-    --border: 240 10% 18%;             /* #2A2A32 */
-    --input: 240 10% 18%;
-    --ring: 261 100% 68%;
-
-    --gold: 46 65% 55%;                /* dourado premium #D4AF37 */
-    --gold-soft: 46 40% 16%;
+    --border: 0 0% 14%;
+    --input: 0 0% 16%;
+    --ring: 0 0% 78%;
   }
 }
 
 @layer base {
-  * { @apply border-border; }
+  * {
+    @apply border-border;
+  }
   html {
     scroll-behavior: smooth;
     scrollbar-width: thin;
-    scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent;
+    scrollbar-color: rgb(var(--nq-overlay) / 0.18) transparent;
   }
   body {
     @apply bg-background text-foreground;
-    font-family:
-      "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
-      "Helvetica Neue", Arial, "Noto Sans", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
-  h1, h2, h3, h4 { letter-spacing: -0.01em; }
-
-  /* seleção de texto na cor da marca */
-  ::selection { background: hsl(var(--primary) / 0.28); }
-
-  /* scrollbar temática (WebKit) */
+  h1, h2, h3, h4 {
+    letter-spacing: -0.011em;
+    font-weight: 600;
+  }
+  .tabular, .stat-number, [data-numeric] {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+  ::selection {
+    background: rgb(var(--nq-silver) / 0.24);
+  }
+  :focus-visible {
+    outline: 2px solid rgb(var(--nq-silver) / 0.6);
+    outline-offset: 2px;
+  }
   ::-webkit-scrollbar { width: 10px; height: 10px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb {
-    background: hsl(var(--muted-foreground) / 0.25);
+    background: rgb(var(--nq-overlay) / 0.16);
     border-radius: 9999px;
     border: 2px solid transparent;
     background-clip: padding-box;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--muted-foreground) / 0.45);
+    background: rgb(var(--nq-overlay) / 0.28);
     background-clip: padding-box;
   }
 }
 
 @layer components {
-  .card-premium {
-    background:
-      radial-gradient(600px 240px at 100% 0%, hsl(var(--primary) / 0.14), transparent 60%),
-      radial-gradient(500px 220px at 0% 100%, hsl(var(--gold) / 0.08), transparent 60%),
-      hsl(var(--card));
-    @apply rounded-xl border shadow-sm transition-shadow hover:shadow-md;
+  .app-shell {
+    background: rgb(var(--nq-bg));
   }
+
+  /* Card premium (DS §36) — glass sutil, uso pontual */
+  .card-premium {
+    background: linear-gradient(
+      145deg,
+      rgb(var(--nq-overlay) / 0.09),
+      rgb(var(--nq-overlay) / 0.025)
+    );
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--nq-border);
+    border-radius: var(--nq-radius-lg);
+  }
+
+  .text-metal {
+    background: var(--nq-gradient-metal);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .bg-metal { background: var(--nq-gradient-metal); }
+  .bg-primary-metal { background: var(--nq-gradient-primary); }
+  .text-primary-metal-fg { color: var(--nq-primary-fg); }
+
+  /* Realce genérico theme-aware (estado ativo/hover de navegação, linhas) */
+  .nq-raise { background: rgb(var(--nq-overlay) / 0.06); }
+  .nq-raise-soft { background: rgb(var(--nq-overlay) / 0.035); }
+
   .stat-number {
     @apply tabular-nums tracking-tight;
-  }
-  .ring-gold {
-    box-shadow: 0 0 0 1px hsl(var(--gold) / 0.4);
-  }
-  .text-gold {
-    color: hsl(var(--gold));
-  }
-  .bg-gold-soft {
-    background-color: hsl(var(--gold-soft));
-  }
-  /* Fundo imersivo: brilho roxo + dourado discretos sobre o grafite */
-  .app-shell {
-    background:
-      radial-gradient(1200px 600px at -10% -10%, hsl(var(--primary) / 0.12), transparent 60%),
-      radial-gradient(900px 500px at 110% 0%, hsl(var(--gold) / 0.06), transparent 55%),
-      hsl(var(--background));
   }
 }
 
 @layer utilities {
-  /* Sombra suave premium para superfícies elevadas */
-  .shadow-soft {
+  .shadow-nq {
     box-shadow:
-      0 1px 2px hsl(240 30% 4% / 0.06),
-      0 8px 24px -8px hsl(240 30% 4% / 0.12);
-  }
-  .dark .shadow-soft {
-    box-shadow:
-      0 1px 2px hsl(0 0% 0% / 0.4),
-      0 12px 32px -10px hsl(0 0% 0% / 0.55);
+      0 0 0 1px rgb(var(--nq-overlay) / 0.04),
+      0 12px 40px rgb(0 0 0 / 0.28);
   }
 
-  /* Entrada suave de conteúdo ao navegar entre páginas */
+  .skeleton-nq {
+    background: linear-gradient(
+      90deg,
+      rgb(var(--nq-surface-2)),
+      rgb(var(--nq-surface-3)),
+      rgb(var(--nq-surface-2))
+    );
+    background-size: 200% 100%;
+    animation: nq-shimmer 1.4s ease-in-out infinite;
+  }
+  @keyframes nq-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
   .page-enter {
-    animation: page-enter 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: page-enter 0.22s var(--nq-ease) both;
   }
   @keyframes page-enter {
-    from {
-      opacity: 0;
-      transform: translateY(8px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 }
 

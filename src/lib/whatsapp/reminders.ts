@@ -23,7 +23,7 @@ export async function buildReminders(daysAhead = 7): Promise<string | null> {
 
   if (invoices.length === 0 && expenses.length === 0) return null;
 
-  const lines: string[] = ["🔔 *Lembretes financeiros — Bugia Finance*", ""];
+  const lines: string[] = ["🔔 *Lembretes financeiros — Nummiq*", ""];
   const isLate = (d: Date) => d < new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
   if (invoices.length) {

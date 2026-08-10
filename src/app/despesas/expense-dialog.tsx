@@ -10,6 +10,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -50,7 +51,7 @@ export function ExpenseDialog({
             await saveExpense(fd);
             setOpen(false);
           }}
-          className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+          className="grid grid-cols-1 sm:grid-cols-2 gap-4"
         >
           {initial?.id && <input type="hidden" name="id" value={initial.id} />}
 
@@ -69,9 +70,8 @@ export function ExpenseDialog({
           </div>
           <div>
             <Label>Data da despesa</Label>
-            <Input
-              type="date"
-              name="date"
+            <DatePicker
+name="date"
               defaultValue={
                 initial?.date ? formatDateInput(initial.date) : formatDateInput(new Date())
               }
@@ -99,9 +99,8 @@ export function ExpenseDialog({
 
           <div>
             <Label>Data de vencimento</Label>
-            <Input
-              type="date"
-              name="dueDate"
+            <DatePicker
+name="dueDate"
               defaultValue={initial?.dueDate ? formatDateInput(initial.dueDate) : ""}
             />
           </div>

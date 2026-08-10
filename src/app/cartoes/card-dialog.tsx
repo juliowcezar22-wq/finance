@@ -32,20 +32,20 @@ export function CardDialog({
       <DialogTrigger asChild>
         {trigger ?? (
           <Button>
-            <Plus className="h-4 w-4 mr-1" /> Nova conta bancária
+            <Plus className="h-4 w-4 mr-1" /> Novo cartão
           </Button>
         )}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{initial ? "Editar conta bancária" : "Nova conta bancária"}</DialogTitle>
+          <DialogTitle>{initial ? "Editar cartão" : "Novo cartão"}</DialogTitle>
         </DialogHeader>
         <form
           action={async (fd) => {
             await saveCard(fd);
             setOpen(false);
           }}
-          className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+          className="grid grid-cols-1 sm:grid-cols-2 gap-4"
         >
           {initial?.id && <input type="hidden" name="id" value={initial.id} />}
           <div className="col-span-2">
@@ -71,17 +71,6 @@ export function CardDialog({
               {people.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.name}
-                </option>
-              ))}
-            </Select>
-          </div>
-          <div>
-            <Label>Conta vinculada</Label>
-            <Select name="accountId" defaultValue={initial?.accountId ?? ""}>
-              <option value="">—</option>
-              {accounts.map((a) => (
-                <option key={a.id} value={a.id}>
-                  {a.name}
                 </option>
               ))}
             </Select>

@@ -10,6 +10,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -44,16 +45,15 @@ export function PaymentDialog({
           className="space-y-3"
         >
           <input type="hidden" name="personId" value={personId} />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <Label>Valor pago</Label>
               <Input name="amount" defaultValue="0,00" required />
             </div>
             <div>
               <Label>Data do pagamento</Label>
-              <Input
-                type="date"
-                name="paidAt"
+              <DatePicker
+name="paidAt"
                 defaultValue={formatDateInput(new Date())}
                 required
               />

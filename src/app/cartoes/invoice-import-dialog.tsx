@@ -110,7 +110,7 @@ export function InvoiceImportDialog({
               comuns (data, descrição/title, valor) em português ou inglês. Transações
               serão vinculadas automaticamente a este cartão.
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label>Arquivo CSV/XLSX do extrato</Label>
                 <Input
@@ -253,7 +253,7 @@ function PdfImportPanel({
         exporte em CSV/XLSX nesses casos.
       </p>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <Label>Arquivo PDF do extrato</Label>
           <Input
@@ -487,7 +487,7 @@ function CsvDiagnostics({ preview }: { preview: Extract<PreviewResult, { ok: tru
       </div>
 
       {validRows.length === 0 && (
-        <div className="rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-sm">
+        <div className="rounded-md border border-nummiq-warning/40 bg-nummiq-warning/10 p-3 text-sm">
           Lemos {preview.total} linhas, mas nenhuma tinha data/descrição/valor reconhecíveis.
           Confira as colunas detectadas acima e o exemplo de linhas brutas abaixo.
         </div>

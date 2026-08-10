@@ -102,7 +102,7 @@ export function AISettingsDialog({
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <Label>Temperatura</Label>
               <Input
@@ -129,7 +129,7 @@ export function AISettingsDialog({
             <div
               className={`rounded-md border p-2 text-sm ${
                 test.ok
-                  ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+                  ? "border-nummiq-success/40 bg-nummiq-success/10 text-nummiq-success"
                   : "border-destructive/40 bg-destructive/10 text-destructive"
               }`}
             >

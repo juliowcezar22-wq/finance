@@ -7,7 +7,7 @@ import { useTransition } from "react";
 import { X, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { visibleNavItems, type UserLike } from "./nav-items";
-import { BugiaSymbol } from "./mascot";
+import { NummiqLogo } from "./brand";
 import { ThemeToggle } from "./theme-toggle";
 import { logoutAction } from "@/lib/actions/auth";
 
@@ -50,19 +50,15 @@ export function MobileMenu({
           style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
         >
           {/* Cabeçalho */}
-          <div className="flex items-center justify-between gap-3 border-b px-4 py-3.5">
+          <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-4">
             <div className="flex items-center gap-2.5 min-w-0">
-              <BugiaSymbol size={32} />
-              <div className="min-w-0">
-                <Dialog.Title className="text-base font-bold leading-none tracking-tight">
-                  Bugia <span className="text-primary">Finance</span>
-                </Dialog.Title>
-                <Dialog.Description className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground mt-1">
-                  Menu
-                </Dialog.Description>
-              </div>
+              <NummiqLogo />
+              <Dialog.Title className="sr-only">Menu Nummiq</Dialog.Title>
+              <Dialog.Description className="sr-only">
+                Navegação principal
+              </Dialog.Description>
             </div>
-            <Dialog.Close className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground">
+            <Dialog.Close className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] text-nummiq-silver hover:bg-accent hover:text-nummiq-white">
               <X className="h-5 w-5" />
               <span className="sr-only">Fechar menu</span>
             </Dialog.Close>
@@ -79,13 +75,13 @@ export function MobileMenu({
                   href={it.href}
                   onClick={() => setOpen(false)}
                   className={cn(
-                    "flex items-center gap-3 rounded-lg px-3 min-h-[48px] text-[15px] font-medium transition-colors",
+                    "flex items-center gap-3 rounded-[10px] px-3 min-h-[48px] text-[15px] font-medium transition-colors",
                     active
-                      ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20"
-                      : "text-foreground/90 hover:bg-accent hover:text-accent-foreground"
+                      ? "bg-accent border border-border text-nummiq-white"
+                      : "border border-transparent text-nummiq-silver hover:bg-accent hover:text-nummiq-white"
                   )}
                 >
-                  <Icon className="h-5 w-5 shrink-0" />
+                  <Icon size={20} strokeWidth={1.75} className="shrink-0" />
                   {it.label}
                 </Link>
               );

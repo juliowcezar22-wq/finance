@@ -12,6 +12,10 @@ import {
   MobileEmpty,
 } from "@/components/ui/record-card";
 import { Filters } from "./filters";
+import { TransactionDialog } from "./transaction-dialog";
+import { TransactionRowActions } from "./row-actions";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 import { getViewer } from "@/lib/auth/viewer";
 
 type Search = {
@@ -58,7 +62,7 @@ export default async function TransacoesPage({ searchParams }: { searchParams: S
   if (searchParams.status) where.status = searchParams.status;
   if (searchParams.tipo) where.type = searchParams.tipo;
 
-  const [transactions, cards, people, categories] = await Promise.all([
+  const [transactions, cards, people, categories, accounts] = await Promise.all([
     prisma.transaction.findMany({
       where,
       orderBy: { date: "desc" },
@@ -68,13 +72,27 @@ export default async function TransacoesPage({ searchParams }: { searchParams: S
     prisma.creditCard.findMany({ orderBy: { name: "asc" } }),
     prisma.person.findMany({ orderBy: { name: "asc" } }),
     prisma.category.findMany({ orderBy: { name: "asc" } }),
+    prisma.account.findMany({ orderBy: { name: "asc" } }),
   ]);
 
   return (
     <div>
       <PageHeader
-        title="Movimentações"
-        description="Histórico de todas as movimentações feitas na plataforma."
+        title="Transações"
+        description="Histórico de todas as transações da sua conta."
+        actions={
+          <TransactionDialog
+            cards={cards}
+            people={people}
+            categories={categories}
+            accounts={accounts}
+            trigger={
+              <Button>
+                <Plus className="h-4 w-4 mr-1" /> Nova transação
+              </Button>
+            }
+          />
+        }
       />
 
       <Card className="mb-4">
@@ -95,15 +113,16 @@ export default async function TransacoesPage({ searchParams }: { searchParams: S
                 <TableHead>Categoria</TableHead>
                 <TableHead>Cartão / Conta</TableHead>
                 <TableHead>Pessoa</TableHead>
-                <TableHead>Pertence a</TableHead>
+                <TableHead>Grupo</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Valor</TableHead>
+                <TableHead className="w-10" />
               </TableRow>
             </TableHeader>
             <TableBody>
               {transactions.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={9} className="text-center text-muted-foreground py-8">
                     Nenhuma transação encontrada.
                   </TableCell>
                 </TableRow>
@@ -119,9 +138,18 @@ export default async function TransacoesPage({ searchParams }: { searchParams: S
                   <TableCell>
                     <Badge variant={statusVariant(t.status)}>{t.status}</Badge>
                   </TableCell>
-                  <TableCell className={`text-right font-medium ${t.type === "receita" ? "text-emerald-600" : ""}`}>
+                  <TableCell className={`text-right font-medium ${t.type === "receita" ? "text-nummiq-success" : ""}`}>
                     {t.type === "despesa" ? "-" : "+"}
                     {formatBRL(t.amount)}
+                  </TableCell>
+                  <TableCell>
+                    <TransactionRowActions
+                      tx={t}
+                      cards={cards}
+                      people={people}
+                      categories={categories}
+                      accounts={accounts}
+                    />
                   </TableCell>
                 </TableRow>
               ))}
@@ -141,7 +169,7 @@ export default async function TransacoesPage({ searchParams }: { searchParams: S
                     aside={
                       <span
                         className={`font-semibold ${
-                          t.type === "receita" ? "text-emerald-600" : ""
+                          t.type === "receita" ? "text-nummiq-success" : ""
                         }`}
                       >
                         {t.type === "despesa" ? "-" : "+"}
@@ -160,9 +188,18 @@ export default async function TransacoesPage({ searchParams }: { searchParams: S
                       {t.card?.name ?? t.account?.name ?? "—"}
                     </Field>
                     <Field label="Pessoa">{t.responsible?.name ?? "—"}</Field>
-                    <Field label="Pertence a">
+                    <Field label="Grupo">
                       <span className="capitalize">{t.belongsTo}</span>
                     </Field>
+                  </div>
+                  <div className="flex justify-end pt-1">
+                    <TransactionRowActions
+                      tx={t}
+                      cards={cards}
+                      people={people}
+                      categories={categories}
+                      accounts={accounts}
+                    />
                   </div>
                 </MobileCard>
               ))

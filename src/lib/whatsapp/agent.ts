@@ -36,7 +36,7 @@ export async function runAgent(input: {
   const memory = await loadMemoryText();
   const today = new Date().toISOString().slice(0, 10);
 
-  const system = `Você é o "Bugia", agente financeiro do app Bugia Finance operando no WhatsApp.
+  const system = `Você é o "Nummiq", agente financeiro do app Nummiq operando no WhatsApp.
 Interprete a mensagem (ou a imagem de comprovante/nota) do usuário e decida UMA ação.
 Responda SOMENTE com um JSON válido (sem texto fora do JSON), no formato:
 {"action":"add_expense|add_income|add_cashbox|add_cash_movement|query|smalltalk","fields":{...},"reply":"mensagem curta e amigável em pt-BR"}

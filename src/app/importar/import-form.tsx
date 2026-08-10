@@ -173,7 +173,7 @@ function PdfAutoPanel({ cards }: { cards: any[] }) {
       )}
 
       {needsPassword && (
-        <div className="rounded-md border border-amber-400/50 bg-amber-400/10 p-3 space-y-2">
+        <div className="rounded-md border border-nummiq-warning/50 bg-nummiq-warning/10 p-3 space-y-2">
           <p className="text-sm font-medium">🔒 Fatura protegida por senha</p>
           <p className="text-xs text-muted-foreground">
             {preview && preview.ok === false ? preview.error : ""}
@@ -284,11 +284,11 @@ function PdfAutoPanel({ cards }: { cards: any[] }) {
                 <NewBankAccountDialog onCreated={onAccountCreated} />
               </div>
               {preview.suggestedCardId ? (
-                <p className="text-xs text-emerald-600 mt-1">
+                <p className="text-xs text-nummiq-success mt-1">
                   Conta sugerida automaticamente pelo banco da fatura.
                 </p>
               ) : (
-                <p className="text-xs text-amber-600 mt-1">
+                <p className="text-xs text-nummiq-warning mt-1">
                   Não foi possível casar com uma conta automaticamente — selecione ou crie uma.
                 </p>
               )}
@@ -334,7 +334,7 @@ function PdfAutoPanel({ cards }: { cards: any[] }) {
             const diff = Math.abs(soma - tot);
             if (diff <= Math.max(tot * 0.02, 1)) return null;
             return (
-              <div className="rounded-md border border-amber-400/50 bg-amber-400/10 p-3 text-xs space-y-1">
+              <div className="rounded-md border border-nummiq-warning/50 bg-nummiq-warning/10 p-3 text-xs space-y-1">
                 <p className="font-medium">⚠️ A soma das transações não bate com o total da fatura</p>
                 <p className="text-muted-foreground">
                   Soma lida: {formatBRL(soma)} · Total do documento: {formatBRL(tot)} · Diferença: {formatBRL(diff)}.
@@ -615,7 +615,7 @@ function NewBankAccountDialog({
               setOpen(false);
             })
           }
-          className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+          className="grid grid-cols-1 sm:grid-cols-2 gap-4"
         >
           <div className="col-span-2">
             <Label>Nome</Label>

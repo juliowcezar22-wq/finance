@@ -10,6 +10,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -50,7 +51,7 @@ export function IncomeDialog({
             await saveIncome(fd);
             setOpen(false);
           }}
-          className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+          className="grid grid-cols-1 sm:grid-cols-2 gap-4"
         >
           {initial?.id && <input type="hidden" name="id" value={initial.id} />}
 
@@ -69,9 +70,8 @@ export function IncomeDialog({
           </div>
           <div>
             <Label>Data de recebimento</Label>
-            <Input
-              type="date"
-              name="receivedAt"
+            <DatePicker
+name="receivedAt"
               defaultValue={
                 initial?.receivedAt
                   ? formatDateInput(initial.receivedAt)
@@ -82,7 +82,7 @@ export function IncomeDialog({
           </div>
 
           <div>
-            <Label>Origem</Label>
+            <Label>Forma de recebimento</Label>
             <Select name="sourceType" defaultValue={initial?.sourceType ?? "BANK_ACCOUNT"}>
               <option value="BANK_ACCOUNT">Conta bancária</option>
               <option value="PIX">Pix</option>

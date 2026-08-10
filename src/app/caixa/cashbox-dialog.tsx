@@ -31,13 +31,13 @@ export function CashBoxDialog({
       <DialogTrigger asChild>
         {trigger ?? (
           <Button>
-            <Plus className="h-4 w-4 mr-1" /> Novo caixa
+            <Plus className="h-4 w-4 mr-1" /> Nova reserva
           </Button>
         )}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{initial ? "Editar caixa" : "Novo caixa"}</DialogTitle>
+          <DialogTitle>{initial ? "Editar reserva" : "Nova reserva"}</DialogTitle>
         </DialogHeader>
         <form
           action={async (fd) => {
@@ -51,7 +51,7 @@ export function CashBoxDialog({
             <Label>Nome</Label>
             <Input name="name" defaultValue={initial?.name ?? ""} required />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <Label>Valor atual</Label>
               <Input
@@ -75,13 +75,11 @@ export function CashBoxDialog({
               <option value="PERSONAL">Caixa pessoal</option>
               <option value="EMERGENCY">Reserva de emergência</option>
               <option value="INVESTMENT">Investimento</option>
-              <option value="COMPANY">Empresa</option>
-              <option value="GOAL">Objetivo específico</option>
-              <option value="OTHER">Outro</option>
+              <option value="COMPANY">Empresa</option>              <option value="OTHER">Outro</option>
             </Select>
           </div>
           <div>
-            <Label>Conta vinculada (opcional)</Label>
+            <Label>Conta (opcional)</Label>
             <Select name="accountId" defaultValue={initial?.accountId ?? ""}>
               <option value="">—</option>
               {accounts.map((a) => (

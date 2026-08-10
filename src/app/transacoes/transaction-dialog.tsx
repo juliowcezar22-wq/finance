@@ -10,6 +10,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -53,16 +54,14 @@ export function TransactionDialog({
             await saveTransaction(fd);
             setOpen(false);
           }}
-          className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+          className="grid grid-cols-1 sm:grid-cols-2 gap-4"
         >
           {initial?.id && <input type="hidden" name="id" value={initial.id} />}
 
           <div className="col-span-1">
             <Label>Data</Label>
-            <Input
-              name="date"
-              type="date"
-              defaultValue={initial?.date ? formatDateInput(initial.date) : formatDateInput(new Date())}
+            <DatePicker
+              name="date"defaultValue={initial?.date ? formatDateInput(initial.date) : formatDateInput(new Date())}
               required
             />
           </div>
@@ -159,7 +158,7 @@ export function TransactionDialog({
           </div>
 
           <div>
-            <Label>Pertence a</Label>
+            <Label>Grupo</Label>
             <Select name="belongsTo" defaultValue={initial?.belongsTo ?? "pessoal"}>
               <option value="pessoal">Pessoal</option>
               <option value="empresa">Empresa</option>

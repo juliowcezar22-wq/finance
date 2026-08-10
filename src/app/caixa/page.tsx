@@ -41,15 +41,15 @@ export default async function CaixaPage() {
   return (
     <div>
       <PageHeader
-        title="Caixa"
+        title="Reservas"
         description="Gerencie o dinheiro que você guarda e separa"
         actions={<CashBoxDialog accounts={accounts} />}
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-        <StatCard title="Total em caixa" value={formatBRL(totalCaixa)} intent="positive" />
+        <StatCard title="Total guardado" value={formatBRL(totalCaixa)} intent="positive" />
         <StatCard title="Reserva de emergência" value={formatBRL(totalReserva)} />
-        <StatCard title="Quantidade de caixas" value={String(boxes.length)} />
+        <StatCard title="Quantidade de reservas" value={String(boxes.length)} />
       </div>
 
       {boxes.length === 0 && (
@@ -80,7 +80,7 @@ export default async function CaixaPage() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <div>
-                  <p className="text-2xl font-bold text-emerald-600">
+                  <p className="text-2xl font-bold text-nummiq-success">
                     {formatBRL(box.currentAmount)}
                   </p>
                   {box.targetAmount && toNum(box.targetAmount) > 0 && (
@@ -123,7 +123,7 @@ export default async function CaixaPage() {
                           <span className="flex shrink-0 items-center gap-1">
                             <span
                               className={
-                                m.type === "IN" ? "text-emerald-600" : "text-red-600"
+                                m.type === "IN" ? "text-nummiq-success" : "text-nummiq-danger"
                               }
                             >
                               {m.type === "IN" ? "+" : "-"}

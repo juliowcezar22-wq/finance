@@ -1,68 +1,60 @@
-import { BugiaSymbol, BugiaMascot } from "@/components/mascot";
+import { NummiqLogo, NummiqSymbol } from "@/components/brand";
 import { LoginForm } from "./login-form";
 
 export const metadata = {
-  title: "Entrar — Bugia Finance",
+  title: "Entrar — Nummiq",
 };
 
+// Login institucional (DS §66). Split escuro/prateado, sem mascote.
 export default function LoginPage() {
   return (
-    <div className="dark min-h-screen app-shell flex items-center justify-center p-6 text-foreground">
-      <div className="w-full max-w-4xl grid lg:grid-cols-2 gap-10 items-center">
-        {/* Lado esquerdo: mascote em destaque (desktop) */}
-        <div className="hidden lg:flex flex-col items-center text-center gap-5">
-          <div className="relative">
-            <div className="absolute inset-0 -z-10 blur-3xl bg-primary/25 rounded-full scale-90" />
-            <BugiaMascot pose="hero" width={300} className="relative drop-shadow-2xl" />
+    <div className="dark min-h-screen bg-nummiq-black text-foreground grid lg:grid-cols-2">
+      {/* Lado institucional (desktop) */}
+      <div className="relative hidden lg:flex flex-col justify-between overflow-hidden border-r border-border p-12">
+        {/* Composição abstrata prateada, discreta (DS §66/§70) */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 -z-10 opacity-[0.04]"
+          style={{ background: "var(--nq-gradient-metal)" }}
+        />
+        <NummiqLogo size={34} />
+        <div className="max-w-md">
+          <h1 className="text-4xl font-semibold leading-tight tracking-tight text-nummiq-white">
+            Precisão financeira,
+            <br />
+            <span className="text-metal">sob controle.</span>
+          </h1>
+          <p className="mt-4 text-sm leading-relaxed text-nummiq-silver">
+            Patrimônio, receitas, despesas e metas em uma interface escura,
+            sofisticada e silenciosa. Suas finanças com clareza.
+          </p>
+        </div>
+        <p className="text-[11px] uppercase tracking-[0.2em] text-nummiq-muted">
+          Inteligência financeira
+        </p>
+      </div>
+
+      {/* Lado do formulário */}
+      <div className="flex items-center justify-center p-6">
+        <div className="w-full max-w-sm">
+          {/* Marca no topo (mobile) */}
+          <div className="mb-8 flex justify-center lg:hidden">
+            <NummiqLogo size={34} />
           </div>
-          <div>
-            <div className="flex items-center justify-center gap-3">
-              <BugiaSymbol size={36} />
-              <h1 className="text-3xl font-bold tracking-tight leading-none">
-                Bugia <span className="text-primary">Finance</span>
-              </h1>
-            </div>
-            <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground mt-3">
-              Inteligência financeira. Liberdade real.
+
+          <div className="mb-6">
+            <h2 className="text-2xl font-semibold tracking-tight text-nummiq-white">
+              Entrar
+            </h2>
+            <p className="mt-1 text-sm text-nummiq-silver">
+              Acesse sua visão financeira com segurança.
             </p>
           </div>
-        </div>
 
-        {/* Lado direito: card de login */}
-        <div className="w-full max-w-md mx-auto">
-          <div className="rounded-2xl border bg-card shadow-xl overflow-hidden">
-            <div className="px-8 pt-8 pb-4 flex items-center gap-4 border-b lg:hidden">
-              <BugiaSymbol size={48} />
-              <div>
-                <h1 className="text-xl font-bold tracking-tight leading-none">
-                  Bugia <span className="text-primary">Finance</span>
-                </h1>
-                <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground mt-1.5">
-                  Inteligência financeira.
-                </p>
-              </div>
-            </div>
+          <LoginForm />
 
-            <div className="px-8 py-8 space-y-6">
-              {/* Mascote no mobile */}
-              <div className="lg:hidden flex justify-center">
-                <BugiaMascot pose="hero" width={150} className="drop-shadow-xl" />
-              </div>
-              <div>
-                <h2 className="text-lg font-semibold">Entrar na sua conta</h2>
-                <p className="text-sm text-muted-foreground">
-                  Acesse sua visão financeira com segurança.
-                </p>
-              </div>
-              <LoginForm />
-            </div>
-
-            <div className="px-8 py-4 border-t bg-muted/30 text-[11px] text-muted-foreground flex items-center justify-between">
-              <span>v1.0 · Rebrand</span>
-              <span className="text-gold">★ premium</span>
-            </div>
-          </div>
-          <p className="text-center text-[11px] text-muted-foreground mt-4">
+          <p className="mt-8 flex items-center justify-center gap-2 text-[11px] text-nummiq-muted">
+            <NummiqSymbol size={14} />
             Acesso restrito · use suas credenciais cadastradas.
           </p>
         </div>

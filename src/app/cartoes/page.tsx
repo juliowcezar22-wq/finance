@@ -47,7 +47,7 @@ export default async function CartoesPage() {
 
   return (
     <div>
-      <PageHeader title="Contas bancárias" actions={<CardDialog people={people} accounts={accounts} />} />
+      <PageHeader title="Cartões" actions={<CardDialog people={people} accounts={accounts} />} />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {enriched.map(({ card: c, used, available, futureInstallments }) => {
@@ -78,7 +78,7 @@ export default async function CartoesPage() {
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
                     <p className="text-muted-foreground">Disponível</p>
-                    <p className="font-medium text-emerald-600">{formatBRL(available)}</p>
+                    <p className="font-medium text-nummiq-success">{formatBRL(available)}</p>
                   </div>
                   <div>
                     <p className="text-muted-foreground">Parcelas futuras (estimativa)</p>
