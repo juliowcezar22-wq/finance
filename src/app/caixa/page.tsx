@@ -41,15 +41,15 @@ export default async function CaixaPage() {
   return (
     <div>
       <PageHeader
-        title="Caixa"
+        title="Reservas"
         description="Gerencie o dinheiro que você guarda e separa"
         actions={<CashBoxDialog accounts={accounts} />}
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-        <StatCard title="Total em caixa" value={formatBRL(totalCaixa)} intent="positive" />
+        <StatCard title="Total guardado" value={formatBRL(totalCaixa)} intent="positive" />
         <StatCard title="Reserva de emergência" value={formatBRL(totalReserva)} />
-        <StatCard title="Quantidade de caixas" value={String(boxes.length)} />
+        <StatCard title="Quantidade de reservas" value={String(boxes.length)} />
       </div>
 
       {boxes.length === 0 && (

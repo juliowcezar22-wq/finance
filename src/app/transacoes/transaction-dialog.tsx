@@ -159,7 +159,7 @@ export function TransactionDialog({
           </div>
 
           <div>
-            <Label>Pertence a</Label>
+            <Label>Grupo</Label>
             <Select name="belongsTo" defaultValue={initial?.belongsTo ?? "pessoal"}>
               <option value="pessoal">Pessoal</option>
               <option value="empresa">Empresa</option>

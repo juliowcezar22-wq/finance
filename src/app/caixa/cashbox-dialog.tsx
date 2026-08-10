@@ -31,13 +31,13 @@ export function CashBoxDialog({
       <DialogTrigger asChild>
         {trigger ?? (
           <Button>
-            <Plus className="h-4 w-4 mr-1" /> Novo caixa
+            <Plus className="h-4 w-4 mr-1" /> Nova reserva
           </Button>
         )}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{initial ? "Editar caixa" : "Novo caixa"}</DialogTitle>
+          <DialogTitle>{initial ? "Editar reserva" : "Nova reserva"}</DialogTitle>
         </DialogHeader>
         <form
           action={async (fd) => {
@@ -81,7 +81,7 @@ export function CashBoxDialog({
             </Select>
           </div>
           <div>
-            <Label>Conta vinculada (opcional)</Label>
+            <Label>Conta (opcional)</Label>
             <Select name="accountId" defaultValue={initial?.accountId ?? ""}>
               <option value="">—</option>
               {accounts.map((a) => (

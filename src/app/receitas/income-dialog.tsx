@@ -82,7 +82,7 @@ export function IncomeDialog({
           </div>
 
           <div>
-            <Label>Origem</Label>
+            <Label>Forma de recebimento</Label>
             <Select name="sourceType" defaultValue={initial?.sourceType ?? "BANK_ACCOUNT"}>
               <option value="BANK_ACCOUNT">Conta bancária</option>
               <option value="PIX">Pix</option>

@@ -52,7 +52,7 @@ function greeting(): string {
   return "Boa noite";
 }
 
-// Distribuição por categoria de gasto — barras platinum proporcionais.
+// Distribuição por grupo de gasto — barras platinum proporcionais.
 function Distribution({ items }: { items: { label: string; value: number }[] }) {
   const max = Math.max(1, ...items.map((i) => i.value));
   return (
@@ -149,7 +149,7 @@ export default async function DashboardPage({
           </span>
         </div>
         <p className="mt-2 text-xs text-nummiq-muted">
-          Sobra real: receitas recebidas − despesas pagas − faturas pagas
+          O que sobrou no mês: entradas recebidas menos saídas pagas
         </p>
       </Card>
 
@@ -182,7 +182,7 @@ export default async function DashboardPage({
         </Card>
         <Card className="p-5">
           <h2 className="mb-5 text-sm font-medium text-nummiq-white">
-            Distribuição por categoria
+            Distribuição por grupo
           </h2>
           <Distribution
             items={[
@@ -247,7 +247,7 @@ export default async function DashboardPage({
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card className="p-5">
           <p className="text-[11px] uppercase tracking-[0.14em] text-nummiq-muted">
-            Taxa de endividamento
+            Comprometimento da renda
           </p>
           <div className="mt-2 flex items-center gap-3">
             <span

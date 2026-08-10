@@ -95,7 +95,7 @@ export default async function TransacoesPage({ searchParams }: { searchParams: S
                 <TableHead>Categoria</TableHead>
                 <TableHead>Cartão / Conta</TableHead>
                 <TableHead>Pessoa</TableHead>
-                <TableHead>Pertence a</TableHead>
+                <TableHead>Grupo</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Valor</TableHead>
               </TableRow>
@@ -160,7 +160,7 @@ export default async function TransacoesPage({ searchParams }: { searchParams: S
                       {t.card?.name ?? t.account?.name ?? "—"}
                     </Field>
                     <Field label="Pessoa">{t.responsible?.name ?? "—"}</Field>
-                    <Field label="Pertence a">
+                    <Field label="Grupo">
                       <span className="capitalize">{t.belongsTo}</span>
                     </Field>
                   </div>

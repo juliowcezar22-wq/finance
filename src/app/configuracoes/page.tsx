@@ -36,7 +36,7 @@ export default async function ConfiguracoesPage() {
   return (
     <div>
       <PageHeader
-        title="Configurações"
+        title="Categorias"
         description="Categorias usadas para classificar transações e receitas."
         actions={<CategoryDialog />}
       />

@@ -43,9 +43,9 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/importar", label: "Importar", icon: Upload },
   { href: "/regras", label: "Regras", icon: Wand2 },
   { href: "/assistente", label: "Assistente", icon: Sparkles },
-  { href: "/whatsapp", label: "Agente IA", icon: MessageCircle, adminOnly: true },
+  { href: "/whatsapp", label: "WhatsApp", icon: MessageCircle, adminOnly: true },
   { href: "/usuarios", label: "Usuários", icon: ShieldCheck, adminOnly: true, footer: true },
-  { href: "/configuracoes", label: "Configurações", icon: Settings, adminOnly: true, footer: true },
+  { href: "/configuracoes", label: "Categorias", icon: Settings, adminOnly: true, footer: true },
 ];
 
 export type UserLike = { name: string; email: string; role: "ADMIN" | "USER" } | null;
