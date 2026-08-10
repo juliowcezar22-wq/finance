@@ -10,6 +10,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -51,9 +52,8 @@ export function PaymentDialog({
             </div>
             <div>
               <Label>Data do pagamento</Label>
-              <Input
-                type="date"
-                name="paidAt"
+              <DatePicker
+name="paidAt"
                 defaultValue={formatDateInput(new Date())}
                 required
               />

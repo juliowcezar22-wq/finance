@@ -1,6 +1,6 @@
 "use client";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { Input } from "@/components/ui/input";
+import { MonthPicker } from "@/components/ui/month-picker";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 
@@ -18,15 +18,12 @@ export function DashboardMonthFilter({ current }: { current: string }) {
   }
 
   return (
-    <div className="flex items-end gap-2 rounded-xl border bg-card px-3 py-2">
-      <div>
-        <Label className="text-xs text-muted-foreground">Mês de análise</Label>
-        <Input
-          type="month"
-          value={current}
-          onChange={(e) => update(e.target.value)}
-          className="mt-1"
-        />
+    <div className="flex items-end gap-2">
+      <div className="w-[200px]">
+        <Label className="text-xs text-nummiq-muted">Mês de análise</Label>
+        <div className="mt-1">
+          <MonthPicker value={current} onChange={update} />
+        </div>
       </div>
       <Button variant="outline" type="button" onClick={() => update("")}>
         Mês atual

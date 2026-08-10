@@ -10,6 +10,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -67,9 +68,8 @@ export function GoalDialog({ initial, trigger }: { initial?: any; trigger?: Reac
           </div>
           <div className="col-span-2">
             <Label>Prazo</Label>
-            <Input
-              type="date"
-              name="deadline"
+            <DatePicker
+name="deadline"
               defaultValue={initial?.deadline ? formatDateInput(initial.deadline) : ""}
             />
           </div>

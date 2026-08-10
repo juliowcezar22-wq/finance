@@ -10,6 +10,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -59,10 +60,8 @@ export function TransactionDialog({
 
           <div className="col-span-1">
             <Label>Data</Label>
-            <Input
-              name="date"
-              type="date"
-              defaultValue={initial?.date ? formatDateInput(initial.date) : formatDateInput(new Date())}
+            <DatePicker
+              name="date"defaultValue={initial?.date ? formatDateInput(initial.date) : formatDateInput(new Date())}
               required
             />
           </div>
