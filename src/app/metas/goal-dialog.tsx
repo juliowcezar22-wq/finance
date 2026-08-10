@@ -50,9 +50,7 @@ export function GoalDialog({ initial, trigger }: { initial?: any; trigger?: Reac
             <Select name="type" defaultValue={initial?.type ?? "economia"}>
               <option value="economia">Economia</option>
               <option value="quitacao">Quitação</option>
-              <option value="investimento">Investimento</option>
-              <option value="reserva">Reserva</option>
-            </Select>
+              <option value="investimento">Investimento</option>            </Select>
           </div>
           <div>
             <Label>Prioridade (1-5)</Label>

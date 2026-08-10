@@ -75,9 +75,7 @@ export function CashBoxDialog({
               <option value="PERSONAL">Caixa pessoal</option>
               <option value="EMERGENCY">Reserva de emergência</option>
               <option value="INVESTMENT">Investimento</option>
-              <option value="COMPANY">Empresa</option>
-              <option value="GOAL">Objetivo específico</option>
-              <option value="OTHER">Outro</option>
+              <option value="COMPANY">Empresa</option>              <option value="OTHER">Outro</option>
             </Select>
           </div>
           <div>
