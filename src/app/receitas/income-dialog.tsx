@@ -71,10 +71,10 @@ export function IncomeDialog({
           <div>
             <Label>Data de recebimento</Label>
             <DatePicker
-name="receivedAt"
+              name="date"
               defaultValue={
-                initial?.receivedAt
-                  ? formatDateInput(initial.receivedAt)
+                initial?.date
+                  ? formatDateInput(initial.date)
                   : formatDateInput(new Date())
               }
               required
@@ -83,11 +83,10 @@ name="receivedAt"
 
           <div>
             <Label>Forma de recebimento</Label>
-            <Select name="sourceType" defaultValue={initial?.sourceType ?? "BANK_ACCOUNT"}>
-              <option value="BANK_ACCOUNT">Conta bancária</option>
-              <option value="PIX">Pix</option>
-              <option value="TRANSFER">Transferência</option>
-              <option value="CASH">Dinheiro em espécie</option>
+            <Select name="origin" defaultValue={initial?.origin ?? "debito"}>
+              <option value="debito">Conta bancária</option>
+              <option value="pix">Pix</option>
+              <option value="dinheiro">Dinheiro em espécie</option>
             </Select>
             <p className="text-xs text-muted-foreground mt-1">
               Receita não pode entrar em cartão de crédito.
@@ -119,7 +118,7 @@ name="receivedAt"
 
           <div>
             <Label>Pessoa relacionada</Label>
-            <Select name="personId" defaultValue={initial?.personId ?? ""}>
+            <Select name="responsibleId" defaultValue={initial?.responsibleId ?? ""}>
               <option value="">—</option>
               {people.map((p) => (
                 <option key={p.id} value={p.id}>
@@ -143,10 +142,10 @@ name="receivedAt"
 
           <div>
             <Label>Status</Label>
-            <Select name="status" defaultValue={initial?.status ?? "RECEIVED"}>
-              <option value="RECEIVED">Recebido</option>
-              <option value="EXPECTED">Previsto</option>
-              <option value="LATE">Atrasado</option>
+            <Select name="status" defaultValue={initial?.status ?? "pago"}>
+              <option value="pago">Recebido</option>
+              <option value="pendente">Previsto</option>
+              <option value="cancelado">Cancelado</option>
             </Select>
           </div>
 
