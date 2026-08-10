@@ -102,7 +102,7 @@ export default async function CartoesPage() {
         })}
         {enriched.length === 0 && (
           <Card>
-            <CardContent className="p-6 text-sm text-muted-foreground">Nenhuma conta bancária cadastrada.</CardContent>
+            <CardContent className="p-6 text-sm text-muted-foreground">Nenhum cartão cadastrado.</CardContent>
           </Card>
         )}
       </div>

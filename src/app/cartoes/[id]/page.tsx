@@ -182,7 +182,7 @@ export default async function CardDetailPage({
     <div>
       <div className="mb-2">
         <Link href="/cartoes" className="text-sm text-muted-foreground hover:underline inline-flex items-center gap-1">
-          <ArrowLeft className="h-3 w-3" /> Voltar para contas bancárias
+          <ArrowLeft className="h-3 w-3" /> Voltar para cartões
         </Link>
       </div>
       <PageHeader
