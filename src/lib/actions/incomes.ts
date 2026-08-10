@@ -5,89 +5,83 @@ import { z } from "zod";
 import { parseBRL, parseDateBR } from "@/lib/format";
 import { getViewer } from "@/lib/auth/viewer";
 
-const SOURCE_TYPES = ["BANK_ACCOUNT", "PIX", "TRANSFER", "CASH"] as const;
+// #1 Unificação: receitas vivem em Transaction (type=receita).
+const ORIGINS = ["debito", "pix", "dinheiro", "boleto", "cartao"] as const;
 const INCOME_TYPES = [
-  "SALARY",
-  "EARNINGS",
-  "COMPANY_WITHDRAWAL",
-  "SALE",
-  "OTHER",
-  // Legados (mantidos para compatibilidade com registros antigos)
-  "CLIENT",
-  "REIMBURSEMENT",
-  "LOAN_RECEIVED",
+  "SALARY", "EARNINGS", "COMPANY_WITHDRAWAL", "SALE", "OTHER",
+  "CLIENT", "REIMBURSEMENT", "LOAN_RECEIVED",
 ] as const;
-const STATUS = ["RECEIVED", "EXPECTED", "LATE", "CANCELED"] as const;
+const STATUS = ["pago", "pendente", "cancelado"] as const;
 
 const Schema = z.object({
   id: z.string().optional(),
   description: z.string().min(1, "Descrição obrigatória"),
   amount: z.number().nonnegative(),
-  receivedAt: z.date(),
-  sourceType: z.enum(SOURCE_TYPES),
+  date: z.date(),
+  origin: z.enum(ORIGINS),
   incomeType: z.enum(INCOME_TYPES),
   status: z.enum(STATUS),
   accountId: z.string().nullable().optional(),
-  personId: z.string().nullable().optional(),
+  responsibleId: z.string().nullable().optional(),
   categoryId: z.string().nullable().optional(),
   notes: z.string().nullable().optional(),
 });
 
 export async function saveIncome(formData: FormData) {
   await getViewer();
-  const receivedAt =
-    parseDateBR(String(formData.get("receivedAt") || "")) ?? new Date();
+  const date = parseDateBR(String(formData.get("date") || "")) ?? new Date();
 
   const parsed = Schema.parse({
     id: formData.get("id") || undefined,
     description: String(formData.get("description") || ""),
     amount: parseBRL(String(formData.get("amount") || "0")),
-    receivedAt,
-    sourceType: String(formData.get("sourceType") || "BANK_ACCOUNT"),
+    date,
+    origin: String(formData.get("origin") || "debito"),
     incomeType: String(formData.get("incomeType") || "OTHER"),
-    status: String(formData.get("status") || "RECEIVED"),
+    status: String(formData.get("status") || "pago"),
     accountId: (formData.get("accountId") as string) || null,
-    personId: (formData.get("personId") as string) || null,
+    responsibleId: (formData.get("responsibleId") as string) || null,
     categoryId: (formData.get("categoryId") as string) || null,
     notes: (formData.get("notes") as string) || null,
   });
 
   const data = {
+    type: "receita",
     description: parsed.description,
     amount: parsed.amount,
-    receivedAt: parsed.receivedAt,
-    sourceType: parsed.sourceType,
+    date: parsed.date,
+    origin: parsed.origin,
     incomeType: parsed.incomeType,
     status: parsed.status,
+    belongsTo: "pessoal",
     accountId: parsed.accountId,
-    personId: parsed.personId,
+    responsibleId: parsed.responsibleId,
     categoryId: parsed.categoryId,
     notes: parsed.notes,
   };
 
   if (parsed.id) {
-    await prisma.income.update({ where: { id: parsed.id }, data });
+    await prisma.transaction.update({ where: { id: parsed.id }, data });
   } else {
-    await prisma.income.create({ data });
+    await prisma.transaction.create({ data });
   }
 
   revalidatePath("/receitas");
+  revalidatePath("/transacoes");
   revalidatePath("/dashboard");
 }
 
 export async function deleteIncome(id: string) {
   await getViewer();
-  await prisma.income.delete({ where: { id } });
+  await prisma.transaction.delete({ where: { id } });
   revalidatePath("/receitas");
+  revalidatePath("/transacoes");
   revalidatePath("/dashboard");
 }
 
-export async function setIncomeStatus(
-  id: string,
-  status: (typeof STATUS)[number]
-) {
+export async function setIncomeStatus(id: string, status: (typeof STATUS)[number]) {
   await getViewer();
-  await prisma.income.update({ where: { id }, data: { status } });
+  await prisma.transaction.update({ where: { id }, data: { status } });
   revalidatePath("/receitas");
   revalidatePath("/dashboard");
 }

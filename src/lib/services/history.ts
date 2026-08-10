@@ -57,14 +57,10 @@ export async function getMonthlyHistory(maxMonths = 12): Promise<MonthlyHistory>
   });
   const rangeStart = months[0].start;
 
-  const [incomes, txs, movements] = await Promise.all([
-    prisma.income.findMany({
-      where: { status: "RECEIVED", receivedAt: { gte: rangeStart } },
-      select: { receivedAt: true, amount: true },
-    }),
+  const [txs, movements] = await Promise.all([
     prisma.transaction.findMany({
       where: { type: { in: ["despesa", "receita"] }, status: { not: "cancelado" }, date: { gte: rangeStart } },
-      select: { date: true, amount: true, type: true },
+      select: { date: true, amount: true, type: true, status: true },
     }),
     prisma.cashBoxMovement.findMany({ select: { date: true, amount: true, type: true } }),
   ]);
@@ -74,15 +70,11 @@ export async function getMonthlyHistory(maxMonths = 12): Promise<MonthlyHistory>
 
   const idxOf = (d: Date) => months.findIndex((m) => d >= m.start && d < m.end);
 
-  for (const inc of incomes) {
-    const i = idxOf(inc.receivedAt);
-    if (i >= 0) receitas[i] += toNum(inc.amount);
-  }
   for (const t of txs) {
     const i = idxOf(t.date);
     if (i < 0) continue;
     if (t.type === "despesa") despesas[i] += toNum(t.amount);
-    else receitas[i] += toNum(t.amount);
+    else if (t.status === "pago") receitas[i] += toNum(t.amount);
   }
 
   const caixa = months.map((m) => {

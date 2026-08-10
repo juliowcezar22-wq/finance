@@ -139,15 +139,20 @@ ${snapshot}${memory ? "\n\n===== MEMÓRIA =====\n" + memory : ""}`;
       }
 
       case "add_income": {
-        const inc = await prisma.income.create({
+        // #1 Unificação: receita vira Transaction(type=receita).
+        const src = String(f.sourceType || "BANK_ACCOUNT");
+        const origin = src === "PIX" ? "pix" : src === "CASH" ? "dinheiro" : "debito";
+        const inc = await prisma.transaction.create({
           data: {
+            type: "receita",
             description: String(f.description || "Receita"),
             amount: num(f.amount),
-            receivedAt: parseDate(f.receivedAt),
-            sourceType: f.sourceType || "BANK_ACCOUNT",
+            date: parseDate(f.receivedAt),
+            origin,
             incomeType: f.incomeType || "OTHER",
-            status: f.status === "EXPECTED" ? "EXPECTED" : "RECEIVED",
-            personId: findPerson(f.personName)?.id ?? null,
+            status: f.status === "EXPECTED" ? "pendente" : "pago",
+            belongsTo: "pessoal",
+            responsibleId: findPerson(f.personName)?.id ?? null,
             categoryId: findCat(f.categoryName)?.id ?? null,
           },
         });

@@ -34,11 +34,13 @@ type Search = {
   pessoa?: string;
 };
 
-const SOURCE_LABEL: Record<string, string> = {
-  BANK_ACCOUNT: "Conta bancária",
-  PIX: "Pix",
-  TRANSFER: "Transferência",
-  CASH: "Dinheiro",
+// #1 Unificação: receitas = Transaction(type=receita). Vocabulário do Transaction.
+const ORIGIN_LABEL: Record<string, string> = {
+  debito: "Conta bancária",
+  pix: "Pix",
+  dinheiro: "Dinheiro",
+  boleto: "Boleto",
+  cartao: "Cartão",
 };
 
 const TYPE_LABEL: Record<string, string> = {
@@ -47,46 +49,43 @@ const TYPE_LABEL: Record<string, string> = {
   COMPANY_WITHDRAWAL: "Retirada da empresa",
   SALE: "Venda",
   OTHER: "Outro",
-  // Legados
   CLIENT: "Cliente",
   REIMBURSEMENT: "Reembolso",
   LOAN_RECEIVED: "Empréstimo recebido",
 };
 
 const STATUS_LABEL: Record<string, string> = {
-  RECEIVED: "Recebido",
-  EXPECTED: "Previsto",
-  LATE: "Atrasado",
-  CANCELED: "Cancelado",
+  pago: "Recebido",
+  pendente: "Previsto",
+  cancelado: "Cancelado",
 };
 
 function statusVariant(s: string): any {
-  if (s === "RECEIVED") return "success";
-  if (s === "LATE") return "destructive";
-  if (s === "EXPECTED") return "warning";
+  if (s === "pago") return "success";
+  if (s === "pendente") return "warning";
   return "secondary";
 }
 
 export default async function ReceitasPage({ searchParams }: { searchParams: Search }) {
   await getViewer();
-  const where: any = {};
+  const where: any = { type: "receita" };
   if (searchParams.mes) {
     const [y, m] = searchParams.mes.split("-").map(Number);
     if (y && m) {
       const ref = new Date(y, m - 1, 1);
       const { start, end } = monthRange(ref);
-      where.receivedAt = { gte: start, lt: end };
+      where.date = { gte: start, lt: end };
     }
   }
   if (searchParams.status) where.status = searchParams.status;
-  if (searchParams.origem) where.sourceType = searchParams.origem;
-  if (searchParams.pessoa) where.personId = searchParams.pessoa;
+  if (searchParams.origem) where.origin = searchParams.origem;
+  if (searchParams.pessoa) where.responsibleId = searchParams.pessoa;
 
   const [incomes, accounts, people, categories] = await Promise.all([
-    prisma.income.findMany({
+    prisma.transaction.findMany({
       where,
-      orderBy: { receivedAt: "desc" },
-      include: { account: true, person: true, category: true },
+      orderBy: { date: "desc" },
+      include: { account: true, responsible: true, category: true },
       take: 200,
     }),
     prisma.account.findMany({ orderBy: { name: "asc" } }),
@@ -104,18 +103,15 @@ export default async function ReceitasPage({ searchParams }: { searchParams: Sea
     if (y && m) ref = new Date(y, m - 1, 1);
   }
   const { start, end } = monthRange(ref);
-  const monthIncomes = await prisma.income.findMany({
-    where: { receivedAt: { gte: start, lt: end } },
+  const monthIncomes = await prisma.transaction.findMany({
+    where: { type: "receita", date: { gte: start, lt: end } },
     select: { amount: true, status: true },
   });
   const totalRecebido = monthIncomes
-    .filter((i) => i.status === "RECEIVED")
+    .filter((i) => i.status === "pago")
     .reduce((s, i) => s + toNum(i.amount), 0);
   const totalPrevisto = monthIncomes
-    .filter((i) => i.status === "EXPECTED")
-    .reduce((s, i) => s + toNum(i.amount), 0);
-  const totalAtrasado = monthIncomes
-    .filter((i) => i.status === "LATE")
+    .filter((i) => i.status === "pendente")
     .reduce((s, i) => s + toNum(i.amount), 0);
 
   return (
@@ -134,10 +130,9 @@ export default async function ReceitasPage({ searchParams }: { searchParams: Sea
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
         <StatCard title="Recebido no mês" value={formatBRL(totalRecebido)} intent="positive" />
         <StatCard title="Previsto no mês" value={formatBRL(totalPrevisto)} intent="warning" />
-        <StatCard title="Atrasado" value={formatBRL(totalAtrasado)} intent="negative" />
       </div>
 
       <Card>
@@ -169,12 +164,12 @@ export default async function ReceitasPage({ searchParams }: { searchParams: Sea
               )}
               {incomes.map((i) => (
                 <TableRow key={i.id}>
-                  <TableCell>{formatDateBR(i.receivedAt)}</TableCell>
+                  <TableCell>{formatDateBR(i.date)}</TableCell>
                   <TableCell className="max-w-xs truncate">{i.description}</TableCell>
-                  <TableCell>{TYPE_LABEL[i.incomeType] ?? i.incomeType}</TableCell>
-                  <TableCell>{SOURCE_LABEL[i.sourceType] ?? i.sourceType}</TableCell>
+                  <TableCell>{i.incomeType ? TYPE_LABEL[i.incomeType] ?? i.incomeType : "—"}</TableCell>
+                  <TableCell>{ORIGIN_LABEL[i.origin] ?? i.origin}</TableCell>
                   <TableCell>{i.account?.name ?? "—"}</TableCell>
-                  <TableCell>{i.person?.name ?? "—"}</TableCell>
+                  <TableCell>{i.responsible?.name ?? "—"}</TableCell>
                   <TableCell>
                     <Badge variant={statusVariant(i.status)}>
                       {STATUS_LABEL[i.status] ?? i.status}
@@ -216,17 +211,17 @@ export default async function ReceitasPage({ searchParams }: { searchParams: Sea
                     }
                   />
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
-                    <span>{formatDateBR(i.receivedAt)}</span>
+                    <span>{formatDateBR(i.date)}</span>
                     <span aria-hidden>·</span>
-                    <span>{TYPE_LABEL[i.incomeType] ?? i.incomeType}</span>
+                    <span>{i.incomeType ? TYPE_LABEL[i.incomeType] ?? i.incomeType : "—"}</span>
                     <Badge variant={statusVariant(i.status)}>
                       {STATUS_LABEL[i.status] ?? i.status}
                     </Badge>
                   </div>
                   <div className="space-y-1.5">
-                    <Field label="Origem">{SOURCE_LABEL[i.sourceType] ?? i.sourceType}</Field>
+                    <Field label="Origem">{ORIGIN_LABEL[i.origin] ?? i.origin}</Field>
                     <Field label="Conta">{i.account?.name ?? "—"}</Field>
-                    <Field label="Pessoa">{i.person?.name ?? "—"}</Field>
+                    <Field label="Pessoa">{i.responsible?.name ?? "—"}</Field>
                   </div>
                   <MobileCardActions>
                     <IncomeActions

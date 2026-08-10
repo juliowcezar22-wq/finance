@@ -11,30 +11,23 @@ export async function totalDespesasMes(reference: Date = new Date()) {
   return toNum(result._sum.amount);
 }
 
+// #1 Unificação: receitas vivem em Transaction (type=receita). Recebidas = status "pago".
 export async function totalReceitasMes(reference: Date = new Date()) {
   const { start, end } = monthRange(reference);
-  const tx = await prisma.transaction.aggregate({
-    where: { type: "receita", date: { gte: start, lt: end }, status: { not: "cancelado" } },
+  const r = await prisma.transaction.aggregate({
+    where: { type: "receita", status: "pago", date: { gte: start, lt: end } },
     _sum: { amount: true },
   });
-  // Considera apenas receitas efetivamente recebidas no mês
-  const inc = await prisma.income.aggregate({
-    where: { receivedAt: { gte: start, lt: end }, status: "RECEIVED" },
-    _sum: { amount: true },
-  });
-  return toNum(tx._sum.amount) + toNum(inc._sum.amount);
+  return toNum(r._sum.amount);
 }
 
 export async function receitasPrevistasMes(reference: Date = new Date()) {
   const { start, end } = monthRange(reference);
-  const inc = await prisma.income.aggregate({
-    where: {
-      receivedAt: { gte: start, lt: end },
-      status: { in: ["EXPECTED", "LATE"] },
-    },
+  const r = await prisma.transaction.aggregate({
+    where: { type: "receita", status: "pendente", date: { gte: start, lt: end } },
     _sum: { amount: true },
   });
-  return toNum(inc._sum.amount);
+  return toNum(r._sum.amount);
 }
 
 export async function despesasPrevistasMes(reference: Date = new Date()) {
@@ -344,11 +337,12 @@ export async function getDashboardSummary(
     receitasPrevAgg,
   ] = await Promise.all([
     prisma.transaction.aggregate({
-      where: { type: "receita", date: { gte: start, lt: end }, status: { not: "cancelado" } },
+      where: { type: "receita", date: { gte: start, lt: end }, status: "pago" },
       _sum: { amount: true },
     }),
+    // #1 Unificação: receitas agora vivem em Transaction; mantido como 0 (Income legado).
     prisma.income.aggregate({
-      where: { receivedAt: { gte: start, lt: end }, status: "RECEIVED" },
+      where: { id: "__none__" },
       _sum: { amount: true },
     }),
     prisma.transaction.aggregate({
@@ -385,8 +379,8 @@ export async function getDashboardSummary(
       where: { status: "paga", dueDate: { gte: start, lt: end } },
       _sum: { paid: true },
     }),
-    prisma.income.aggregate({
-      where: { receivedAt: { gte: start, lt: end }, status: { in: ["EXPECTED", "LATE"] } },
+    prisma.transaction.aggregate({
+      where: { type: "receita", date: { gte: start, lt: end }, status: "pendente" },
       _sum: { amount: true },
     }),
   ]);

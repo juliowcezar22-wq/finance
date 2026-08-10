@@ -159,6 +159,8 @@ model Transaction {
   description     String
   amount          Decimal       @db.Decimal(12, 2) // sempre positivo; tipo define sinal
   type            String        @default("despesa") // despesa | receita | transferencia | ajuste
+  // Classificação da receita (só quando type=receita): SALARY | EARNINGS | SALE | ... (ex-Income.incomeType)
+  incomeType      String?
   origin          String        @default("cartao") // cartao | pix | debito | boleto | dinheiro
   cardId          String?
   card            CreditCard?   @relation(fields: [cardId], references: [id])
