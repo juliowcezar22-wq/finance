@@ -2,9 +2,11 @@
 
 const isProd = process.env.NODE_ENV === "production";
 
-// CSP inicial em REPORT-ONLY: não bloqueia (não quebra a UI redesenhada), só
-// reporta violações para endurecer depois com dados reais. 'unsafe-inline'
-// cobre os estilos/scripts inline do Next; será apertado numa etapa futura.
+// CSP inicial em REPORT-ONLY: não bloqueia (não quebra a UI redesenhada).
+// Sem endpoint de report (report-to/report-uri) as violações não são coletadas
+// centralmente — ficam visíveis no console do navegador (dev). Um coletor
+// (rota /api/csp-report) entra com a feature de observabilidade; depois disso
+// a CSP é promovida a enforce. 'unsafe-inline' cobre estilos/scripts inline do Next.
 const csp = [
   "default-src 'self'",
   "base-uri 'self'",

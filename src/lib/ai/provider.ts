@@ -11,6 +11,11 @@ const backoff = (attempt: number) => 500 * Math.pow(3, attempt); // 500ms, 1500m
  * fetch resiliente para o provedor de IA: tempo limite (AbortController) e
  * retry com backoff em falha de rede, 5xx e 429. 4xx (exceto 429) NÃO retenta
  * (erro do cliente/chave). Só deve envolver chamadas de GERAÇÃO (idempotentes).
+ *
+ * NOTA (baixa severidade): o timeout cobre até a chegada dos HEADERS; a leitura
+ * do corpo (res.json/text) acontece no chamador, após o clearTimeout. Para as
+ * respostas pequenas de JSON aqui isso é aceitável; um provedor que trava no
+ * meio do corpo dependeria do timeout da plataforma.
  */
 export async function resilientFetch(
   url: string,
@@ -103,19 +108,21 @@ export async function chatComplete(opts: {
   system: string;
   messages: ChatMsg[];
   maxTokens?: number;
+  /** Ignora o teto e não contabiliza consumo (ex.: teste de conexão barato). */
+  skipCap?: boolean;
 }): Promise<ChatResult> {
-  const { settings: s, system, messages, maxTokens = 1200 } = opts;
+  const { settings: s, system, messages, maxTokens = 1200, skipCap = false } = opts;
   if (!s.apiKey) throw new AINotConfiguredError();
 
   // Teto de custo: bloqueia ANTES de contatar o provedor (0 custo ao exceder).
-  await assertUnderDailyCap();
+  if (!skipCap) await assertUnderDailyCap();
 
   const result =
     s.provider === "anthropic"
       ? await anthropicChat(s, system, messages, maxTokens)
       : await openAiChat(s, system, messages, maxTokens);
 
-  await recordUsage(result.usage);
+  if (!skipCap) await recordUsage(result.usage);
   return result;
 }
 
@@ -217,6 +224,7 @@ export async function testConnection(s: AISettings): Promise<{ ok: boolean; mess
       system: "Você é um verificador de conexão. Responda apenas: OK.",
       messages: [{ role: "user", content: "ping" }],
       maxTokens: 5,
+      skipCap: true, // teste barato: sempre valida a chave, sem bloquear/contar
     });
     return { ok: true, message: `Conexão OK (resposta: "${r.text.slice(0, 20)}").` };
   } catch (e: any) {

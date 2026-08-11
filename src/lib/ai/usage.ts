@@ -4,6 +4,12 @@ import { resolveOwnerId, runWithoutScope } from "@/lib/auth/owner-scope";
 /**
  * Teto de consumo de IA por usuário por dia (M6). Bloqueia ANTES de contatar o
  * provedor (0 custo ao exceder). Contabiliza em tokens (prompt + completion).
+ *
+ * NOTA (limitação conhecida, baixa severidade): é uma guarda SOFT com padrão
+ * check-then-act (assertUnderDailyCap lê; recordUsage incrementa depois). Sob
+ * chamadas concorrentes, o teto pode ser ultrapassado por até N×(tokens/chamada)
+ * — o incremento em si é atômico (sem perda), então o excesso é limitado por
+ * chamada. Endurecer (reserva atômica / SELECT FOR UPDATE) fica como melhoria.
  */
 
 export const DAILY_TOKEN_CAP = Number(process.env.AI_DAILY_TOKEN_CAP) || 100_000;

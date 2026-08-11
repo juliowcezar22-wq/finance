@@ -60,4 +60,19 @@ describe("chatComplete respeita o teto ANTES de contatar o provedor", () => {
     expect(fetchSpy).not.toHaveBeenCalled();
     fetchSpy.mockRestore();
   });
+
+  it("skipCap ignora o teto (teste de conexão sempre valida a chave)", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(JSON.stringify({ choices: [{ message: { content: "OK" } }], usage: {} }), { status: 200 })
+    );
+    await runWithOwner(userId, async () => {
+      await recordUsage({ promptTokens: DAILY_TOKEN_CAP, completionTokens: 0 }); // já no teto
+      const r = await chatComplete({
+        settings, system: "s", messages: [{ role: "user", content: "ping" }], skipCap: true,
+      });
+      expect(r.text).toBe("OK");
+    });
+    expect(fetchSpy).toHaveBeenCalled();
+    fetchSpy.mockRestore();
+  });
 });

@@ -5,7 +5,7 @@ import { requireAdmin } from "@/lib/auth/viewer";
 import { getWhatsAppSettings, isWhatsAppReady, sendText } from "@/lib/whatsapp/provider";
 import { runAgent, type AgentResult } from "@/lib/whatsapp/agent";
 import { sendReminders } from "@/lib/whatsapp/reminders";
-import { encryptSecret, decryptMaybe } from "@/lib/crypto/secrets";
+import { encryptSecret } from "@/lib/crypto/secrets";
 
 const SINGLETON_ID = "default";
 
@@ -14,10 +14,10 @@ export type WhatsAppSettingsView = {
   baseUrl: string;
   instanceId: string;
   myNumber: string;
-  remindersSecret: string;
   enabled: boolean;
   hasToken: boolean;
   hasClientToken: boolean;
+  hasRemindersSecret: boolean;
 };
 
 export async function getWhatsAppSettingsView(): Promise<WhatsAppSettingsView> {
@@ -28,10 +28,10 @@ export async function getWhatsAppSettingsView(): Promise<WhatsAppSettingsView> {
     baseUrl: s?.baseUrl ?? "",
     instanceId: s?.instanceId ?? "",
     myNumber: s?.myNumber ?? "",
-    remindersSecret: decryptMaybe(s?.remindersSecret) ?? "",
     enabled: s?.enabled ?? false,
     hasToken: !!s?.token,
     hasClientToken: !!s?.clientToken,
+    hasRemindersSecret: !!s?.remindersSecret,
   };
 }
 
@@ -41,21 +41,18 @@ export async function saveWhatsAppSettings(formData: FormData) {
   const baseUrl = String(formData.get("baseUrl") || "").trim() || null;
   const instanceId = String(formData.get("instanceId") || "").trim() || null;
   const myNumber = String(formData.get("myNumber") || "").trim() || null;
-  const remindersSecret = String(formData.get("remindersSecret") || "").trim() || null;
   const enabled = formData.get("enabled") === "on" || formData.get("enabled") === "true";
   const tokenRaw = String(formData.get("token") || "");
   const clientTokenRaw = String(formData.get("clientToken") || "");
+  const remindersSecretRaw = String(formData.get("remindersSecret") || "");
 
-  const data: any = {
-    provider,
-    baseUrl,
-    instanceId,
-    myNumber,
-    remindersSecret: remindersSecret ? encryptSecret(remindersSecret) : null,
-    enabled,
-  };
+  const data: any = { provider, baseUrl, instanceId, myNumber, enabled };
+  // Segredos: só sobrescreve (e re-cifra) quando um valor novo, não-mascarado,
+  // é enviado — o mascarado (`•`) preserva o valor atual.
   if (tokenRaw && !tokenRaw.startsWith("•")) data.token = encryptSecret(tokenRaw.trim());
   if (clientTokenRaw && !clientTokenRaw.startsWith("•")) data.clientToken = encryptSecret(clientTokenRaw.trim());
+  if (remindersSecretRaw && !remindersSecretRaw.startsWith("•"))
+    data.remindersSecret = encryptSecret(remindersSecretRaw.trim());
 
   await prisma.whatsAppSetting.upsert({
     where: { id: SINGLETON_ID },
