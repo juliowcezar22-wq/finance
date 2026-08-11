@@ -49,19 +49,21 @@ describe("integridade", () => {
   });
 });
 
-describe("segredo mestre obrigatório", () => {
-  it("import do módulo sem SECRETS_KEY lança", async () => {
+describe("segredo mestre obrigatório (fail-closed em runtime, não no import)", () => {
+  it("cifrar sem SECRETS_KEY lança (o import NÃO lança — chave é preguiçosa)", async () => {
     vi.resetModules();
     vi.stubEnv("SECRETS_KEY", "");
-    await expect(import("@/lib/crypto/secrets")).rejects.toThrow(/SECRETS_KEY/);
+    const mod = await import("@/lib/crypto/secrets"); // import ok (build não precisa)
+    expect(() => mod.encryptSecret("x")).toThrow(/SECRETS_KEY/); // uso falha
     vi.unstubAllEnvs();
     vi.resetModules();
   });
 
-  it("import com chave de tamanho errado lança", async () => {
+  it("cifrar com chave de tamanho errado lança", async () => {
     vi.resetModules();
     vi.stubEnv("SECRETS_KEY", Buffer.from("curta").toString("base64"));
-    await expect(import("@/lib/crypto/secrets")).rejects.toThrow(/32 bytes/);
+    const mod = await import("@/lib/crypto/secrets");
+    expect(() => mod.encryptSecret("x")).toThrow(/32 bytes/);
     vi.unstubAllEnvs();
     vi.resetModules();
   });

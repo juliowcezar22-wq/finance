@@ -28,8 +28,14 @@ function loadKey(): Buffer {
   return key;
 }
 
-// Carregado no import — falha explícita se o segredo mestre não estiver presente.
-const KEY = loadKey();
+// Carregamento PREGUIÇOSO: a chave só é lida na primeira cifra/decifra (runtime),
+// não no import do módulo. Assim o `next build` NÃO precisa de SECRETS_KEY para
+// compilar (o build não cifra nada); em runtime continua fail-closed — a
+// primeira operação com segredo falha explícito se a chave faltar.
+let _key: Buffer | null = null;
+function key(): Buffer {
+  return (_key ??= loadKey());
+}
 
 /** true se o valor já está no formato cifrado (`v1:`). */
 export function isEncrypted(v: string | null | undefined): boolean {
@@ -39,7 +45,7 @@ export function isEncrypted(v: string | null | undefined): boolean {
 /** Cifra um texto plano. Retorna `v1:…`. */
 export function encryptSecret(plain: string): string {
   const iv = randomBytes(IV_LEN);
-  const cipher = createCipheriv("aes-256-gcm", KEY, iv);
+  const cipher = createCipheriv("aes-256-gcm", key(), iv);
   const ct = Buffer.concat([cipher.update(plain, "utf8"), cipher.final()]);
   const tag = cipher.getAuthTag();
   return PREFIX + Buffer.concat([iv, tag, ct]).toString("base64");
@@ -57,7 +63,7 @@ export function decryptSecret(value: string): string {
   const iv = buf.subarray(0, IV_LEN);
   const tag = buf.subarray(IV_LEN, IV_LEN + TAG_LEN);
   const ct = buf.subarray(IV_LEN + TAG_LEN);
-  const decipher = createDecipheriv("aes-256-gcm", KEY, iv);
+  const decipher = createDecipheriv("aes-256-gcm", key(), iv);
   decipher.setAuthTag(tag);
   return Buffer.concat([decipher.update(ct), decipher.final()]).toString("utf8");
 }
