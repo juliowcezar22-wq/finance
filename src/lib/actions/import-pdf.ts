@@ -20,6 +20,7 @@ import {
 } from "@/lib/services/import-engine";
 import { invoiceReferenceFor, referenceFromDate } from "@/lib/services/invoices";
 import type { CreditCard } from "@prisma/client";
+import { validateUpload } from "@/lib/upload/validate";
 
 export type PdfPreviewRow = PdfTransaction & {
   duplicate: boolean;
@@ -118,6 +119,8 @@ export async function previewPdfImport(formData: FormData): Promise<PdfPreviewRe
   const explicitCardId = (formData.get("cardId") as string) || "";
   const password = (formData.get("password") as string) || "";
   if (!file) return { ok: false, error: "Arquivo ausente." };
+  const uploadError = validateUpload(file);
+  if (uploadError) return { ok: false, error: uploadError };
 
   let parsed;
   try {
@@ -222,6 +225,8 @@ export async function commitPdfImport(formData: FormData): Promise<PdfCommitResu
   const referenceInput = parseReferenceInput((formData.get("reference") as string) || null);
   const password = (formData.get("password") as string) || "";
   if (!file) return { ok: false, error: "Arquivo ausente." };
+  const uploadError = validateUpload(file);
+  if (uploadError) return { ok: false, error: uploadError };
   if (!cardId) return { ok: false, error: "Cartão não informado." };
 
   let parsed;

@@ -110,8 +110,9 @@ export function WhatsAppSettingsDialog({
             <Label>Segredo dos lembretes</Label>
             <Input
               name="remindersSecret"
-              defaultValue={settings.remindersSecret}
-              placeholder="ex.: bugia-cron-2026"
+              type="password"
+              defaultValue={settings.hasRemindersSecret ? "••••••••" : ""}
+              placeholder="segredo dos lembretes"
             />
           </div>
 

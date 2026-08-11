@@ -2,6 +2,7 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { requireAdmin, getViewer } from "@/lib/auth/viewer";
+import { encryptSecret } from "@/lib/crypto/secrets";
 import {
   getAISettings,
   isConfigured,
@@ -125,7 +126,7 @@ export async function saveAISettings(formData: FormData) {
 
   // Só sobrescreve a chave se um novo valor (não-mascarado) foi enviado.
   const data: any = { provider, baseUrl, model, temperature, enabled };
-  if (apiKeyRaw && !apiKeyRaw.startsWith("•")) data.apiKey = apiKeyRaw.trim();
+  if (apiKeyRaw && !apiKeyRaw.startsWith("•")) data.apiKey = encryptSecret(apiKeyRaw.trim());
 
   await prisma.aISetting.upsert({
     where: { id: SINGLETON_ID },

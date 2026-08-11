@@ -1,7 +1,14 @@
 "use client";
 import React from "react";
 
-/** Renderizador de markdown minimalista (headings, listas, negrito, parágrafos). */
+/**
+ * Renderizador de markdown minimalista (headings, listas, negrito, parágrafos).
+ *
+ * SEGURANÇA (FR-012): NÃO usa dangerouslySetInnerHTML nem insere HTML cru — todo
+ * o conteúdo (inclusive vindo do LLM) entra como *children* de elementos React,
+ * que os escapa por padrão. Um `<script>` na resposta é exibido como texto, não
+ * executado. NÃO introduzir dangerouslySetInnerHTML aqui sem sanitização.
+ */
 export function SimpleMarkdown({ text }: { text: string }) {
   const lines = text.split(/\r?\n/);
   const blocks: React.ReactNode[] = [];

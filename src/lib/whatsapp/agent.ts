@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { getAISettings, isConfigured, chatComplete, type AISettings } from "@/lib/ai/provider";
+import { getAISettings, isConfigured, chatComplete, resilientFetch, type AISettings } from "@/lib/ai/provider";
+import { assertUnderDailyCap, recordUsage } from "@/lib/ai/usage";
 import { buildFinancialSnapshot, snapshotToText, loadMemoryText } from "@/lib/ai/context";
 import { splitReais, toNum } from "@/lib/services/money";
 
@@ -275,7 +276,9 @@ async function visionComplete(
 ): Promise<string> {
   const base =
     s.provider === "custom" && s.baseUrl ? s.baseUrl.replace(/\/$/, "") : "https://api.openai.com/v1";
-  const res = await fetch(`${base}/chat/completions`, {
+  // Teto de custo antes de contatar o provedor (0 custo ao exceder).
+  await assertUnderDailyCap();
+  const res = await resilientFetch(`${base}/chat/completions`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${s.apiKey}` },
     body: JSON.stringify({
@@ -296,8 +299,13 @@ async function visionComplete(
   });
   if (!res.ok) {
     const t = await res.text().catch(() => "");
-    throw new Error(`Visão falhou (${res.status}): ${t.slice(0, 200)}`);
+    console.error(`[ai] visão erro ${res.status}: ${t.slice(0, 500)}`);
+    throw new Error("Não consegui analisar a imagem agora. Tente novamente mais tarde.");
   }
   const data: any = await res.json();
+  await recordUsage({
+    promptTokens: data?.usage?.prompt_tokens ?? 0,
+    completionTokens: data?.usage?.completion_tokens ?? 0,
+  });
   return data?.choices?.[0]?.message?.content ?? "";
 }

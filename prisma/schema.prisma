@@ -44,6 +44,7 @@ model User {
   ownedCashMovements  CashBoxMovement[]    @relation("OwnerCashMovement")
   ownedConversations  AIConversation[]     @relation("OwnerAIConversation")
   ownedMemories       AIMemory[]           @relation("OwnerAIMemory")
+  ownedAiUsage        AiUsage[]            @relation("OwnerAiUsage")
 }
 
 model Person {
@@ -534,6 +535,22 @@ model WhatsAppMessage {
   createdAt   DateTime @default(now())
 
   @@index([createdAt])
+}
+
+// Consumo diário de IA por usuário (teto de custo). Modelo COM dono (escopado
+// pela extensão do Prisma). Uma linha por (owner, dia).
+model AiUsage {
+  id               String   @id @default(cuid())
+  ownerId          String   @default("__no_owner__")
+  owner            User     @relation("OwnerAiUsage", fields: [ownerId], references: [id], onDelete: Restrict)
+  day              DateTime @db.Date
+  promptTokens     Int      @default(0)
+  completionTokens Int      @default(0)
+  calls            Int      @default(0)
+  updatedAt        DateTime @updatedAt @default(now())
+
+  @@unique([ownerId, day])
+  @@index([ownerId])
 }
 
 // Tentativas de login para lockout (5 falhas / 15 min por e-mail). Modelo

@@ -91,21 +91,20 @@ O maior risco do sistema: um usuário logado pode alterar/apagar dados de outro.
 
 ## MÓDULO 4 — 🟠 Segredos de IA/WhatsApp e hardening web
 
-- [ ] Criptografar `AISetting.apiKey`, `WhatsAppSetting.token/clientToken/
-      remindersSecret` no banco (AES-256-GCM com chave em env `SECRETS_KEY`),
-      ou migrar as chaves para env e deixar no banco só configuração não-sensível.
-- [ ] Headers de segurança em `next.config.mjs` (`headers()`): HSTS,
-      `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`,
-      `Referrer-Policy: strict-origin-when-cross-origin`, CSP básica.
-- [ ] Completar validação zod nas actions sem ela: `ai.ts`, `whatsapp.ts`,
-      `import.ts`, `import-pdf.ts`, `invoices.ts`.
-- [ ] Upload (`src/lib/actions/import-pdf.ts:114+`): validar MIME e tamanho
-      máximo na action (não confiar só no `bodySizeLimit` global).
-- [ ] Revisar `src/app/assistente/markdown.tsx` contra XSS (conteúdo vem do
-      LLM): garantir que nunca injeta HTML cru.
-- [ ] Não repassar corpo de erro do provider de IA ao usuário
-      (`prettyHttpError` inclui até 300 chars do body) — logar no servidor,
-      mostrar mensagem genérica.
+- [x] Criptografar `AISetting.apiKey`, `WhatsAppSetting.token/clientToken/
+      remindersSecret` no banco (AES-256-GCM, `SECRETS_KEY` sem fallback).
+      **Feito** (feature 007): `crypto/secrets.ts`; decifra na leitura, cifra na
+      escrita; script `db:encrypt-secrets` migra legados.
+- [x] Headers de segurança em `next.config.mjs`: HSTS (prod), nosniff,
+      X-Frame-Options DENY, Referrer-Policy, Permissions-Policy (enforce) + CSP
+      em **report-only** (não quebra a UI redesenhada). **Feito** (feature 007).
+- [x] Upload (`import-pdf.ts`): valida MIME/extensão e tamanho na action antes
+      de processar (`upload/validate.ts`). **Feito** (feature 007). ⏳ zod amplo
+      nas demais actions fica para a feature de engenharia.
+- [x] `markdown.tsx`: confirmado seguro (sem `dangerouslySetInnerHTML`; React
+      escapa; comentário de guarda adicionado). **Feito** (feature 007).
+- [x] `prettyHttpError` deixou de incluir o corpo do provider — loga no servidor,
+      devolve mensagem genérica. **Feito** (feature 007).
 
 ## MÓDULO 5 — 🟠 Banco de dados
 
@@ -134,20 +133,17 @@ O maior risco do sistema: um usuário logado pode alterar/apagar dados de outro.
 
 ## MÓDULO 6 — 🟠 IA: resiliência e custo
 
-- [ ] Timeout em todos os `fetch` de LLM (`src/lib/ai/provider.ts`,
-      `src/lib/whatsapp/agent.ts:263-298`): `AbortSignal.timeout(30_000)`.
-- [ ] Retry com backoff (1 retentativa em 429/5xx/rede; jamais em 4xx de auth).
-- [ ] Limite de input: truncar contexto/histórico por tamanho estimado antes de
-      enviar (hoje só existe `max_tokens` de saída).
-- [ ] Orçamento de custo: teto diário de tokens por usuário (somar
-      `AIMessage.promptTokens/completionTokens` do dia; bloquear com mensagem
-      amigável ao exceder).
-- [ ] `visionComplete` só fala formato OpenAI — ou suportar Anthropic vision,
-      ou validar/avisar na configuração quando provider=anthropic.
-- [ ] Logs estruturados de cada chamada (provider, modelo, latência, tokens,
-      erro) — base para o Módulo 12.
-- [ ] Testar cenários: chave inválida, 429, timeout, resposta não-JSON do
-      agente WhatsApp (`parseJson`), provider fora do ar.
+- [x] Timeout em todos os `fetch` de LLM (`ai/provider.ts` e o `visionComplete`
+      de `whatsapp/agent.ts`) via `resilientFetch` (AbortController ~30s).
+      **Feito** (feature 007).
+- [x] Retry com backoff (rede/5xx/429; nunca 4xx de auth). **Feito** (007).
+- [x] Orçamento de custo: teto diário de tokens por usuário (tabela `AiUsage`);
+      bloqueia ANTES de contatar o provider (0 custo). **Feito** (007).
+- [x] Cenários testados: chave inválida (401), timeout, retry (503→200), teto
+      excedido sem chamar provider, erro não vaza corpo. **Feito** (007).
+- [ ] Limite de input (truncar contexto por tamanho) — ⏳ pendente.
+- [ ] `visionComplete` suportar Anthropic vision — ⏳ pendente.
+- [ ] Logs estruturados de cada chamada — ⏳ feature de observabilidade (M12).
 
 ## MÓDULO 7 — 🟡 Limpeza de arquitetura
 
