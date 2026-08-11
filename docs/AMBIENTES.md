@@ -64,6 +64,18 @@ Testes (usa `.env.test` — hoje o mesmo banco de dev):
 - Checklist de go-live: ver Módulo 15 de `docs/PLANO-DE-ACAO.md` (inclui
   rodar o `rls-hardening.sql` no SQL Editor do Nummiq Prod, backups e monitor).
 
+### Cifra de credenciais (feature 007)
+
+- `SECRETS_KEY` (env, 32 bytes base64, **obrigatório sem fallback**) cifra as
+  credenciais no banco (`AISetting.apiKey`, `WhatsAppSetting.token/clientToken/
+  remindersSecret`) com AES-256-GCM. Sem ela, cifra/decifra falham explícito.
+  Gere com `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`.
+- Opcional `AI_DAILY_TOKEN_CAP` (default 100000) — teto diário de tokens de IA
+  por usuário.
+- **Go-live:** configurar `SECRETS_KEY` na Vercel ANTES do deploy; depois rodar
+  `npm run db:encrypt-secrets -- --apply` (cifra os segredos legados, idempotente,
+  com backup). Rotação da chave exige re-cifrar (script de rotação futuro).
+
 ### Segredos obrigatórios e sessão (feature 001)
 
 - `SESSION_SECRET` e `CRON_SECRET` não têm mais fallback no código: em qualquer

@@ -59,10 +59,12 @@ beforeAll(async () => {
       ],
     });
 
-    await prisma.income.createMany({
+    // Receitas agora vivem em Transaction (type=receita): "pago" = recebida,
+    // "pendente" = prevista (feature 005 — unificação de movimentações).
+    await prisma.transaction.createMany({
       data: [
-        { description: `${P}i1`, amount: 300, receivedAt: inMarch, status: "RECEIVED" },
-        { description: `${P}i2`, amount: 150, receivedAt: inMarch, status: "EXPECTED" },
+        { date: inMarch, description: `${P}r1`, amount: 300, type: "receita", status: "pago", belongsTo: "pessoal" },
+        { date: inMarch, description: `${P}r2`, amount: 150, type: "receita", status: "pendente", belongsTo: "pessoal" },
       ],
     });
 

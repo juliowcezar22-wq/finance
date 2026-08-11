@@ -26,6 +26,7 @@ const OWNED_MODELS = new Set<string>([
   "CategorizationRule",
   "AIConversation",
   "AIMemory",
+  "AiUsage",
 ]);
 
 // Valor impossível → quando não há dono resolvido, nada casa (fail-closed):

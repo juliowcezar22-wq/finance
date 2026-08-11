@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { decryptMaybe } from "@/lib/crypto/secrets";
 
 export type WhatsAppSettings = {
   provider: string; // zapi | evolution | custom
@@ -20,10 +21,10 @@ export async function getWhatsAppSettings(): Promise<WhatsAppSettings | null> {
     provider: s.provider ?? "zapi",
     baseUrl: s.baseUrl,
     instanceId: s.instanceId,
-    token: s.token,
-    clientToken: s.clientToken,
+    token: decryptMaybe(s.token),
+    clientToken: decryptMaybe(s.clientToken),
     myNumber: s.myNumber,
-    remindersSecret: s.remindersSecret,
+    remindersSecret: decryptMaybe(s.remindersSecret),
     enabled: s.enabled,
   };
 }
