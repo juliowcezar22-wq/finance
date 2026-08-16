@@ -191,17 +191,14 @@ O maior risco do sistema: um usuário logado pode alterar/apagar dados de outro.
 
 ## MÓDULO 10 — 🟡 UX
 
-- [ ] Implementar toasts (`components/ui/toast.tsx` + `<Toaster>` no layout,
-      com o `@radix-ui/react-toast` já instalado): sucesso/erro de toda action.
-- [ ] Substituir os 15 `window.confirm()` por dialog de confirmação do design
-      system (destrutivos em vermelho, nome do item no texto).
-- [ ] Adicionar `loading.tsx` nas 5 rotas sem: `/assistente`, `/regras`,
-      `/usuarios`, `/configuracoes`, `/whatsapp`.
-- [ ] Revisar empty states das telas restantes e padronizar tom/CTA.
-- [ ] Passada de responsividade em todas as telas (safe-areas iOS, tabelas com
-      scroll horizontal, dialogs em viewport pequena).
-- [ ] Revisar fluxos com "menos cliques": lançamento rápido de despesa/receita
-      do dashboard; atalhos no assistente.
+- [x] Toasts: sucesso em salvar/excluir (14 dialogs + row-actions); erro via
+      toast fora de dialog; erro inline nos formulários (008). **Feito (010).**
+- [x] 16 `window.confirm()` → ConfirmDialog do design system (nome do item,
+      botão destrutivo, busy state). Zero confirm/alert no app. **Feito (010).**
+- [x] `loading.tsx` nas 5 rotas (PageSkeleton). **Feito (010).**
+- [ ] Empty states — **pós-lançamento** (decisão da 010): calibrar com uso real.
+- [ ] Responsividade fina — **pós-lançamento** (decisão da 010).
+- [ ] Fluxos "menos cliques" — **pós-lançamento** (decisão da 010).
 
 ## MÓDULO 11 — 🟡 Regras financeiras + testes automatizados
 

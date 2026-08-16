@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Pencil, Check, X } from "lucide-react";
 import { quickRenameCard } from "@/lib/actions/cards";
+import { toast } from "@/components/ui/toast";
 
 export function QuickRenameCard({ id, name }: { id: string; name: string }) {
   const [editing, setEditing] = useState(false);
@@ -43,9 +44,11 @@ export function QuickRenameCard({ id, name }: { id: string; name: string }) {
               void (async () => {
                 const res = await quickRenameCard(id, value);
                 if (!res.ok) {
-                  alert(res.error); // mantém a edição aberta p/ corrigir
+                  // mantém a edição aberta p/ corrigir
+                  toast({ title: res.error, variant: "danger" });
                   return;
                 }
+                toast({ title: "Cartão renomeado", variant: "success" });
                 setEditing(false);
               })();
             });
@@ -64,9 +67,10 @@ export function QuickRenameCard({ id, name }: { id: string; name: string }) {
             void (async () => {
               const res = await quickRenameCard(id, value);
               if (!res.ok) {
-                alert(res.error);
+                toast({ title: res.error, variant: "danger" });
                 return;
               }
+              toast({ title: "Cartão renomeado", variant: "success" });
               setEditing(false);
             })();
           })

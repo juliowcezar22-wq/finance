@@ -12,6 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
+import { toast } from "@/components/ui/toast";
 import { createUser, updateUser } from "@/lib/actions/users";
 import { Plus } from "lucide-react";
 
@@ -54,6 +55,7 @@ export function UserDialog({
               return;
             }
             setError(null);
+            toast({ title: "Usuário salvo", variant: "success" });
             setOpen(false);
           }}
           className="space-y-3"

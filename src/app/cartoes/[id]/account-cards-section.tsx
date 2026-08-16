@@ -1,5 +1,4 @@
 "use client";
-import { useTransition } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -14,6 +13,8 @@ import { Button } from "@/components/ui/button";
 import { formatBRL } from "@/lib/format";
 import { AccountCardDialog } from "./account-card-dialog";
 import { deleteAccountCard } from "@/lib/actions/account-cards";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { toast } from "@/components/ui/toast";
 import { Pencil, Trash2 } from "lucide-react";
 import {
   MobileCards,
@@ -130,7 +131,6 @@ export function AccountCardsSection({
 }
 
 function RowActions({ cardId, accountCard }: { cardId: string; accountCard: any }) {
-  const [pending, start] = useTransition();
   return (
     <div className="flex justify-end gap-1">
       <AccountCardDialog
@@ -142,18 +142,24 @@ function RowActions({ cardId, accountCard }: { cardId: string; accountCard: any 
           </Button>
         }
       />
-      <Button
-        size="icon"
-        variant="ghost"
-        disabled={pending}
-        onClick={() => {
-          if (confirm(`Excluir o cartão "${accountCard.name}"?`)) {
-            start(() => void deleteAccountCard(accountCard.id));
+      <ConfirmDialog
+        trigger={
+          <Button size="icon" variant="ghost" title="Excluir">
+            <Trash2 className="h-4 w-4 text-destructive" />
+          </Button>
+        }
+        title="Excluir cartão"
+        description={`Excluir o cartão "${accountCard.name}"? Essa ação não pode ser desfeita.`}
+        confirmLabel="Excluir"
+        onConfirm={async () => {
+          const res = await deleteAccountCard(accountCard.id);
+          if (!res.ok) {
+            toast({ title: res.error, variant: "danger" });
+            return;
           }
+          toast({ title: "Cartão excluído", variant: "success" });
         }}
-      >
-        <Trash2 className="h-4 w-4 text-destructive" />
-      </Button>
+      />
     </div>
   );
 }

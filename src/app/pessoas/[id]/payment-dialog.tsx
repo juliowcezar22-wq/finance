@@ -14,6 +14,7 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/components/ui/toast";
 import { registerPersonPayment } from "@/lib/actions/people";
 import { HandCoins } from "lucide-react";
 import { formatDateInput } from "@/lib/format";
@@ -46,6 +47,7 @@ export function PaymentDialog({ personId, accounts }: { personId: string; accoun
               return;
             }
             setError(null);
+            toast({ title: "Pagamento registrado", variant: "success" });
             setOpen(false);
           }}
           className="space-y-3"

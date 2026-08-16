@@ -15,9 +15,9 @@
 
 | # | Feature | Módulos | Fase atual | Status |
 |---|---------|---------|-----------|--------|
-| 008 | qualidade-e-limpeza | M7, M8, resíduos M2/M3 | specify | 🔵 em curso |
-| 009 | performance-paginacao | M9 | — | ⏳ fila |
-| 010 | ux-final | M10 (resíduo) | — | ⏳ fila |
+| 008 | qualidade-e-limpeza | M7, M8, resíduos M2/M3 | mergeada (8b7711f) | ✅ |
+| 009 | performance-paginacao | M9 | mergeada (ce3af23) | ✅ |
+| 010 | ux-final | M10 essencial | implement (2 agentes) | 🔵 em curso |
 | 011 | testes-observabilidade | M11, M12 | — | ⏳ fila |
 | 012 | conferencia-go-live | M13, M14, M15 | — | ⏳ fila |
 
@@ -36,6 +36,11 @@
   CONCORRENTES no banco compartilhado (dois agentes rodando vitest ao mesmo
   tempo). Rate-limit reescrito como 1 statement SQL (superior de qualquer
   forma). Regra do harness: NUNCA rodar duas suítes vitest em paralelo.
+- revisao-forte da 009: 6 confirmados corrigidos (teto do LoadMore vira dica;
+  count redundante; loading fallbacks; índice ownerId redundante removido;
+  rótulos completados). 010: clarify = toasts sucesso+erro fora de dialog,
+  ConfirmDialog DS, escopo essencial; infra pronta (toast já existia do
+  redesign; ConfirmDialog + 5 loading.tsx criados).
 - revisao-forte da 008: 18 confirmados, 0 refutados. Corrigidos: falso-sucesso
   sistêmico nos dialogs (agente aplicou captura de err em ~14); lost update de
   saldo de caixa (increment atômico em cashboxes+agent); deactivateGuarded

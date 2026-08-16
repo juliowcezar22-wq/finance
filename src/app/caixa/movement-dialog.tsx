@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
+import { toast } from "@/components/ui/toast";
 import { registerCashMovement } from "@/lib/actions/cashboxes";
 import { ArrowDownCircle, ArrowUpCircle } from "lucide-react";
 import { formatDateInput } from "@/lib/format";
@@ -51,6 +52,7 @@ export function MovementDialog({ cashBoxId, type }: { cashBoxId: string; type: "
               return;
             }
             setError(null);
+            toast({ title: "Movimentação registrada", variant: "success" });
             setOpen(false);
           }}
           className="space-y-3"
