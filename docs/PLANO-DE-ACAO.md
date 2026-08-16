@@ -242,6 +242,10 @@ coração do sistema — na ordem:
 
 ## MÓDULO 13 — ⚪ Dashboard: conferência dos números
 
+> **Estado (012):** os números do dashboard são travados por 23 testes golden
+> (`tests/characterization`) desde a 002; a conferência com dados reais está no
+> Bloco B de `docs/TESTES-PRODUCAO.md` (roteiro do dono).
+
 Depois dos testes do Módulo 11 (que já validam o cálculo), conferir na UI:
 
 - [ ] Saldo geral = soma de caixas + receitas − despesas do período.
@@ -252,6 +256,9 @@ Depois dos testes do Módulo 11 (que já validam o cálculo), conferir na UI:
 - [ ] Cenário vazio (usuário novo, sem dados) não quebra nenhum card.
 
 ## MÓDULO 14 — ⚪ Teste manual E2E (roteiro do primeiro usuário)
+
+> **Estado (012):** roteiro manual completo em `docs/TESTES-PRODUCAO.md`
+> (blocos A-F: acesso, cálculo, cartões, listas, WhatsApp, interface).
 
 Executar no ambiente de teste, como se fosse um usuário real:
 
@@ -268,6 +275,9 @@ Executar no ambiente de teste, como se fosse um usuário real:
       ar; upload interrompido; PDF corrompido (arquivo truncado à mão).
 
 ## MÓDULO 15 — ⚪ Deploy e produção (Vercel — sem Docker/PM2)
+
+> **Estado (012):** checklist executável em `docs/GO-LIVE.md` (pré-deploy,
+> deploy, pós-deploy, smoke, rollback). Itens de painel são do dono.
 
 O deploy é Vercel + Supabase; Docker/PM2/SSL manual não se aplicam
 (HTTPS/CDN/compressão a Vercel já dá). O que resta:
