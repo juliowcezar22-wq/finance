@@ -21,6 +21,7 @@ import {
 import { Filters } from "./filters";
 import { TransactionDialog } from "./transaction-dialog";
 import { TransactionRowActions } from "./row-actions";
+import { LoadMore, parseLimit } from "@/components/load-more";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { getViewer } from "@/lib/auth/viewer";
@@ -32,6 +33,7 @@ type Search = {
   categoria?: string;
   status?: string;
   tipo?: string;
+  limit?: string;
 };
 
 function statusVariant(status: string): any {
@@ -69,18 +71,24 @@ export default async function TransacoesPage({ searchParams }: { searchParams: S
   if (searchParams.status) where.status = searchParams.status;
   if (searchParams.tipo) where.type = searchParams.tipo;
 
-  const [transactions, cards, people, categories, accounts] = await Promise.all([
+  const limit = parseLimit(searchParams.limit);
+
+  const [rows, cards, people, categories, accounts, totalCount] = await Promise.all([
     prisma.transaction.findMany({
       where,
       orderBy: { date: "desc" },
       include: { card: true, category: true, responsible: true, account: true },
-      take: 200,
+      take: limit + 1,
     }),
     prisma.creditCard.findMany({ orderBy: { name: "asc" } }),
     prisma.person.findMany({ orderBy: { name: "asc" } }),
     prisma.category.findMany({ orderBy: { name: "asc" } }),
     prisma.account.findMany({ orderBy: { name: "asc" } }),
+    prisma.transaction.count({ where }),
   ]);
+
+  const hasExtra = rows.length > limit;
+  const transactions = hasExtra ? rows.slice(0, limit) : rows;
 
   return (
     <div>
@@ -212,6 +220,14 @@ export default async function TransacoesPage({ searchParams }: { searchParams: S
               ))
             )}
           </MobileCards>
+
+          <LoadMore
+            shown={transactions.length}
+            total={totalCount}
+            limit={limit}
+            searchParams={searchParams}
+            label="transações"
+          />
         </CardContent>
       </Card>
     </div>

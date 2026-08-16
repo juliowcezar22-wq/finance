@@ -109,7 +109,7 @@ export default async function WhatsAppPage() {
 
       <Card className="mt-4">
         <CardHeader className="pb-2">
-          <CardTitle className="text-base">Mensagens recentes</CardTitle>
+          <CardTitle className="text-base">Mensagens recentes (últimas 20)</CardTitle>
         </CardHeader>
         <CardContent>
           {messages.length === 0 ? (

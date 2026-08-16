@@ -98,7 +98,7 @@ export default async function CaixaPage() {
 
                 <div>
                   <p className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">
-                    Últimas movimentações
+                    Últimas movimentações (10 mais recentes)
                   </p>
                   {box.movements.length === 0 ? (
                     <p className="text-sm text-muted-foreground">Sem movimentações ainda.</p>

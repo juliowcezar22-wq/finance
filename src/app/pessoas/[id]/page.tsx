@@ -91,17 +91,21 @@ export default async function PersonDetailPage({
       prisma.transaction.findMany({
         where: { responsibleId: person.id, status: { not: "cancelado" } },
         orderBy: { date: "desc" },
-        include: { card: true, account: true, category: true },
+        // Select enxuto (feature 009): só os campos exibidos das relações.
+        include: {
+          card: { select: { name: true, bank: true } },
+          account: { select: { name: true, bank: true } },
+          category: { select: { name: true } },
+        },
       }),
       prisma.receivable.findMany({
         where: { personId: person.id },
-        include: { transaction: true },
         orderBy: { dueDate: "asc" },
       }),
       prisma.personPayment.findMany({
         where: { personId: person.id },
         orderBy: { paidAt: "desc" },
-        include: { account: true },
+        include: { account: { select: { name: true } } },
       }),
       prisma.account.findMany({ orderBy: { name: "asc" } }),
       prisma.category.findMany({ orderBy: { name: "asc" } }),
