@@ -64,9 +64,8 @@ O maior risco do sistema: um usuário logado pode alterar/apagar dados de outro.
       dono (aceitável agora que há revogação — ver clarify da 001).
 - [x] Desativar usuário derruba a sessão: `getUserFromToken()` rejeita usuário
       `active=false`. **Feito** (feature 001).
-- [ ] Trocar a senha default do seed (`prisma/seed.ts:6-10`, `admin123`):
-      exigir `ADMIN_PASSWORD` via env, sem default. ⏳ **Pendente** (não coberto
-      pela feature 001; candidato à feature 003).
+- [x] Seed sem senha default: exige `ADMIN_PASSWORD` (≥8) e não imprime a
+      senha no log. **Feito (feature 008).**
 - [x] Rate limit no login: 5 falhas / 15 min por e-mail (tabela `LoginAttempt`
       no Postgres, fail-closed). **Feito** (feature 001); IP só auditoria.
 
@@ -83,11 +82,10 @@ O maior risco do sistema: um usuário logado pode alterar/apagar dados de outro.
       insere 9º dígito), sem `endsWith`. **Feito** (feature 001).
 - [x] Deduplicação por `providerMessageId` (`@unique` em `WhatsAppMessage`):
       reentrega → P2002 → ignorada. **Feito** (feature 001).
-- [ ] Rate limit no webhook (ex.: 30 req/min). ⏳ **Pendente** — defesa em
-      profundidade; o webhook já exige o Client-Token, então abuso anônimo está
-      fechado. Candidato à feature 003.
-- [ ] Remover `src/app/whatsapp/simulator.tsx` de produção (ou atrás de flag de
-      dev). ⏳ **Pendente** (feature 004 — limpeza de arquitetura).
+- [x] Rate limit no webhook: 30 req/min (tabela `WebhookHit`, 1 statement SQL,
+      fail-closed → 429/503) + teste. **Feito (feature 008).**
+- [x] Simulador atrás de flag de dev: card some em produção **e** a action
+      `simulateMessage` recusa (`dev_only`). **Feito (feature 008).**
 
 ## MÓDULO 4 — 🟠 Segredos de IA/WhatsApp e hardening web
 
@@ -143,7 +141,8 @@ O maior risco do sistema: um usuário logado pode alterar/apagar dados de outro.
       excedido sem chamar provider, erro não vaza corpo. **Feito** (007).
 - [ ] Limite de input (truncar contexto por tamanho) — ⏳ pendente.
 - [ ] `visionComplete` suportar Anthropic vision — ⏳ pendente.
-- [ ] Logs estruturados de cada chamada — ⏳ feature de observabilidade (M12).
+- [x] Logs estruturados das chamadas de IA (erros de provedor/visão com
+      status e corpo truncado). **Feito (feature 011).**
 
 ## MÓDULO 7 — 🟡 Limpeza de arquitetura
 
