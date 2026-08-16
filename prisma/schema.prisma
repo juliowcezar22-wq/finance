@@ -224,7 +224,6 @@ model Transaction {
   @@index([status])
   @@index([installmentGroupKey])
   @@index([accountCardId])
-  @@index([ownerId])
 }
 
 model Installment {

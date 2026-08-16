@@ -4,7 +4,9 @@ import dynamic from "next/dynamic";
 
 // Lazy (feature 009): o formulário de importação (654 linhas) sai do bundle
 // inicial da rota e carrega em chunk próprio.
-const ImportForm = dynamic(() => import("./import-form").then((m) => m.ImportForm));
+const ImportForm = dynamic(() => import("./import-form").then((m) => m.ImportForm), {
+  loading: () => <div className="h-48 animate-pulse rounded-md bg-muted/40" />,
+});
 import { InvoicesHistory } from "./invoices-history";
 import { DeleteBatchButton } from "./delete-actions";
 import { Card, CardContent } from "@/components/ui/card";
@@ -45,7 +47,7 @@ export default async function ImportarPage() {
           </Card>
 
           <div>
-            <h2 className="mb-2 text-lg font-semibold">Histórico de importações</h2>
+            <h2 className="mb-2 text-lg font-semibold">Histórico de importações (últimas 10)</h2>
             <Card>
               <CardContent className="p-4">
                 {batches.length === 0 ? (

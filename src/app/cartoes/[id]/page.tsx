@@ -32,8 +32,15 @@ import {
 import dynamic from "next/dynamic";
 
 // Lazy (feature 009): dialog de importação de fatura (671 linhas) em chunk próprio.
-const InvoiceImportDialog = dynamic(() =>
-  import("../invoice-import-dialog").then((m) => m.InvoiceImportDialog)
+const InvoiceImportDialog = dynamic(
+  () => import("../invoice-import-dialog").then((m) => m.InvoiceImportDialog),
+  {
+    loading: () => (
+      <Button size="sm" variant="outline" disabled>
+        Importar fatura
+      </Button>
+    ),
+  }
 );
 import { DeleteInvoiceButton } from "../../importar/delete-actions";
 import { ResponsibleSelect } from "./responsible-select";
@@ -147,16 +154,16 @@ export default async function CardDetailPage({
 
   const limit = parseLimit(searchParams.limit);
 
-  const [txRows, totalCount, summaryRows] = await Promise.all([
+  const [txRows, summaryRows] = await Promise.all([
     prisma.transaction.findMany({
       where: txWhere,
       orderBy: { date: "desc" },
       include: { category: true, responsible: true, accountCard: true },
       take: limit + 1,
     }),
-    prisma.transaction.count({ where: txWhere }),
     // Resumo por pessoa: SEMPRE sobre o mês/filtro COMPLETO (não a página
-    // visível) — select mínimo, sem take (feature 009/FR-006).
+    // visível) — select mínimo, sem take (feature 009/FR-006). Também serve de
+    // contagem total (mesma where, sem take → length == count).
     prisma.transaction.findMany({
       where: txWhere,
       select: {
@@ -169,6 +176,7 @@ export default async function CardDetailPage({
     }),
   ]);
 
+  const totalCount = summaryRows.length;
   const hasExtra = txRows.length > limit;
   const transactions = hasExtra ? txRows.slice(0, limit) : txRows;
 
