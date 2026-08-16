@@ -10,6 +10,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/toast";
 
 /**
  * Confirmação destrutiva do design system (feature 010) — substitui os
@@ -40,7 +41,12 @@ export function ConfirmDialog({
   const [busy, setBusy] = React.useState(false);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        if (!busy) setOpen(v); // Esc/overlay/X não fecham durante a operação
+      }}
+    >
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="max-w-sm">
         <DialogHeader>
@@ -61,6 +67,9 @@ export function ConfirmDialog({
                 try {
                   await onConfirm();
                   setOpen(false);
+                } catch {
+                  // Exceção não tratada pelo consumer: nunca falhar em silêncio.
+                  toast({ title: "Não foi possível concluir a ação.", variant: "danger" });
                 } finally {
                   setBusy(false);
                 }
