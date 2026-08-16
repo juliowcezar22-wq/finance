@@ -78,7 +78,7 @@ export async function loginAction(_prev: LoginState, formData: FormData): Promis
   }
 
   await recordLoginAttempt(email, ip, true).catch(() => {});
-  void pruneOldAttempts();
+  await pruneOldAttempts().catch(() => {}); // best-effort, mas sem promise órfã no pool
 
   const token = createSessionToken({
     uid: user.id,

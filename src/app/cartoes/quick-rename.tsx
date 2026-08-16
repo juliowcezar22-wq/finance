@@ -39,9 +39,15 @@ export function QuickRenameCard({ id, name }: { id: string; name: string }) {
         className="h-7 text-base"
         onKeyDown={(e) => {
           if (e.key === "Enter") {
-            start(async () => {
-              await quickRenameCard(id, value);
-              setEditing(false);
+            start(() => {
+              void (async () => {
+                const res = await quickRenameCard(id, value);
+                if (!res.ok) {
+                  alert(res.error); // mantém a edição aberta p/ corrigir
+                  return;
+                }
+                setEditing(false);
+              })();
             });
           } else if (e.key === "Escape") {
             setEditing(false);
@@ -54,9 +60,15 @@ export function QuickRenameCard({ id, name }: { id: string; name: string }) {
         className="h-6 w-6"
         disabled={pending}
         onClick={() =>
-          start(async () => {
-            await quickRenameCard(id, value);
-            setEditing(false);
+          start(() => {
+            void (async () => {
+              const res = await quickRenameCard(id, value);
+              if (!res.ok) {
+                alert(res.error);
+                return;
+              }
+              setEditing(false);
+            })();
           })
         }
       >

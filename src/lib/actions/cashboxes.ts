@@ -87,8 +87,9 @@ export async function registerCashMovement(formData: FormData): Promise<ActionRe
   const box = await prisma.cashBox.findUnique({ where: { id: input.cashBoxId } });
   if (!box) return err("Caixa não encontrado");
 
+  // Saldo via increment ATÔMICO (não valor absoluto lido antes): dois
+  // movimentos concorrentes no mesmo caixa não se perdem (lost update).
   const delta = input.type === "IN" ? input.amount : -input.amount;
-  const next = toNum(box.currentAmount) + delta;
 
   await prisma.$transaction([
     prisma.cashBoxMovement.create({
@@ -102,7 +103,7 @@ export async function registerCashMovement(formData: FormData): Promise<ActionRe
     }),
     prisma.cashBox.update({
       where: { id: input.cashBoxId },
-      data: { currentAmount: next },
+      data: { currentAmount: { increment: delta } },
     }),
   ]);
 
@@ -116,14 +117,12 @@ export async function deleteCashMovement(id: string): Promise<ActionResult> {
   const mov = await prisma.cashBoxMovement.findUnique({ where: { id } });
   if (!mov) return err("Movimentação não encontrada");
   const delta = mov.type === "IN" ? -toNum(mov.amount) : toNum(mov.amount);
-  const box = await prisma.cashBox.findUnique({ where: { id: mov.cashBoxId } });
-  if (!box) return err("Caixa não encontrado");
 
   await prisma.$transaction([
     prisma.cashBoxMovement.delete({ where: { id } }),
     prisma.cashBox.update({
       where: { id: mov.cashBoxId },
-      data: { currentAmount: toNum(box.currentAmount) + delta },
+      data: { currentAmount: { increment: delta } },
     }),
   ]);
   revalidatePath("/caixa");

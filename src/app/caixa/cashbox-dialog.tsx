@@ -26,8 +26,15 @@ export function CashBoxDialog({
   trigger?: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        setError(null);
+      }}
+    >
       <DialogTrigger asChild>
         {trigger ?? (
           <Button>
@@ -41,7 +48,12 @@ export function CashBoxDialog({
         </DialogHeader>
         <form
           action={async (fd) => {
-            await saveCashBox(fd);
+            const res = await saveCashBox(fd);
+            if (!res.ok) {
+              setError(res.error);
+              return;
+            }
+            setError(null);
             setOpen(false);
           }}
           className="space-y-3"
@@ -93,6 +105,11 @@ export function CashBoxDialog({
             <Label>Observações</Label>
             <Textarea name="notes" defaultValue={initial?.notes ?? ""} />
           </div>
+          {error && (
+            <p role="alert" className="text-sm font-medium text-red-600 dark:text-red-400">
+              {error}
+            </p>
+          )}
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancelar

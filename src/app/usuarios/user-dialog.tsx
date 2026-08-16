@@ -25,9 +25,16 @@ export function UserDialog({
   trigger?: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const editing = !!initial?.id;
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        setError(null);
+      }}
+    >
       <DialogTrigger asChild>
         {trigger ?? (
           <Button>
@@ -41,8 +48,12 @@ export function UserDialog({
         </DialogHeader>
         <form
           action={async (fd) => {
-            if (editing) await updateUser(fd);
-            else await createUser(fd);
+            const res = editing ? await updateUser(fd) : await createUser(fd);
+            if (!res.ok) {
+              setError(res.error);
+              return;
+            }
+            setError(null);
             setOpen(false);
           }}
           className="space-y-3"
@@ -94,6 +105,11 @@ export function UserDialog({
               </Select>
             </div>
           </div>
+          {error && (
+            <p role="alert" className="text-sm font-medium text-red-600 dark:text-red-400">
+              {error}
+            </p>
+          )}
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancelar

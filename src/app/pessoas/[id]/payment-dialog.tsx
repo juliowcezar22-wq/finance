@@ -20,8 +20,15 @@ import { formatDateInput } from "@/lib/format";
 
 export function PaymentDialog({ personId, accounts }: { personId: string; accounts: any[] }) {
   const [open, setOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        setError(null);
+      }}
+    >
       <DialogTrigger asChild>
         <Button>
           <HandCoins className="mr-1 h-4 w-4" /> Registrar pagamento
@@ -33,7 +40,12 @@ export function PaymentDialog({ personId, accounts }: { personId: string; accoun
         </DialogHeader>
         <form
           action={async (fd) => {
-            await registerPersonPayment(fd);
+            const res = await registerPersonPayment(fd);
+            if (!res.ok) {
+              setError(res.error);
+              return;
+            }
+            setError(null);
             setOpen(false);
           }}
           className="space-y-3"
@@ -73,6 +85,11 @@ export function PaymentDialog({ personId, accounts }: { personId: string; accoun
             <Label>Observações</Label>
             <Textarea name="notes" />
           </div>
+          {error && (
+            <p role="alert" className="text-sm font-medium text-red-600 dark:text-red-400">
+              {error}
+            </p>
+          )}
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancelar

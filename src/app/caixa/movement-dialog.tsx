@@ -19,9 +19,16 @@ import { formatDateInput } from "@/lib/format";
 
 export function MovementDialog({ cashBoxId, type }: { cashBoxId: string; type: "IN" | "OUT" }) {
   const [open, setOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const isIn = type === "IN";
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        setError(null);
+      }}
+    >
       <DialogTrigger asChild>
         <Button variant={isIn ? "default" : "outline"} size="sm">
           {isIn ? (
@@ -38,7 +45,12 @@ export function MovementDialog({ cashBoxId, type }: { cashBoxId: string; type: "
         </DialogHeader>
         <form
           action={async (fd) => {
-            await registerCashMovement(fd);
+            const res = await registerCashMovement(fd);
+            if (!res.ok) {
+              setError(res.error);
+              return;
+            }
+            setError(null);
             setOpen(false);
           }}
           className="space-y-3"
@@ -59,6 +71,11 @@ export function MovementDialog({ cashBoxId, type }: { cashBoxId: string; type: "
             <Label>Descrição</Label>
             <Input name="description" placeholder="Opcional" />
           </div>
+          {error && (
+            <p role="alert" className="text-sm font-medium text-red-600 dark:text-red-400">
+              {error}
+            </p>
+          )}
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancelar

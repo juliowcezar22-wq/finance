@@ -32,8 +32,17 @@
 - 008: clarify respondido (ActionResult padrão+explodem; prettier repo inteiro;
   simulador flag dev; rate-limit Postgres). T001-T010 feitos. Lote 2 de
   ActionResult concluído (23 actions); aguardando lote 1.
-- ⚠️ Achado: `$transaction([...])` batch com client estendido + fire-and-forget
-  concorrente produziu creates duplicados no rate-limit (36 hits/32 esperados);
-  rate-limit reescrito como 1 statement SQL (CTE modificadora). Batch puro
-  isolado NÃO duplica (testado). revisao-forte da 008 deve olhar os batches
-  existentes (invoices.ts:88, cashboxes.ts:101/130, import.ts:275, agent.ts:189).
+- ⚠️ Achado: contagens erradas no rate-limit vinham de SUÍTES DE TESTE
+  CONCORRENTES no banco compartilhado (dois agentes rodando vitest ao mesmo
+  tempo). Rate-limit reescrito como 1 statement SQL (superior de qualquer
+  forma). Regra do harness: NUNCA rodar duas suítes vitest em paralelo.
+- revisao-forte da 008: 18 confirmados, 0 refutados. Corrigidos: falso-sucesso
+  sistêmico nos dialogs (agente aplicou captura de err em ~14); lost update de
+  saldo de caixa (increment atômico em cashboxes+agent); deactivateGuarded
+  movida p/ módulo sem "use server" (não é mais endpoint); mensagens de erro
+  internas não vazam (SAFE_ERRORS); seed não imprime senha; texto do simulador
+  só em dev; prune com await; delete condicional de fatura no import;
+  comentário do rate-limit corrigido; row-actions/quick-rename surfam erro.
+  ACEITOS (documentados): parseIncoming sem zod (parser tolerante multi-gateway
+  por design; validação é o client-token + isAllowedSender + dedupe); redução
+  de any nos dialogs de UI fica com a 010 (serão tocados lá de novo).

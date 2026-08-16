@@ -202,7 +202,7 @@ async function main() {
         active: true,
       },
     });
-    console.log(`  ✓ admin criado: ${ADMIN.email} (senha: ${ADMIN.password})`);
+    console.log(`  ✓ admin criado: ${ADMIN.email}`);
   } else {
     console.log(`  • admin já existe: ${ADMIN.email}`);
   }

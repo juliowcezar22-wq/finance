@@ -273,7 +273,12 @@ export async function deleteImportBatch(id: string) {
     ]);
     if (!inv) continue;
     if (remaining === 0 && toNum(inv.paid) <= 0) {
-      await prisma.creditCardInvoice.delete({ where: { id: invId } });
+      // deleteMany CONDICIONAL (paid <= 0 no próprio WHERE): se um pagamento
+      // entrou entre o check e o delete, a fatura não é apagada (0 linhas).
+      const del = await prisma.creditCardInvoice.deleteMany({
+        where: { id: invId, paid: { lte: 0 } },
+      });
+      if (del.count === 0) await recalcInvoiceTotal(invId);
     } else {
       await recalcInvoiceTotal(invId);
     }

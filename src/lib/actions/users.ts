@@ -5,35 +5,19 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth/viewer";
 import { type ActionResult, ok, err } from "@/lib/types/action";
+import {
+  deactivateGuarded,
+  txSerializable,
+  assertOtherActiveAdmin,
+  LAST_ADMIN_ERROR,
+} from "@/lib/auth/deactivate-user";
 
-/**
- * Roda `fn` numa transação SERIALIZABLE com retry. Usada nas mutações que podem
- * reduzir o número de administradores ativos: o SERIALIZABLE detecta o conflito
- * de duas desativações concorrentes de admins DIFERENTES (que sob READ COMMITTED
- * ambas passariam, zerando os admins) e aborta uma; o retry reavalia já com a
- * mudança visível e rejeita corretamente.
- */
-async function txSerializable<T>(fn: (tx: any) => Promise<T>): Promise<T> {
-  for (let attempt = 0; ; attempt++) {
-    try {
-      return await prisma.$transaction(fn, { isolationLevel: "Serializable" });
-    } catch (e: any) {
-      // P2034: falha de serialização / conflito de escrita / deadlock.
-      if (e?.code === "P2034" && attempt < 2) continue;
-      throw e;
-    }
-  }
-}
-
-const LAST_ADMIN_ERROR =
-  "Não é possível remover o último administrador ativo (desativar ou rebaixar de ADMIN).";
-
-/** Lança se `id` é o único admin ativo (dentro da transação `tx`). */
-async function assertOtherActiveAdmin(tx: any, id: string) {
-  const others = await tx.user.count({
-    where: { role: "ADMIN", active: true, id: { not: id } },
-  });
-  if (others < 1) throw new Error(LAST_ADMIN_ERROR);
+// Mensagens de erro que PODEM ir ao cliente; o resto vira genérica (não vazar
+// detalhes internos de exceção).
+const SAFE_ERRORS = new Set([LAST_ADMIN_ERROR, "Usuário não encontrado."]);
+function safeErr(e: unknown): ActionResult {
+  const msg = e instanceof Error ? e.message : "";
+  return err(SAFE_ERRORS.has(msg) ? msg : "Não foi possível concluir a operação.");
 }
 
 const CreateSchema = z.object({
@@ -144,7 +128,7 @@ export async function updateUser(formData: FormData): Promise<ActionResult> {
       });
     });
   } catch (e) {
-    return err(e instanceof Error ? e.message : "Erro inesperado.");
+    return safeErr(e);
   }
 
   // Sincroniza vínculo com Person:
@@ -167,23 +151,6 @@ export async function updateUser(formData: FormData): Promise<ActionResult> {
   revalidatePath("/usuarios");
   revalidatePath("/pessoas");
   return ok();
-}
-
-/**
- * Desativa um usuário sem deixar o sistema sem admin ativo (FR-008): checa e
- * escreve sob SERIALIZABLE (com retry), fechando a corrida de desativações
- * concorrentes de admins diferentes.
- */
-export async function deactivateGuarded(id: string) {
-  await txSerializable(async (tx) => {
-    const target = await tx.user.findUnique({
-      where: { id },
-      select: { role: true, active: true },
-    });
-    if (!target) throw new Error("Usuário não encontrado.");
-    if (target.role === "ADMIN" && target.active) await assertOtherActiveAdmin(tx, id);
-    await tx.user.update({ where: { id }, data: { active: false } });
-  });
 }
 
 /** Aprova (ativa) ou suspende (desativa) uma conta. Usado no botão rápido de /usuarios. */
@@ -214,7 +181,7 @@ export async function deleteUser(id: string): Promise<ActionResult> {
   try {
     await deactivateGuarded(id);
   } catch (e) {
-    return err(e instanceof Error ? e.message : "Erro inesperado.");
+    return safeErr(e);
   }
   revalidatePath("/usuarios");
   revalidatePath("/pessoas");

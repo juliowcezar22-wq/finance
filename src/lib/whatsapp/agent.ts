@@ -195,7 +195,10 @@ ${snapshot}${memory ? "\n\n===== MEMÓRIA =====\n" + memory : ""}`;
         }
         const amount = num(f.amount);
         const type = f.type === "OUT" ? "OUT" : "IN";
-        const cur = (await prisma.cashBox.findUnique({ where: { id: box.id } }))!.currentAmount;
+        // Increment atômico (sem read-modify-write): movimentos concorrentes
+        // no mesmo caixa não se perdem; e sem non-null assertion (caixa pode
+        // ter sumido entre o findBox e aqui).
+        const delta = type === "IN" ? amount : -amount;
         await prisma.$transaction([
           prisma.cashBoxMovement.create({
             data: {
@@ -208,7 +211,7 @@ ${snapshot}${memory ? "\n\n===== MEMÓRIA =====\n" + memory : ""}`;
           }),
           prisma.cashBox.update({
             where: { id: box.id },
-            data: { currentAmount: toNum(cur) + (type === "IN" ? amount : -amount) },
+            data: { currentAmount: { increment: delta } },
           }),
         ]);
         revalidateAll();

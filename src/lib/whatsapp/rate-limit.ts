@@ -10,9 +10,11 @@ export const WEBHOOK_MAX_PER_MIN = 30;
  * UMA única instrução SQL: limpa hits velhos (>10 min) + registra o hit atual +
  * conta os ANTERIORES na janela. CTEs de modificação (INSERT/DELETE) sempre
  * executam (diferente de CTE SELECT, que é podada se não referenciada). Datas
- * calculadas só com o relógio do banco (sem skew). Não usamos
- * `$transaction([...])` porque o client estendido (owner-scope) duplica
- * operações em batch transactions.
+ * calculadas só com o relógio do banco (sem skew). Preferimos 1 statement a
+ * `$transaction([...])`: elimina qualquer interação com o batch do client
+ * estendido e com promises concorrentes no pool de 1 conexão (as contagens
+ * intermitentes que motivaram a reescrita vieram de suítes de teste
+ * concorrentes no banco compartilhado).
  *
  * O count NÃO vê o INSERT do próprio statement (mesmo snapshot), então `c` são
  * os hits anteriores: c >= MAX ⇒ este é o (MAX+1)º ou além ⇒ bloqueia.

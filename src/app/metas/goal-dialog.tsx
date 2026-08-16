@@ -20,8 +20,15 @@ import { formatDateInput } from "@/lib/format";
 
 export function GoalDialog({ initial, trigger }: { initial?: any; trigger?: React.ReactNode }) {
   const [open, setOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        setError(null);
+      }}
+    >
       <DialogTrigger asChild>
         {trigger ?? (
           <Button>
@@ -35,7 +42,12 @@ export function GoalDialog({ initial, trigger }: { initial?: any; trigger?: Reac
         </DialogHeader>
         <form
           action={async (fd) => {
-            await saveGoal(fd);
+            const res = await saveGoal(fd);
+            if (!res.ok) {
+              setError(res.error);
+              return;
+            }
+            setError(null);
             setOpen(false);
           }}
           className="grid grid-cols-1 gap-4 sm:grid-cols-2"
@@ -88,6 +100,14 @@ export function GoalDialog({ initial, trigger }: { initial?: any; trigger?: Reac
             <Label>Observações</Label>
             <Textarea name="notes" defaultValue={initial?.notes ?? ""} />
           </div>
+          {error && (
+            <p
+              role="alert"
+              className="col-span-2 text-sm font-medium text-red-600 dark:text-red-400"
+            >
+              {error}
+            </p>
+          )}
           <DialogFooter className="col-span-2">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancelar

@@ -24,7 +24,14 @@ export function UserRowActions({ user, people }: { user: any; people: any[] }) {
         disabled={pending}
         onClick={() => {
           if (!confirm(`Excluir o usuário ${user.name}?`)) return;
-          start(() => void deleteUser(user.id));
+          start(() => {
+            void (async () => {
+              const res = await deleteUser(user.id);
+              // feedback mínimo até a 010 (toasts): a guarda de último admin
+              // não pode falhar em silêncio.
+              if (!res.ok) alert(res.error);
+            })();
+          });
         }}
         title="Excluir"
       >

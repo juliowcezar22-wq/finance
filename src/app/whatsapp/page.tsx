@@ -51,9 +51,8 @@ export default async function WhatsAppPage() {
               <p className="font-semibold">Conecte seu WhatsApp</p>
               <p className="text-sm text-muted-foreground">
                 Cadastre as credenciais do seu gateway (Z-API/Evolution), seu número pessoal e
-                ative. Depois aponte o <strong>webhook</strong> do gateway para a URL abaixo.
-                Enquanto isso, use o <strong>simulador</strong> para testar o agente. A IA usa a
-                chave configurada no módulo <strong>Assistente IA</strong>.
+                ative. Depois aponte o <strong>webhook</strong> do gateway para a URL abaixo. A IA
+                usa a chave configurada no módulo <strong>Assistente IA</strong>.
               </p>
             </div>
             <WhatsAppSettingsDialog settings={settings} />
