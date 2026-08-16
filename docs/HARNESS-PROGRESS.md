@@ -18,12 +18,14 @@
 | 008 | qualidade-e-limpeza | M7, M8, resíduos M2/M3 | mergeada (8b7711f) | ✅ |
 | 009 | performance-paginacao | M9 | mergeada (ce3af23) | ✅ |
 | 010 | ux-final | M10 essencial | implement (2 agentes) | 🔵 em curso |
-| 011 | testes-observabilidade | M11, M12 | — | ⏳ fila |
-| 012 | conferencia-go-live | M13, M14, M15 | — | ⏳ fila |
+| 011 | testes-observabilidade | M11, M12 | mergeada (f44e262) | ✅ |
+| 012 | conferencia-go-live | M13, M14, M15 | docs + gates | ✅ |
 
 ## Entregáveis finais
 
-- [ ] Artifact no Claude (o que foi feito + lista de testes de produção)
+- [x] `docs/GO-LIVE.md` (checklist executável) e `docs/TESTES-PRODUCAO.md`
+      (roteiro A-F com conferência de cálculo)
+- [ ] Artifact no Claude (consolidado + lista de testes) — última etapa
 - [x] Skill `revisao-forte` criada (`.claude/skills/revisao-forte/`)
 
 ## Log
