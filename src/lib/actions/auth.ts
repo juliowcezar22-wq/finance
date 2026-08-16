@@ -8,8 +8,7 @@ import { createSessionToken, verifySessionToken, SESSION_COOKIE } from "@/lib/au
 import { reserveAttempt, recordLoginAttempt, pruneOldAttempts } from "@/lib/auth/login-throttle";
 
 const GENERIC_LOGIN_ERROR = "E-mail ou senha incorretos";
-const LOCKED_LOGIN_ERROR =
-  "Muitas tentativas. Aguarde alguns minutos e tente novamente.";
+const LOCKED_LOGIN_ERROR = "Muitas tentativas. Aguarde alguns minutos e tente novamente.";
 
 // Hash descartável usado quando o e-mail não existe: garante que bcrypt.compare
 // rode SEMPRE, equalizando a latência entre e-mail existente e inexistente
@@ -38,7 +37,9 @@ export type SignupState = { error?: string; success?: boolean } | null;
 
 export async function loginAction(_prev: LoginState, formData: FormData): Promise<LoginState> {
   const parsed = LoginSchema.safeParse({
-    email: String(formData.get("email") || "").trim().toLowerCase(),
+    email: String(formData.get("email") || "")
+      .trim()
+      .toLowerCase(),
     password: String(formData.get("password") || ""),
   });
 
@@ -102,13 +103,12 @@ export async function loginAction(_prev: LoginState, formData: FormData): Promis
  * até que um administrador aprove a conta em /usuarios. Não autentica nem
  * cria sessão; apenas registra o pedido de acesso.
  */
-export async function signUpAction(
-  _prev: SignupState,
-  formData: FormData
-): Promise<SignupState> {
+export async function signUpAction(_prev: SignupState, formData: FormData): Promise<SignupState> {
   const parsed = SignupSchema.safeParse({
     name: String(formData.get("name") || "").trim(),
-    email: String(formData.get("email") || "").trim().toLowerCase(),
+    email: String(formData.get("email") || "")
+      .trim()
+      .toLowerCase(),
     password: String(formData.get("password") || ""),
   });
 

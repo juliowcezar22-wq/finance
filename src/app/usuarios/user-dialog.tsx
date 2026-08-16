@@ -31,7 +31,7 @@ export function UserDialog({
       <DialogTrigger asChild>
         {trigger ?? (
           <Button>
-            <Plus className="h-4 w-4 mr-1" /> Novo usuário
+            <Plus className="mr-1 h-4 w-4" /> Novo usuário
           </Button>
         )}
       </DialogTrigger>
@@ -48,19 +48,14 @@ export function UserDialog({
           className="space-y-3"
         >
           {editing && <input type="hidden" name="id" value={initial.id} />}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="col-span-2">
               <Label>Nome</Label>
               <Input name="name" defaultValue={initial?.name ?? ""} required />
             </div>
             <div className="col-span-2">
               <Label>E-mail</Label>
-              <Input
-                name="email"
-                type="email"
-                defaultValue={initial?.email ?? ""}
-                required
-              />
+              <Input name="email" type="email" defaultValue={initial?.email ?? ""} required />
             </div>
             <div className="col-span-2">
               <Label>{editing ? "Nova senha (opcional)" : "Senha inicial"}</Label>
@@ -88,10 +83,7 @@ export function UserDialog({
             </div>
             <div className="col-span-2">
               <Label>Pessoa vinculada (opcional)</Label>
-              <Select
-                name="personId"
-                defaultValue={initial?.personId ?? ""}
-              >
+              <Select name="personId" defaultValue={initial?.personId ?? ""}>
                 <option value="">— sem vínculo</option>
                 {people.map((p) => (
                   <option key={p.id} value={p.id}>

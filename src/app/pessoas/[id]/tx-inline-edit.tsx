@@ -4,13 +4,7 @@ import { Select } from "@/components/ui/select";
 import { setPersonTxStatus, setPersonTxCategory } from "@/lib/actions/people";
 import { setTransactionResponsible } from "@/lib/actions/transactions";
 
-export function StatusSelect({
-  txId,
-  value,
-}: {
-  txId: string;
-  value: string;
-}) {
+export function StatusSelect({ txId, value }: { txId: string; value: string }) {
   const [pending, start] = useTransition();
   return (
     <Select
@@ -42,9 +36,7 @@ export function CategorySelect({
     <Select
       defaultValue={value ?? ""}
       disabled={pending}
-      onChange={(e) =>
-        start(() => void setPersonTxCategory(txId, e.target.value || null))
-      }
+      onChange={(e) => start(() => void setPersonTxCategory(txId, e.target.value || null))}
       className="h-8 text-sm"
     >
       <option value="">—</option>
@@ -71,9 +63,7 @@ export function ResponsibleInline({
     <Select
       defaultValue={value ?? ""}
       disabled={pending}
-      onChange={(e) =>
-        start(() => void setTransactionResponsible(txId, e.target.value || null))
-      }
+      onChange={(e) => start(() => void setTransactionResponsible(txId, e.target.value || null))}
       className="h-8 text-sm"
     >
       <option value="">—</option>

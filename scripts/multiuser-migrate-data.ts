@@ -72,9 +72,7 @@ async function main() {
   console.log(
     `  receitas ${counts.incomes} · a receber ${counts.receivables} · pagamentos ${counts.personPayments}`
   );
-  console.log(
-    `  mov. de caixa ${counts.cashMovements} · importações ${counts.importBatches}\n`
-  );
+  console.log(`  mov. de caixa ${counts.cashMovements} · importações ${counts.importBatches}\n`);
   console.log("A PRESERVAR e atribuir ao admin:");
   console.log(
     `  contas ${counts.accounts} · cartões ${counts.cards} · cartões da conta ${counts.accountCards}`

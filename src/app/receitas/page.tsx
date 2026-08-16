@@ -119,9 +119,7 @@ export default async function ReceitasPage({ searchParams }: { searchParams: Sea
       <PageHeader
         title="Receitas"
         description="Cadastre todas as suas entradas de dinheiro"
-        actions={
-          <IncomeDialog accounts={accounts} people={people} categories={categories} />
-        }
+        actions={<IncomeDialog accounts={accounts} people={people} categories={categories} />}
       />
 
       <Card className="mb-4">
@@ -130,7 +128,7 @@ export default async function ReceitasPage({ searchParams }: { searchParams: Sea
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+      <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <StatCard title="Recebido no mês" value={formatBRL(totalRecebido)} intent="positive" />
         <StatCard title="Previsto no mês" value={formatBRL(totalPrevisto)} intent="warning" />
       </div>
@@ -139,57 +137,59 @@ export default async function ReceitasPage({ searchParams }: { searchParams: Sea
         <CardContent className="p-0">
           {/* Desktop: tabela completa */}
           <div className="hidden md:block">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Data</TableHead>
-                <TableHead>Descrição</TableHead>
-                <TableHead>Tipo</TableHead>
-                <TableHead>Origem</TableHead>
-                <TableHead>Conta</TableHead>
-                <TableHead>Pessoa</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Valor</TableHead>
-                <TableHead></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {incomes.length === 0 && (
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center text-muted-foreground py-10">
-                    <NummiqSymbol size={44} className="mx-auto mb-3 opacity-40" />
-                    Nenhuma receita registrada neste período. Adicione uma entrada para começar.
-                  </TableCell>
+                  <TableHead>Data</TableHead>
+                  <TableHead>Descrição</TableHead>
+                  <TableHead>Tipo</TableHead>
+                  <TableHead>Origem</TableHead>
+                  <TableHead>Conta</TableHead>
+                  <TableHead>Pessoa</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Valor</TableHead>
+                  <TableHead></TableHead>
                 </TableRow>
-              )}
-              {incomes.map((i) => (
-                <TableRow key={i.id}>
-                  <TableCell>{formatDateBR(i.date)}</TableCell>
-                  <TableCell className="max-w-xs truncate">{i.description}</TableCell>
-                  <TableCell>{i.incomeType ? TYPE_LABEL[i.incomeType] ?? i.incomeType : "—"}</TableCell>
-                  <TableCell>{ORIGIN_LABEL[i.origin] ?? i.origin}</TableCell>
-                  <TableCell>{i.account?.name ?? "—"}</TableCell>
-                  <TableCell>{i.responsible?.name ?? "—"}</TableCell>
-                  <TableCell>
-                    <Badge variant={statusVariant(i.status)}>
-                      {STATUS_LABEL[i.status] ?? i.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right font-medium text-nummiq-success">
-                    +{formatBRL(i.amount)}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <IncomeActions
-                      income={i}
-                      accounts={accounts}
-                      people={people}
-                      categories={categories}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {incomes.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={9} className="py-10 text-center text-muted-foreground">
+                      <NummiqSymbol size={44} className="mx-auto mb-3 opacity-40" />
+                      Nenhuma receita registrada neste período. Adicione uma entrada para começar.
+                    </TableCell>
+                  </TableRow>
+                )}
+                {incomes.map((i) => (
+                  <TableRow key={i.id}>
+                    <TableCell>{formatDateBR(i.date)}</TableCell>
+                    <TableCell className="max-w-xs truncate">{i.description}</TableCell>
+                    <TableCell>
+                      {i.incomeType ? (TYPE_LABEL[i.incomeType] ?? i.incomeType) : "—"}
+                    </TableCell>
+                    <TableCell>{ORIGIN_LABEL[i.origin] ?? i.origin}</TableCell>
+                    <TableCell>{i.account?.name ?? "—"}</TableCell>
+                    <TableCell>{i.responsible?.name ?? "—"}</TableCell>
+                    <TableCell>
+                      <Badge variant={statusVariant(i.status)}>
+                        {STATUS_LABEL[i.status] ?? i.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right font-medium text-nummiq-success">
+                      +{formatBRL(i.amount)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <IncomeActions
+                        income={i}
+                        accounts={accounts}
+                        people={people}
+                        categories={categories}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </div>
 
           {/* Mobile: cada receita vira um card */}
@@ -213,7 +213,7 @@ export default async function ReceitasPage({ searchParams }: { searchParams: Sea
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
                     <span>{formatDateBR(i.date)}</span>
                     <span aria-hidden>·</span>
-                    <span>{i.incomeType ? TYPE_LABEL[i.incomeType] ?? i.incomeType : "—"}</span>
+                    <span>{i.incomeType ? (TYPE_LABEL[i.incomeType] ?? i.incomeType) : "—"}</span>
                     <Badge variant={statusVariant(i.status)}>
                       {STATUS_LABEL[i.status] ?? i.status}
                     </Badge>

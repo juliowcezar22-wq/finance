@@ -7,14 +7,7 @@ import { parseBRL, parseDateBR } from "@/lib/format";
 import { toNum } from "@/lib/services/money";
 import { type ActionResult, ok, err } from "@/lib/types/action";
 
-const TYPES = [
-  "PERSONAL",
-  "EMERGENCY",
-  "INVESTMENT",
-  "COMPANY",
-  "GOAL",
-  "OTHER",
-] as const;
+const TYPES = ["PERSONAL", "EMERGENCY", "INVESTMENT", "COMPANY", "GOAL", "OTHER"] as const;
 
 const Schema = z.object({
   id: z.string().optional(),
@@ -79,8 +72,7 @@ const MoveSchema = z.object({
 
 export async function registerCashMovement(formData: FormData): Promise<ActionResult> {
   await getViewer();
-  const date =
-    parseDateBR(String(formData.get("date") || "")) ?? new Date();
+  const date = parseDateBR(String(formData.get("date") || "")) ?? new Date();
 
   const parsed = MoveSchema.safeParse({
     cashBoxId: String(formData.get("cashBoxId") || ""),

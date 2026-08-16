@@ -21,7 +21,9 @@ describe("validateUpload", () => {
   });
 
   it("rejeita executável (.exe)", () => {
-    expect(validateUpload(fakeFile("malware.exe", "application/x-msdownload", 1024))).toMatch(/não suportado/i);
+    expect(validateUpload(fakeFile("malware.exe", "application/x-msdownload", 1024))).toMatch(
+      /não suportado/i
+    );
   });
 
   it("rejeita tipo/extensão não suportados", () => {
@@ -29,7 +31,9 @@ describe("validateUpload", () => {
   });
 
   it("rejeita arquivo acima do tamanho máximo", () => {
-    expect(validateUpload(fakeFile("grande.pdf", "application/pdf", MAX_UPLOAD_BYTES + 1))).toMatch(/muito grande/i);
+    expect(validateUpload(fakeFile("grande.pdf", "application/pdf", MAX_UPLOAD_BYTES + 1))).toMatch(
+      /muito grande/i
+    );
   });
 
   it("rejeita arquivo vazio", () => {

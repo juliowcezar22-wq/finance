@@ -62,16 +62,17 @@ export function MemoryPanel({ memories }: { memories: Memory[] }) {
       </div>
 
       {memories.length === 0 ? (
-        <div className="text-center text-sm text-muted-foreground py-6">
-          <Brain className="h-5 w-5 mx-auto mb-2 opacity-40" />
-          Nada na memória ainda. A IA aprende padrões ao gerar análises, e você pode adicionar fatos manualmente.
+        <div className="py-6 text-center text-sm text-muted-foreground">
+          <Brain className="mx-auto mb-2 h-5 w-5 opacity-40" />
+          Nada na memória ainda. A IA aprende padrões ao gerar análises, e você pode adicionar fatos
+          manualmente.
         </div>
       ) : (
         <ul className="space-y-2">
           {memories.map((m) => (
             <li key={m.id} className="flex items-start gap-2 rounded-lg border p-2 text-sm">
               <div className="flex-1">
-                <div className="flex items-center gap-1.5 mb-0.5">
+                <div className="mb-0.5 flex items-center gap-1.5">
                   <Badge variant={m.pinned ? "default" : "secondary"} className="text-[10px]">
                     {KIND_LABEL[m.kind] ?? m.kind}
                   </Badge>

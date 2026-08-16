@@ -46,7 +46,7 @@ export default async function CaixaPage() {
         actions={<CashBoxDialog accounts={accounts} />}
       />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard title="Total guardado" value={formatBRL(totalCaixa)} intent="positive" />
         <StatCard title="Reserva de emergência" value={formatBRL(totalReserva)} />
         <StatCard title="Quantidade de reservas" value={String(boxes.length)} />
@@ -60,7 +60,7 @@ export default async function CaixaPage() {
         </Card>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {boxes.map((box) => {
           const pct =
             box.targetAmount && toNum(box.targetAmount) > 0
@@ -71,7 +71,7 @@ export default async function CaixaPage() {
               <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
                 <div>
                   <CardTitle>{box.name}</CardTitle>
-                  <div className="flex flex-wrap gap-2 mt-1">
+                  <div className="mt-1 flex flex-wrap gap-2">
                     <Badge variant="secondary">{TYPE_LABEL[box.type] ?? box.type}</Badge>
                     {box.account && <Badge variant="outline">{box.account.name}</Badge>}
                   </div>
@@ -97,7 +97,7 @@ export default async function CaixaPage() {
                 </div>
 
                 <div>
-                  <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2">
+                  <p className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">
                     Últimas movimentações
                   </p>
                   {box.movements.length === 0 ? (
@@ -116,9 +116,7 @@ export default async function CaixaPage() {
                             <span className="shrink-0 text-muted-foreground">
                               {formatDateBR(m.date)}
                             </span>
-                            {m.description && (
-                              <span className="truncate">— {m.description}</span>
-                            )}
+                            {m.description && <span className="truncate">— {m.description}</span>}
                           </span>
                           <span className="flex shrink-0 items-center gap-1">
                             <span
@@ -138,7 +136,7 @@ export default async function CaixaPage() {
                 </div>
 
                 {box.notes && (
-                  <p className="text-xs text-muted-foreground border-t pt-2">{box.notes}</p>
+                  <p className="border-t pt-2 text-xs text-muted-foreground">{box.notes}</p>
                 )}
               </CardContent>
             </Card>

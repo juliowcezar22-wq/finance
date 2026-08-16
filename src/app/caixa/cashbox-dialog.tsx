@@ -31,7 +31,7 @@ export function CashBoxDialog({
       <DialogTrigger asChild>
         {trigger ?? (
           <Button>
-            <Plus className="h-4 w-4 mr-1" /> Nova reserva
+            <Plus className="mr-1 h-4 w-4" /> Nova reserva
           </Button>
         )}
       </DialogTrigger>
@@ -51,7 +51,7 @@ export function CashBoxDialog({
             <Label>Nome</Label>
             <Input name="name" defaultValue={initial?.name ?? ""} required />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <Label>Valor atual</Label>
               <Input
@@ -75,7 +75,7 @@ export function CashBoxDialog({
               <option value="PERSONAL">Caixa pessoal</option>
               <option value="EMERGENCY">Reserva de emergência</option>
               <option value="INVESTMENT">Investimento</option>
-              <option value="COMPANY">Empresa</option>              <option value="OTHER">Outro</option>
+              <option value="COMPANY">Empresa</option> <option value="OTHER">Outro</option>
             </Select>
           </div>
           <div>

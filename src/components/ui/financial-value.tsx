@@ -48,12 +48,7 @@ export function FinancialValue({
   return (
     <span
       data-numeric
-      className={cn(
-        "font-semibold tabular-nums tracking-tight",
-        sizes[size],
-        color,
-        className
-      )}
+      className={cn("font-semibold tabular-nums tracking-tight", sizes[size], color, className)}
     >
       {text}
     </span>

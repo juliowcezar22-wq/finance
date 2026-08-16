@@ -75,11 +75,7 @@ function Distribution({ items }: { items: { label: string; value: number }[] }) 
   );
 }
 
-export default async function DashboardPage({
-  searchParams,
-}: {
-  searchParams?: { mes?: string };
-}) {
+export default async function DashboardPage({ searchParams }: { searchParams?: { mes?: string } }) {
   const viewer = await getViewer("/dashboard");
   const ref = parseMonthRef(searchParams?.mes);
 
@@ -133,9 +129,7 @@ export default async function DashboardPage({
 
       {/* Hero — Saldo em caixa */}
       <Card className="p-6 md:p-8">
-        <p className="text-[11px] uppercase tracking-[0.16em] text-nummiq-muted">
-          Saldo em caixa
-        </p>
+        <p className="text-[11px] uppercase tracking-[0.16em] text-nummiq-muted">Saldo em caixa</p>
         <div className="mt-2 flex flex-wrap items-baseline gap-x-4 gap-y-1">
           <FinancialValue value={caixa} size="display" />
           <span
@@ -174,16 +168,12 @@ export default async function DashboardPage({
         <Card className="p-5 lg:col-span-2">
           <div className="mb-5 flex items-center justify-between">
             <h2 className="text-sm font-medium text-nummiq-white">Fluxo de caixa</h2>
-            <span className="text-xs text-nummiq-muted">
-              últimos {history.labels.length} meses
-            </span>
+            <span className="text-xs text-nummiq-muted">últimos {history.labels.length} meses</span>
           </div>
           <MonthlyBarChart labels={history.labels} values={history.caixa} tone="cash" />
         </Card>
         <Card className="p-5">
-          <h2 className="mb-5 text-sm font-medium text-nummiq-white">
-            Distribuição por grupo
-          </h2>
+          <h2 className="mb-5 text-sm font-medium text-nummiq-white">Distribuição por grupo</h2>
           <Distribution
             items={[
               { label: "Pessoal", value: pessoal },
@@ -233,7 +223,12 @@ export default async function DashboardPage({
                       {formatDateBR(t.date)}
                     </TableCell>
                     <TableCell className="text-right">
-                      <FinancialValue value={signed} size="sm" colorBySign={colored} signed={colored} />
+                      <FinancialValue
+                        value={signed}
+                        size="sm"
+                        colorBySign={colored}
+                        signed={colored}
+                      />
                     </TableCell>
                   </TableRow>
                 );
@@ -264,9 +259,7 @@ export default async function DashboardPage({
             </span>
             <Badge variant={endiv.variant}>{endiv.label}</Badge>
           </div>
-          <p className="mt-2 text-xs text-nummiq-muted">
-            Saudável até 30%, crítico acima de 50%.
-          </p>
+          <p className="mt-2 text-xs text-nummiq-muted">Saudável até 30%, crítico acima de 50%.</p>
         </Card>
         <StatCard
           title="Previsto a receber"

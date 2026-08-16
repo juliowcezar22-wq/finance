@@ -19,14 +19,17 @@ export function ExpenseFilters({ people }: { people: any[] }) {
   }
 
   return (
-    <div className="flex flex-col sm:flex-row sm:items-end gap-3">
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
       <div>
         <Label className="text-xs">Mês</Label>
         <MonthPicker value={sp.get("mes") ?? ""} onChange={(v) => update("mes", v)} />
       </div>
       <div className="w-full sm:w-44">
         <Label className="text-xs">Status</Label>
-        <Select defaultValue={sp.get("status") ?? ""} onChange={(e) => update("status", e.target.value)}>
+        <Select
+          defaultValue={sp.get("status") ?? ""}
+          onChange={(e) => update("status", e.target.value)}
+        >
           <option value="">Todos</option>
           <option value="pendente">A vencer</option>
           <option value="pago">Pago</option>
@@ -35,7 +38,10 @@ export function ExpenseFilters({ people }: { people: any[] }) {
       </div>
       <div className="w-full sm:w-48">
         <Label className="text-xs">Pessoa</Label>
-        <Select defaultValue={sp.get("pessoa") ?? ""} onChange={(e) => update("pessoa", e.target.value)}>
+        <Select
+          defaultValue={sp.get("pessoa") ?? ""}
+          onChange={(e) => update("pessoa", e.target.value)}
+        >
           <option value="">Todas</option>
           {people.map((p) => (
             <option key={p.id} value={p.id}>

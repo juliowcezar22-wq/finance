@@ -131,10 +131,7 @@ export async function deleteTransaction(id: string): Promise<ActionResult> {
   return ok();
 }
 
-export async function setTransactionStatus(
-  id: string,
-  status: string
-): Promise<ActionResult> {
+export async function setTransactionStatus(id: string, status: string): Promise<ActionResult> {
   await getViewer();
   await prisma.transaction.update({ where: { id }, data: { status } });
   revalidatePath("/transacoes");
@@ -143,12 +140,7 @@ export async function setTransactionStatus(
 }
 
 function normalizeDescription(s: string) {
-  return s
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .replace(/\s+/g, " ")
-    .trim()
-    .toUpperCase();
+  return s.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/\s+/g, " ").trim().toUpperCase();
 }
 
 /**
@@ -181,11 +173,7 @@ export async function setTransactionResponsible(
       reimbursable: isThirdParty,
       // Se virou de outra pessoa: marca como devendo (a receber dela).
       // Se voltou para titular/sem responsável: volta para pendente se estava devendo.
-      status: isThirdParty
-        ? "devendo"
-        : tx.status === "devendo"
-          ? "pendente"
-          : tx.status,
+      status: isThirdParty ? "devendo" : tx.status === "devendo" ? "pendente" : tx.status,
     },
   });
 
@@ -242,9 +230,7 @@ export async function setTransactionResponsible(
 
     if (siblings.length > 0) {
       const ids = siblings.map((c) => c.id);
-      const devendoIds = siblings
-        .filter((c) => c.status === "devendo")
-        .map((c) => c.id);
+      const devendoIds = siblings.filter((c) => c.status === "devendo").map((c) => c.id);
 
       const ops: any[] = [
         prisma.transaction.updateMany({

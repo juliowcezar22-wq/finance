@@ -5,13 +5,7 @@ import { Pencil, Trash2 } from "lucide-react";
 import { deleteCashBox, deleteCashMovement } from "@/lib/actions/cashboxes";
 import { useTransition } from "react";
 
-export function CashBoxActions({
-  box,
-  accounts,
-}: {
-  box: any;
-  accounts: any[];
-}) {
+export function CashBoxActions({ box, accounts }: { box: any; accounts: any[] }) {
   const [pending, start] = useTransition();
   return (
     <div className="flex gap-1">

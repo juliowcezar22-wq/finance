@@ -40,7 +40,7 @@ export function TransactionDialog({
       <DialogTrigger asChild>
         {trigger ?? (
           <Button>
-            <Plus className="h-4 w-4 mr-1" /> Nova transação
+            <Plus className="mr-1 h-4 w-4" /> Nova transação
           </Button>
         )}
       </DialogTrigger>
@@ -54,21 +54,29 @@ export function TransactionDialog({
             await saveTransaction(fd);
             setOpen(false);
           }}
-          className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2"
         >
           {initial?.id && <input type="hidden" name="id" value={initial.id} />}
 
           <div className="col-span-1">
             <Label>Data</Label>
             <DatePicker
-              name="date"defaultValue={initial?.date ? formatDateInput(initial.date) : formatDateInput(new Date())}
+              name="date"
+              defaultValue={
+                initial?.date ? formatDateInput(initial.date) : formatDateInput(new Date())
+              }
               required
             />
           </div>
 
           <div className="col-span-1">
             <Label>Valor</Label>
-            <Input name="amount" defaultValue={initial?.amount?.toString().replace(".", ",") ?? ""} placeholder="0,00" required />
+            <Input
+              name="amount"
+              defaultValue={initial?.amount?.toString().replace(".", ",") ?? ""}
+              placeholder="0,00"
+              required
+            />
           </div>
 
           <div className="col-span-2">

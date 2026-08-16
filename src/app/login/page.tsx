@@ -8,9 +8,9 @@ export const metadata = {
 // Login institucional (DS §66). Split escuro/prateado, sem mascote.
 export default function LoginPage() {
   return (
-    <div className="dark min-h-screen bg-nummiq-black text-foreground grid lg:grid-cols-2">
+    <div className="dark grid min-h-screen bg-nummiq-black text-foreground lg:grid-cols-2">
       {/* Lado institucional (desktop) */}
-      <div className="relative hidden lg:flex flex-col justify-between overflow-hidden border-r border-border p-12">
+      <div className="relative hidden flex-col justify-between overflow-hidden border-r border-border p-12 lg:flex">
         {/* Composição abstrata prateada, discreta (DS §66/§70) */}
         <div
           aria-hidden
@@ -25,8 +25,8 @@ export default function LoginPage() {
             <span className="text-metal">sob controle.</span>
           </h1>
           <p className="mt-4 text-sm leading-relaxed text-nummiq-silver">
-            Patrimônio, receitas, despesas e metas em uma interface escura,
-            sofisticada e silenciosa. Suas finanças com clareza.
+            Patrimônio, receitas, despesas e metas em uma interface escura, sofisticada e
+            silenciosa. Suas finanças com clareza.
           </p>
         </div>
         <p className="text-[11px] uppercase tracking-[0.2em] text-nummiq-muted">
@@ -43,9 +43,7 @@ export default function LoginPage() {
           </div>
 
           <div className="mb-6">
-            <h2 className="text-2xl font-semibold tracking-tight text-nummiq-white">
-              Entrar
-            </h2>
+            <h2 className="text-2xl font-semibold tracking-tight text-nummiq-white">Entrar</h2>
             <p className="mt-1 text-sm text-nummiq-silver">
               Acesse sua visão financeira com segurança.
             </p>

@@ -38,7 +38,7 @@ export function IncomeDialog({
       <DialogTrigger asChild>
         {trigger ?? (
           <Button>
-            <Plus className="h-4 w-4 mr-1" /> Nova receita
+            <Plus className="mr-1 h-4 w-4" /> Nova receita
           </Button>
         )}
       </DialogTrigger>
@@ -51,7 +51,7 @@ export function IncomeDialog({
             await saveIncome(fd);
             setOpen(false);
           }}
-          className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2"
         >
           {initial?.id && <input type="hidden" name="id" value={initial.id} />}
 
@@ -73,9 +73,7 @@ export function IncomeDialog({
             <DatePicker
               name="date"
               defaultValue={
-                initial?.date
-                  ? formatDateInput(initial.date)
-                  : formatDateInput(new Date())
+                initial?.date ? formatDateInput(initial.date) : formatDateInput(new Date())
               }
               required
             />
@@ -88,7 +86,7 @@ export function IncomeDialog({
               <option value="pix">Pix</option>
               <option value="dinheiro">Dinheiro em espécie</option>
             </Select>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="mt-1 text-xs text-muted-foreground">
               Receita não pode entrar em cartão de crédito.
             </p>
           </div>

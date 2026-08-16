@@ -13,9 +13,7 @@
  * Regra (constituição, princípio VII): validação com safeParse na borda; erros
  * viram `err(...)` tratado — nunca exceção crua estourando no client.
  */
-export type ActionResult<T = void> =
-  | { ok: true; data?: T }
-  | { ok: false; error: string };
+export type ActionResult<T = void> = { ok: true; data?: T } | { ok: false; error: string };
 
 export function ok<T = void>(data?: T): ActionResult<T> {
   return { ok: true, data };

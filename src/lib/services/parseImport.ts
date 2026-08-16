@@ -4,12 +4,12 @@ import { parseDateBR } from "@/lib/format";
 export type ParsedRow = {
   date: Date | null;
   description: string;
-  amount: number;          // sempre não-negativo
-  isCredit: boolean;       // true se o valor original era negativo (estorno/crédito)
+  amount: number; // sempre não-negativo
+  isCredit: boolean; // true se o valor original era negativo (estorno/crédito)
   installment?: number | null;
   totalInstallments?: number | null;
   raw: Record<string, any>;
-  reason?: string;         // preenchido quando a linha é inválida
+  reason?: string; // preenchido quando a linha é inválida
 };
 
 export type ParseDiagnostics = {
@@ -23,8 +23,8 @@ export type ParseDiagnostics = {
     installment: string | null;
     totalInstallments: string | null;
   };
-  rawSample: Record<string, any>[];      // até 3 linhas brutas
-  parsedSample: ParsedRow[];             // até 3 linhas normalizadas
+  rawSample: Record<string, any>[]; // até 3 linhas brutas
+  parsedSample: ParsedRow[]; // até 3 linhas normalizadas
   ignoredReasons: { line: number; reason: string; raw: Record<string, any> }[];
   rows: ParsedRow[];
 };
@@ -258,9 +258,7 @@ export async function parseFile(file: File): Promise<ParseDiagnostics> {
   const ignoredReasons: ParseDiagnostics["ignoredReasons"] = [];
 
   json.forEach((row, idx) => {
-    const isAllEmpty = Object.values(row).every(
-      (v) => v == null || String(v).trim() === ""
-    );
+    const isAllEmpty = Object.values(row).every((v) => v == null || String(v).trim() === "");
     if (isAllEmpty) return; // simplesmente pula linhas vazias
 
     const rowIdx = indexKeys(row);

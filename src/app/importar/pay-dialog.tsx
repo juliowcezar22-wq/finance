@@ -37,7 +37,8 @@ export function PayInvoiceDialog({ invoice }: { invoice: any }) {
         >
           <input type="hidden" name="id" value={invoice.id} />
           <p className="text-sm text-muted-foreground">
-            Total: {formatBRL(invoice.total)} · Pago: {formatBRL(invoice.paid)} · Restante: {formatBRL(remaining)}
+            Total: {formatBRL(invoice.total)} · Pago: {formatBRL(invoice.paid)} · Restante:{" "}
+            {formatBRL(remaining)}
           </p>
           <div>
             <Label>Valor a pagar</Label>

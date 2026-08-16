@@ -4,13 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
  * Skeleton genérico exibido pelos loading.tsx enquanto as páginas dinâmicas
  * consultam o banco — melhora muito a percepção de velocidade na navegação.
  */
-export function PageSkeleton({
-  cards = 4,
-  rows = 6,
-}: {
-  cards?: number;
-  rows?: number;
-}) {
+export function PageSkeleton({ cards = 4, rows = 6 }: { cards?: number; rows?: number }) {
   return (
     <div className="animate-pulse">
       <div className="mb-6 space-y-2">
@@ -19,10 +13,10 @@ export function PageSkeleton({
       </div>
 
       {cards > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: cards }).map((_, i) => (
             <Card key={i}>
-              <CardContent className="p-5 space-y-3">
+              <CardContent className="space-y-3 p-5">
                 <div className="h-3 w-24 rounded bg-muted" />
                 <div className="h-7 w-32 rounded bg-muted" />
               </CardContent>
@@ -32,7 +26,7 @@ export function PageSkeleton({
       )}
 
       <Card>
-        <CardContent className="p-4 space-y-3">
+        <CardContent className="space-y-3 p-4">
           {Array.from({ length: rows }).map((_, i) => (
             <div key={i} className="h-9 w-full rounded bg-muted/60" />
           ))}

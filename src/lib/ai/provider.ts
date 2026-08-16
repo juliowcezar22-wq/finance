@@ -197,9 +197,7 @@ async function anthropicChat(
     content?: Array<{ text?: string }>;
     usage?: { input_tokens?: number; output_tokens?: number };
   };
-  const text = Array.isArray(data?.content)
-    ? data.content.map((c) => c?.text ?? "").join("")
-    : "";
+  const text = Array.isArray(data?.content) ? data.content.map((c) => c?.text ?? "").join("") : "";
   return {
     text: String(text).trim(),
     usage: {
@@ -216,8 +214,7 @@ async function anthropicChat(
 function prettyHttpError(status: number): string {
   if (status === 401 || status === 403)
     return "Chave de API inválida ou sem permissão. Verifique a chave nas configurações.";
-  if (status === 404)
-    return "Modelo não encontrado. Verifique o nome do modelo nas configurações.";
+  if (status === 404) return "Modelo não encontrado. Verifique o nome do modelo nas configurações.";
   if (status === 429)
     return "Limite de uso/créditos atingido no provedor. Tente mais tarde ou verifique seu plano.";
   return `Erro do provedor de IA (${status}). Tente novamente mais tarde.`;

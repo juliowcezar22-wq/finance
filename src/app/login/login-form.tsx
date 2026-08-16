@@ -22,7 +22,7 @@ export function LoginForm() {
       <div>
         <Label htmlFor="email">E-mail</Label>
         <div className="relative mt-1.5">
-          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-nummiq-muted" />
+          <Mail className="absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-nummiq-muted" />
           <Input
             id="email"
             name="email"
@@ -37,7 +37,7 @@ export function LoginForm() {
       <div>
         <Label htmlFor="password">Senha</Label>
         <div className="relative mt-1.5">
-          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-nummiq-muted" />
+          <Lock className="absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-nummiq-muted" />
           <Input
             id="password"
             name="password"
@@ -50,7 +50,7 @@ export function LoginForm() {
         </div>
       </div>
       {state?.error && (
-        <p className="text-sm rounded-[10px] border border-nummiq-danger/25 bg-nummiq-danger/10 px-3 py-2 text-nummiq-danger">
+        <p className="rounded-[10px] border border-nummiq-danger/25 bg-nummiq-danger/10 px-3 py-2 text-sm text-nummiq-danger">
           {state.error}
         </p>
       )}

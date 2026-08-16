@@ -49,16 +49,12 @@ export async function payInvoice(formData: FormData): Promise<ActionResult> {
   return ok();
 }
 
-export async function setInvoiceStatus(
-  id: string,
-  status: string
-): Promise<ActionResult> {
+export async function setInvoiceStatus(id: string, status: string): Promise<ActionResult> {
   await getViewer();
   const parsedId = z.string().min(1).safeParse(id);
   if (!parsedId.success) return err(parsedId.error.issues[0]?.message ?? "Dados inválidos");
   const parsedStatus = InvoiceStatus.safeParse(status);
-  if (!parsedStatus.success)
-    return err(parsedStatus.error.issues[0]?.message ?? "Dados inválidos");
+  if (!parsedStatus.success) return err(parsedStatus.error.issues[0]?.message ?? "Dados inválidos");
   await prisma.creditCardInvoice.update({
     where: { id: parsedId.data },
     data: { status: parsedStatus.data },

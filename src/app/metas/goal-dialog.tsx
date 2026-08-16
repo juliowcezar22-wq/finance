@@ -25,7 +25,7 @@ export function GoalDialog({ initial, trigger }: { initial?: any; trigger?: Reac
       <DialogTrigger asChild>
         {trigger ?? (
           <Button>
-            <Plus className="h-4 w-4 mr-1" /> Nova meta
+            <Plus className="mr-1 h-4 w-4" /> Nova meta
           </Button>
         )}
       </DialogTrigger>
@@ -38,7 +38,7 @@ export function GoalDialog({ initial, trigger }: { initial?: any; trigger?: Reac
             await saveGoal(fd);
             setOpen(false);
           }}
-          className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2"
         >
           {initial?.id && <input type="hidden" name="id" value={initial.id} />}
           <div className="col-span-2">
@@ -50,24 +50,37 @@ export function GoalDialog({ initial, trigger }: { initial?: any; trigger?: Reac
             <Select name="type" defaultValue={initial?.type ?? "economia"}>
               <option value="economia">Economia</option>
               <option value="quitacao">Quitação</option>
-              <option value="investimento">Investimento</option>            </Select>
+              <option value="investimento">Investimento</option>{" "}
+            </Select>
           </div>
           <div>
             <Label>Prioridade (1-5)</Label>
-            <Input name="priority" type="number" min={1} max={5} defaultValue={initial?.priority ?? 3} />
+            <Input
+              name="priority"
+              type="number"
+              min={1}
+              max={5}
+              defaultValue={initial?.priority ?? 3}
+            />
           </div>
           <div>
             <Label>Valor alvo</Label>
-            <Input name="targetAmount" defaultValue={initial?.targetAmount?.toString().replace(".", ",") ?? "0,00"} />
+            <Input
+              name="targetAmount"
+              defaultValue={initial?.targetAmount?.toString().replace(".", ",") ?? "0,00"}
+            />
           </div>
           <div>
             <Label>Valor atual</Label>
-            <Input name="currentAmount" defaultValue={initial?.currentAmount?.toString().replace(".", ",") ?? "0,00"} />
+            <Input
+              name="currentAmount"
+              defaultValue={initial?.currentAmount?.toString().replace(".", ",") ?? "0,00"}
+            />
           </div>
           <div className="col-span-2">
             <Label>Prazo</Label>
             <DatePicker
-name="deadline"
+              name="deadline"
               defaultValue={initial?.deadline ? formatDateInput(initial.deadline) : ""}
             />
           </div>

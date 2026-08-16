@@ -1,9 +1,4 @@
-import {
-  getAISettings,
-  isConfigured,
-  chatComplete,
-  AINotConfiguredError,
-} from "@/lib/ai/provider";
+import { getAISettings, isConfigured, chatComplete, AINotConfiguredError } from "@/lib/ai/provider";
 import type { PdfParseResult, PdfTransaction, StatementMeta } from "./types";
 
 /**
@@ -56,7 +51,10 @@ Regras:
 function extractJson(text: string): any {
   let t = text.trim();
   // remove cercas de código ```json ... ```
-  t = t.replace(/^```(?:json)?/i, "").replace(/```$/i, "").trim();
+  t = t
+    .replace(/^```(?:json)?/i, "")
+    .replace(/```$/i, "")
+    .trim();
   const start = t.indexOf("{");
   const end = t.lastIndexOf("}");
   if (start === -1 || end === -1 || end < start) {
@@ -83,7 +81,11 @@ function toNum(v: unknown): number | null {
 }
 
 function slug(s: string): string {
-  return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "");
+  return s
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]+/g, "");
 }
 
 export async function aiExtractStatement(documentText: string): Promise<PdfParseResult> {

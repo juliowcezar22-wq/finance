@@ -35,4 +35,3 @@ export async function requireAdmin(): Promise<Viewer> {
   if (v.role !== "ADMIN") redirect("/dashboard?denied=admin");
   return v;
 }
-

@@ -9,8 +9,14 @@ import { type ActionResult, ok, err } from "@/lib/types/action";
 // #1 Unificação: receitas vivem em Transaction (type=receita).
 const ORIGINS = ["debito", "pix", "dinheiro", "boleto", "cartao"] as const;
 const INCOME_TYPES = [
-  "SALARY", "EARNINGS", "COMPANY_WITHDRAWAL", "SALE", "OTHER",
-  "CLIENT", "REIMBURSEMENT", "LOAN_RECEIVED",
+  "SALARY",
+  "EARNINGS",
+  "COMPANY_WITHDRAWAL",
+  "SALE",
+  "OTHER",
+  "CLIENT",
+  "REIMBURSEMENT",
+  "LOAN_RECEIVED",
 ] as const;
 const STATUS = ["pago", "pendente", "cancelado"] as const;
 

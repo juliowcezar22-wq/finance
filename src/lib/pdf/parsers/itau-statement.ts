@@ -64,7 +64,9 @@ function currentRegion(text: string): string {
     }
   }
   for (let i = start + 1; i < lines.length; i++) {
-    if (/compras\s+parceladas|pr[oó]ximas\s+faturas|demais\s+faturas|continua\.\.\./i.test(lines[i])) {
+    if (
+      /compras\s+parceladas|pr[oó]ximas\s+faturas|demais\s+faturas|continua\.\.\./i.test(lines[i])
+    ) {
       end = i;
       break;
     }

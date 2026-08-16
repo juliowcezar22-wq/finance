@@ -16,7 +16,7 @@ export function MobileCards({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn("md:hidden space-y-2.5 p-3", className)} {...props}>
+    <div className={cn("space-y-2.5 p-3 md:hidden", className)} {...props}>
       {children}
     </div>
   );
@@ -28,10 +28,7 @@ export function MobileCard({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div
-      className={cn("rounded-xl border bg-card/40 p-3.5 space-y-2.5", className)}
-      {...props}
-    >
+    <div className={cn("space-y-2.5 rounded-xl border bg-card/40 p-3.5", className)} {...props}>
       {children}
     </div>
   );
@@ -50,9 +47,7 @@ export function MobileCardHeader({
   return (
     <div className={cn("flex items-start justify-between gap-3", className)}>
       <div className="min-w-0 break-words font-medium leading-snug">{title}</div>
-      {aside != null && (
-        <div className="shrink-0 text-right leading-snug">{aside}</div>
-      )}
+      {aside != null && <div className="shrink-0 text-right leading-snug">{aside}</div>}
     </div>
   );
 }
@@ -82,10 +77,7 @@ export function MobileCardActions({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div
-      className={cn("flex items-center justify-end gap-1 border-t pt-2", className)}
-      {...props}
-    >
+    <div className={cn("flex items-center justify-end gap-1 border-t pt-2", className)} {...props}>
       {children}
     </div>
   );

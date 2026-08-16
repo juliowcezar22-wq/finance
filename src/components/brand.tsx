@@ -3,13 +3,7 @@ import { cn } from "@/lib/utils";
 // Marca Nummiq. Símbolo = SVG oficial (public/brand/nummiq-simbolo/icone).
 // Não recriar/redesenhar a logo (DS §26/§68).
 
-export function NummiqSymbol({
-  size = 32,
-  className,
-}: {
-  size?: number;
-  className?: string;
-}) {
+export function NummiqSymbol({ size = 32, className }: { size?: number; className?: string }) {
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
@@ -37,9 +31,7 @@ export function NummiqLogo({
     <div className={cn("flex items-center gap-2.5", className)}>
       <NummiqSymbol size={size} />
       {showWordmark && (
-        <span className="text-[17px] font-semibold tracking-tight text-nummiq-white">
-          Nummiq
-        </span>
+        <span className="text-[17px] font-semibold tracking-tight text-nummiq-white">Nummiq</span>
       )}
     </div>
   );

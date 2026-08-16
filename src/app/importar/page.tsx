@@ -33,7 +33,7 @@ export default async function ImportarPage() {
           <TabsTrigger value="faturas">Histórico de faturas</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="importar" className="pt-4 space-y-6">
+        <TabsContent value="importar" className="space-y-6 pt-4">
           <Card>
             <CardContent className="p-6">
               <ImportForm cards={cards} accounts={accounts} />
@@ -41,13 +41,13 @@ export default async function ImportarPage() {
           </Card>
 
           <div>
-            <h2 className="text-lg font-semibold mb-2">Histórico de importações</h2>
+            <h2 className="mb-2 text-lg font-semibold">Histórico de importações</h2>
             <Card>
               <CardContent className="p-4">
                 {batches.length === 0 ? (
                   <p className="text-sm text-muted-foreground">Nenhuma importação ainda.</p>
                 ) : (
-                  <ul className="text-sm space-y-2">
+                  <ul className="space-y-2 text-sm">
                     {batches.map((b) => (
                       <li
                         key={b.id}
@@ -59,12 +59,9 @@ export default async function ImportarPage() {
                             ({new Date(b.createdAt).toLocaleString("pt-BR")})
                           </span>
                         </span>
-                        <span className="flex items-center gap-2 shrink-0 text-muted-foreground">
+                        <span className="flex shrink-0 items-center gap-2 text-muted-foreground">
                           {b.imported}/{b.total} importadas · {b.duplicates} duplicatas
-                          <DeleteBatchButton
-                            batchId={b.id}
-                            label={b.fileName ?? b.source}
-                          />
+                          <DeleteBatchButton batchId={b.id} label={b.fileName ?? b.source} />
                         </span>
                       </li>
                     ))}

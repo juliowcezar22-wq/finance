@@ -1,15 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import type { CreditCard, Prisma } from "@prisma/client";
-import {
-  importedLineHash,
-  transactionHash,
-  installmentGroupKeyFor,
-} from "@/lib/services/hash";
-import {
-  loadRuleContext,
-  applyRulesSync,
-  type RuleContext,
-} from "@/lib/services/rules";
+import { importedLineHash, transactionHash, installmentGroupKeyFor } from "@/lib/services/hash";
+import { loadRuleContext, applyRulesSync, type RuleContext } from "@/lib/services/rules";
 import {
   ensureInvoiceForReference,
   recalcInvoiceTotal,
@@ -78,9 +70,7 @@ export async function analyzeImportRows(opts: {
   reference: ImportReference | null; // null = extrato de conta (sem fatura)
 }): Promise<ImportAnalysis> {
   const { rows, cardId, accountId, holderId, reference } = opts;
-  const refKey = reference
-    ? referenceKey(reference.referenceYear, reference.referenceMonth)
-    : null;
+  const refKey = reference ? referenceKey(reference.referenceYear, reference.referenceMonth) : null;
 
   // --- chaves calculadas em memória -------------------------------------
   const occurrenceCounter = new Map<string, number>();
@@ -250,7 +240,7 @@ export async function analyzeImportRows(opts: {
     }
 
     const accountCardId = input.cardLastDigits
-      ? accountCardByDigits.get(input.cardLastDigits) ?? null
+      ? (accountCardByDigits.get(input.cardLastDigits) ?? null)
       : null;
 
     return {
@@ -389,9 +379,7 @@ export async function commitAnalyzedRows(
   // de setTransactionResponsible), criados em lote.
   const holderId = card?.holderId ?? null;
   const receivablesToCreate = created
-    .filter(
-      (t) => t.status === "devendo" && t.responsibleId && t.responsibleId !== holderId
-    )
+    .filter((t) => t.status === "devendo" && t.responsibleId && t.responsibleId !== holderId)
     .map((t) => ({
       personId: t.responsibleId as string,
       transactionId: t.id,

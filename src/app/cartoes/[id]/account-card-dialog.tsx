@@ -30,7 +30,7 @@ export function AccountCardDialog({
       <DialogTrigger asChild>
         {trigger ?? (
           <Button size="sm">
-            <Plus className="h-4 w-4 mr-1" /> Adicionar cartão
+            <Plus className="mr-1 h-4 w-4" /> Adicionar cartão
           </Button>
         )}
       </DialogTrigger>
@@ -43,7 +43,7 @@ export function AccountCardDialog({
             await saveAccountCard(fd);
             setOpen(false);
           }}
-          className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2"
         >
           <input type="hidden" name="cardId" value={cardId} />
           {initial?.id && <input type="hidden" name="id" value={initial.id} />}

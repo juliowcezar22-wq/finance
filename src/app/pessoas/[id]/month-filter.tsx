@@ -22,9 +22,7 @@ export function PersonMonthFilter({ current }: { current: string }) {
     <div className="flex items-end gap-2 rounded-xl border bg-card px-3 py-2">
       <div>
         <Label className="text-xs text-muted-foreground">Mês de análise</Label>
-        <MonthPicker value={current} onChange={update}
-          className="mt-1"
-        />
+        <MonthPicker value={current} onChange={update} className="mt-1" />
       </div>
       <Button variant="outline" type="button" onClick={() => update("")}>
         Mês atual

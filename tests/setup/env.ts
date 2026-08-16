@@ -10,9 +10,7 @@ import { resolve } from "path";
  */
 const file = resolve(process.cwd(), ".env.test");
 if (!existsSync(file)) {
-  throw new Error(
-    "tests: .env.test não encontrado. Crie a partir de .env.test.example."
-  );
+  throw new Error("tests: .env.test não encontrado. Crie a partir de .env.test.example.");
 }
 for (const line of readFileSync(file, "utf8").split(/\r?\n/)) {
   const m = line.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)\s*$/);

@@ -42,7 +42,7 @@ export function BillingDialog({ personId }: { personId: string }) {
     <Dialog open={open} onOpenChange={handleOpen}>
       <DialogTrigger asChild>
         <Button variant="outline">
-          <MessageSquare className="h-4 w-4 mr-1" /> Gerar cobrança
+          <MessageSquare className="mr-1 h-4 w-4" /> Gerar cobrança
         </Button>
       </DialogTrigger>
       <DialogContent>
@@ -66,11 +66,11 @@ export function BillingDialog({ personId }: { personId: string }) {
           <Button onClick={copy} disabled={!text}>
             {copied ? (
               <>
-                <Check className="h-4 w-4 mr-1" /> Copiado
+                <Check className="mr-1 h-4 w-4" /> Copiado
               </>
             ) : (
               <>
-                <Copy className="h-4 w-4 mr-1" /> Copiar
+                <Copy className="mr-1 h-4 w-4" /> Copiar
               </>
             )}
           </Button>

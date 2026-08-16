@@ -6,13 +6,7 @@ import { Select } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 
-export function CardDetailFilters({
-  people,
-  categories,
-}: {
-  people: any[];
-  categories: any[];
-}) {
+export function CardDetailFilters({ people, categories }: { people: any[]; categories: any[] }) {
   const router = useRouter();
   const sp = useSearchParams();
   const path = usePathname();
@@ -29,7 +23,7 @@ export function CardDetailFilters({
   }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 items-end">
+    <div className="grid grid-cols-2 items-end gap-2 sm:grid-cols-5">
       <div>
         <Label className="text-xs">Mês</Label>
         <MonthPicker value={sp.get("mes") ?? ""} onChange={(v) => update("mes", v)} />

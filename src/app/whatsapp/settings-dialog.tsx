@@ -36,7 +36,7 @@ export function WhatsAppSettingsDialog({
       <DialogTrigger asChild>
         {trigger ?? (
           <Button variant="outline" size="sm">
-            <Settings className="h-4 w-4 mr-1" /> Configurar WhatsApp
+            <Settings className="mr-1 h-4 w-4" /> Configurar WhatsApp
           </Button>
         )}
       </DialogTrigger>
@@ -52,7 +52,7 @@ export function WhatsAppSettingsDialog({
               setOpen(false);
             })
           }
-          className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2"
         >
           <div className="col-span-2">
             <Label>Provedor (gateway)</Label>
@@ -76,7 +76,11 @@ export function WhatsAppSettingsDialog({
 
           <div>
             <Label>Instance ID</Label>
-            <Input name="instanceId" defaultValue={settings.instanceId} placeholder="ID da instância" />
+            <Input
+              name="instanceId"
+              defaultValue={settings.instanceId}
+              placeholder="ID da instância"
+            />
           </div>
           <div>
             <Label>Token da instância</Label>
@@ -117,7 +121,12 @@ export function WhatsAppSettingsDialog({
           </div>
 
           <div className="col-span-2 flex items-center gap-2">
-            <input type="checkbox" name="enabled" id="wa-enabled" defaultChecked={settings.enabled} />
+            <input
+              type="checkbox"
+              name="enabled"
+              id="wa-enabled"
+              defaultChecked={settings.enabled}
+            />
             <Label htmlFor="wa-enabled">WhatsApp ativo</Label>
           </div>
 
@@ -140,14 +149,15 @@ export function WhatsAppSettingsDialog({
               disabled={pending}
               onClick={() => start(async () => setTest(await testWhatsAppSend()))}
             >
-              <Send className="h-4 w-4 mr-1" /> Enviar teste
+              <Send className="mr-1 h-4 w-4" /> Enviar teste
             </Button>
             <Button type="submit" disabled={pending}>
               Salvar
             </Button>
           </DialogFooter>
           <p className="col-span-2 text-[11px] text-muted-foreground">
-            Salve a configuração antes de testar o envio. Use o número pessoal que vai conversar com o agente.
+            Salve a configuração antes de testar o envio. Use o número pessoal que vai conversar com
+            o agente.
           </p>
         </form>
       </DialogContent>

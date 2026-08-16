@@ -23,7 +23,7 @@ export function PersonDialog({ initial, trigger }: { initial?: any; trigger?: Re
       <DialogTrigger asChild>
         {trigger ?? (
           <Button>
-            <Plus className="h-4 w-4 mr-1" /> Nova pessoa
+            <Plus className="mr-1 h-4 w-4" /> Nova pessoa
           </Button>
         )}
       </DialogTrigger>

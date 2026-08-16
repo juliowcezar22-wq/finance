@@ -76,10 +76,7 @@ async function requireConfigured(): Promise<AISettings> {
 async function buildSystemPrompt(): Promise<string> {
   const snapshot = await buildFinancialSnapshot();
   const memory = await loadMemoryText();
-  const parts = [
-    BASE_ROLE,
-    "\n===== RETRATO FINANCEIRO ATUAL =====\n" + snapshotToText(snapshot),
-  ];
+  const parts = [BASE_ROLE, "\n===== RETRATO FINANCEIRO ATUAL =====\n" + snapshotToText(snapshot)];
   if (memory) {
     parts.push(
       "\n===== MEMÓRIA / CONHECIMENTO SOBRE O USUÁRIO =====\n" +
@@ -245,7 +242,8 @@ export async function clearConversation(conversationId: string) {
 
 // ---------- Análise sob demanda ----------
 
-export type InsightsResult = { ok: true; report: string; tokens: number } | { ok: false; error: string };
+export type InsightsResult =
+  { ok: true; report: string; tokens: number } | { ok: false; error: string };
 
 export async function generateInsights(): Promise<InsightsResult> {
   await getViewer();
@@ -282,7 +280,11 @@ Use os números reais do retrato financeiro. Seja específico e priorize o que t
   const memMatch = report.match(/MEM[ÓO]RIAS?:\s*(.+)\s*$/i);
   if (memMatch) {
     report = report.slice(0, memMatch.index).trim();
-    const items = memMatch[1].split("|").map((s) => s.trim()).filter(Boolean).slice(0, 3);
+    const items = memMatch[1]
+      .split("|")
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .slice(0, 3);
     for (const content of items) {
       await prisma.aIMemory.create({ data: { kind: "pattern", content, source: "auto" } });
     }

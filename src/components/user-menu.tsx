@@ -18,13 +18,13 @@ export function UserMenu({
     .toUpperCase();
 
   return (
-    <div className="flex items-center gap-3 px-3 py-3 border-t bg-card/40">
-      <div className="h-9 w-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">
+    <div className="flex items-center gap-3 border-t bg-card/40 px-3 py-3">
+      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
         {initials || "U"}
       </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium truncate">{user.name}</p>
-        <p className="text-[11px] text-muted-foreground truncate">
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-medium">{user.name}</p>
+        <p className="truncate text-[11px] text-muted-foreground">
           {user.role === "ADMIN" ? "Administrador" : "Usuário"} · {user.email}
         </p>
       </div>

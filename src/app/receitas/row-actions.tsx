@@ -18,7 +18,7 @@ export function IncomeActions({
 }) {
   const [pending, start] = useTransition();
   return (
-    <div className="flex gap-1 justify-end">
+    <div className="flex justify-end gap-1">
       <IncomeDialog
         accounts={accounts}
         people={people}

@@ -4,7 +4,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { UserRowActions } from "./row-actions";
 import { Search, ShieldCheck, UserCheck } from "lucide-react";
@@ -38,19 +45,20 @@ export function UsersList({ users, people }: { users: UserRow[]; people: any[] }
       if (role && u.role !== role) return false;
       if (status === "ativo" && !u.active) return false;
       if (status === "inativo" && u.active) return false;
-      if (q && !u.name.toLowerCase().includes(q) && !u.email.toLowerCase().includes(q)) return false;
+      if (q && !u.name.toLowerCase().includes(q) && !u.email.toLowerCase().includes(q))
+        return false;
       return true;
     });
   }, [users, query, role, status]);
 
   return (
     <Card>
-      <CardContent className="p-4 space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-end gap-3">
+      <CardContent className="space-y-4 p-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
           <div className="flex-1">
             <Label className="text-xs">Buscar</Label>
             <div className="relative">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -75,12 +83,12 @@ export function UsersList({ users, people }: { users: UserRow[]; people: any[] }
               <option value="inativo">Inativos</option>
             </Select>
           </div>
-          <div className="text-xs text-muted-foreground sm:pb-2 whitespace-nowrap">
+          <div className="whitespace-nowrap text-xs text-muted-foreground sm:pb-2">
             {filtered.length} de {users.length}
           </div>
         </div>
 
-        <div className="hidden md:block border rounded-lg overflow-hidden">
+        <div className="hidden overflow-hidden rounded-lg border md:block">
           <Table>
             <TableHeader>
               <TableRow>
@@ -95,8 +103,8 @@ export function UsersList({ users, people }: { users: UserRow[]; people: any[] }
             <TableBody>
               {filtered.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground py-10">
-                    <ShieldCheck className="h-6 w-6 mx-auto mb-2 opacity-40" />
+                  <TableCell colSpan={6} className="py-10 text-center text-muted-foreground">
+                    <ShieldCheck className="mx-auto mb-2 h-6 w-6 opacity-40" />
                     {users.length === 0
                       ? "Nenhum usuário cadastrado ainda."
                       : "Nenhum usuário encontrado com esse filtro."}

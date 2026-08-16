@@ -62,12 +62,7 @@ export function QuickRenameCard({ id, name }: { id: string; name: string }) {
       >
         <Check className="h-3 w-3 text-nummiq-success" />
       </Button>
-      <Button
-        variant="ghost"
-        size="icon"
-        className="h-6 w-6"
-        onClick={() => setEditing(false)}
-      >
+      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setEditing(false)}>
         <X className="h-3 w-3" />
       </Button>
     </span>

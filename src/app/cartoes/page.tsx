@@ -49,7 +49,7 @@ export default async function CartoesPage() {
     <div>
       <PageHeader title="Cartões" actions={<CardDialog people={people} accounts={accounts} />} />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {enriched.map(({ card: c, used, available, futureInstallments }) => {
           const pct = toNum(c.limitTotal) > 0 ? (used / toNum(c.limitTotal)) * 100 : 0;
           return (
@@ -62,12 +62,13 @@ export default async function CartoesPage() {
                   </Badge>
                 </CardTitle>
                 <p className="text-xs text-muted-foreground">
-                  {c.bank} · Titular: {c.holder?.name ?? "—"} · Fecha dia {c.closingDay} · Vence dia {c.dueDay}
+                  {c.bank} · Titular: {c.holder?.name ?? "—"} · Fecha dia {c.closingDay} · Vence dia{" "}
+                  {c.dueDay}
                 </p>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div>
-                  <div className="flex justify-between text-sm mb-1">
+                  <div className="mb-1 flex justify-between text-sm">
                     <span>Limite usado</span>
                     <span className="font-medium">
                       {formatBRL(used)} / {formatBRL(c.limitTotal)}
@@ -85,11 +86,11 @@ export default async function CartoesPage() {
                     <p className="font-medium">{formatBRL(futureInstallments)}</p>
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-2 pt-2 items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
                   <div className="flex flex-wrap gap-2">
                     <Link href={`/cartoes/${c.id}`}>
                       <Button size="sm">
-                        Ver detalhes <ArrowRight className="h-3.5 w-3.5 ml-1" />
+                        Ver detalhes <ArrowRight className="ml-1 h-3.5 w-3.5" />
                       </Button>
                     </Link>
                     <InvoiceImportDialog cardId={c.id} cardName={c.name} />
@@ -102,7 +103,9 @@ export default async function CartoesPage() {
         })}
         {enriched.length === 0 && (
           <Card>
-            <CardContent className="p-6 text-sm text-muted-foreground">Nenhum cartão cadastrado.</CardContent>
+            <CardContent className="p-6 text-sm text-muted-foreground">
+              Nenhum cartão cadastrado.
+            </CardContent>
           </Card>
         )}
       </div>

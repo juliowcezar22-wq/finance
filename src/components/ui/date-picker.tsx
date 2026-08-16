@@ -5,8 +5,18 @@ import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const MESES_LONGOS = [
-  "janeiro", "fevereiro", "março", "abril", "maio", "junho",
-  "julho", "agosto", "setembro", "outubro", "novembro", "dezembro",
+  "janeiro",
+  "fevereiro",
+  "março",
+  "abril",
+  "maio",
+  "junho",
+  "julho",
+  "agosto",
+  "setembro",
+  "outubro",
+  "novembro",
+  "dezembro",
 ];
 const SEMANA = ["D", "S", "T", "Q", "Q", "S", "S"];
 
@@ -70,7 +80,7 @@ export function DatePicker({
           <button
             type="button"
             className={cn(
-              "flex h-11 w-full items-center gap-2 rounded-[10px] border border-border bg-nummiq-surface2 px-3 text-sm transition-colors hover:border-nummiq-silver/30 focus-visible:outline-none focus-visible:border-nummiq-silver",
+              "flex h-11 w-full items-center gap-2 rounded-[10px] border border-border bg-nummiq-surface2 px-3 text-sm transition-colors hover:border-nummiq-silver/30 focus-visible:border-nummiq-silver focus-visible:outline-none",
               value ? "text-nummiq-white" : "text-nummiq-muted",
               className
             )}

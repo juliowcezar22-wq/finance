@@ -53,10 +53,7 @@ export type PdfTextResult = { text: string; spacedText: string; numpages: number
  * Extrai o texto do PDF. Se `password` for informada, tenta decriptar com ela.
  * Lança PdfPasswordError quando o PDF é criptografado e a senha falta/está errada.
  */
-export async function extractPdfText(
-  buffer: Buffer,
-  password?: string
-): Promise<PdfTextResult> {
+export async function extractPdfText(buffer: Buffer, password?: string): Promise<PdfTextResult> {
   PDFJS.disableWorker = true;
 
   let doc: any;

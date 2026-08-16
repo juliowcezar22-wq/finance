@@ -17,13 +17,7 @@ import { registerCashMovement } from "@/lib/actions/cashboxes";
 import { ArrowDownCircle, ArrowUpCircle } from "lucide-react";
 import { formatDateInput } from "@/lib/format";
 
-export function MovementDialog({
-  cashBoxId,
-  type,
-}: {
-  cashBoxId: string;
-  type: "IN" | "OUT";
-}) {
+export function MovementDialog({ cashBoxId, type }: { cashBoxId: string; type: "IN" | "OUT" }) {
   const [open, setOpen] = useState(false);
   const isIn = type === "IN";
   return (
@@ -31,9 +25,9 @@ export function MovementDialog({
       <DialogTrigger asChild>
         <Button variant={isIn ? "default" : "outline"} size="sm">
           {isIn ? (
-            <ArrowUpCircle className="h-4 w-4 mr-1" />
+            <ArrowUpCircle className="mr-1 h-4 w-4" />
           ) : (
-            <ArrowDownCircle className="h-4 w-4 mr-1" />
+            <ArrowDownCircle className="mr-1 h-4 w-4" />
           )}
           {isIn ? "Entrada" : "Retirada"}
         </Button>
@@ -51,18 +45,14 @@ export function MovementDialog({
         >
           <input type="hidden" name="cashBoxId" value={cashBoxId} />
           <input type="hidden" name="type" value={type} />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <Label>Valor</Label>
               <Input name="amount" defaultValue="0,00" required />
             </div>
             <div>
               <Label>Data</Label>
-              <DatePicker
-name="date"
-                defaultValue={formatDateInput(new Date())}
-                required
-              />
+              <DatePicker name="date" defaultValue={formatDateInput(new Date())} required />
             </div>
           </div>
           <div>

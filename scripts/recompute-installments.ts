@@ -57,7 +57,9 @@ async function main() {
         changes.push({ id: inst.id, from: money(toNum(inst.amount as any)), to: money(novo) });
       }
     });
-    console.log(`  tx ${txId}: total ${money(total)} em ${count}x — soma atual ${soma} → corrigindo`);
+    console.log(
+      `  tx ${txId}: total ${money(total)} em ${count}x — soma atual ${soma} → corrigindo`
+    );
   }
 
   console.log(`\n${changes.length} parcela(s) a ajustar.`);
@@ -76,7 +78,9 @@ async function main() {
   for (const c of changes) {
     await prisma.installment.update({ where: { id: c.id }, data: { amount: c.to } });
   }
-  console.log(`✓ ${changes.length} parcela(s) atualizada(s). Backup em backups/installments-${stamp}.json`);
+  console.log(
+    `✓ ${changes.length} parcela(s) atualizada(s). Backup em backups/installments-${stamp}.json`
+  );
 }
 
 main()

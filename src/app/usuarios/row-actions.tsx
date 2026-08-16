@@ -5,13 +5,7 @@ import { Pencil, Trash2 } from "lucide-react";
 import { UserDialog } from "./user-dialog";
 import { deleteUser } from "@/lib/actions/users";
 
-export function UserRowActions({
-  user,
-  people,
-}: {
-  user: any;
-  people: any[];
-}) {
+export function UserRowActions({ user, people }: { user: any; people: any[] }) {
   const [pending, start] = useTransition();
   return (
     <div className="flex justify-end gap-1">

@@ -16,9 +16,18 @@ import { saveAISettings, testAIConnection, type AISettingsView } from "@/lib/act
 import { Settings, Plug } from "lucide-react";
 
 const PROVIDER_HINTS: Record<string, { model: string; help: string }> = {
-  openai: { model: "gpt-4o-mini", help: "Use sua chave da OpenAI (sk-...). Modelos: gpt-4o, gpt-4o-mini…" },
-  anthropic: { model: "claude-sonnet-4-6", help: "Use sua chave da Anthropic. Modelos: claude-opus-4-8, claude-sonnet-4-6, claude-haiku-4-5…" },
-  custom: { model: "", help: "Compatível com OpenAI (OpenRouter, Groq, Together, Ollama/LM Studio). Informe a URL base." },
+  openai: {
+    model: "gpt-4o-mini",
+    help: "Use sua chave da OpenAI (sk-...). Modelos: gpt-4o, gpt-4o-mini…",
+  },
+  anthropic: {
+    model: "claude-sonnet-4-6",
+    help: "Use sua chave da Anthropic. Modelos: claude-opus-4-8, claude-sonnet-4-6, claude-haiku-4-5…",
+  },
+  custom: {
+    model: "",
+    help: "Compatível com OpenAI (OpenRouter, Groq, Together, Ollama/LM Studio). Informe a URL base.",
+  },
 };
 
 export function AISettingsDialog({
@@ -38,7 +47,7 @@ export function AISettingsDialog({
       <DialogTrigger asChild>
         {trigger ?? (
           <Button variant="outline" size="sm">
-            <Settings className="h-4 w-4 mr-1" /> Configurar IA
+            <Settings className="mr-1 h-4 w-4" /> Configurar IA
           </Button>
         )}
       </DialogTrigger>
@@ -63,7 +72,7 @@ export function AISettingsDialog({
               <option value="anthropic">Anthropic (Claude)</option>
               <option value="custom">Compatível com OpenAI (OpenRouter, Groq, local…)</option>
             </Select>
-            <p className="text-xs text-muted-foreground mt-1">{PROVIDER_HINTS[provider]?.help}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{PROVIDER_HINTS[provider]?.help}</p>
           </div>
 
           {provider === "custom" && (
@@ -95,14 +104,14 @@ export function AISettingsDialog({
               placeholder="Cole sua chave de API"
               autoComplete="off"
             />
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="mt-1 text-xs text-muted-foreground">
               {settings.hasKey
                 ? "Chave já salva. Deixe os pontos para manter, ou cole uma nova para substituir."
                 : "A chave fica salva localmente no banco do app."}
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <Label>Temperatura</Label>
               <Input
@@ -149,7 +158,7 @@ export function AISettingsDialog({
                 })
               }
             >
-              <Plug className="h-4 w-4 mr-1" /> Testar conexão
+              <Plug className="mr-1 h-4 w-4" /> Testar conexão
             </Button>
             <Button type="submit" disabled={pending}>
               Salvar

@@ -59,7 +59,9 @@ export async function createUser(formData: FormData): Promise<ActionResult> {
   await requireAdmin();
   const parsed = CreateSchema.safeParse({
     name: String(formData.get("name") || ""),
-    email: String(formData.get("email") || "").trim().toLowerCase(),
+    email: String(formData.get("email") || "")
+      .trim()
+      .toLowerCase(),
     password: String(formData.get("password") || ""),
     role: String(formData.get("role") || "USER"),
     active: formData.get("active") !== "false",
@@ -102,7 +104,9 @@ export async function updateUser(formData: FormData): Promise<ActionResult> {
   const parsed = UpdateSchema.safeParse({
     id: String(formData.get("id") || ""),
     name: String(formData.get("name") || ""),
-    email: String(formData.get("email") || "").trim().toLowerCase(),
+    email: String(formData.get("email") || "")
+      .trim()
+      .toLowerCase(),
     password: (formData.get("password") as string) || null,
     role: String(formData.get("role") || "USER"),
     active: formData.get("active") !== "false",
@@ -110,9 +114,7 @@ export async function updateUser(formData: FormData): Promise<ActionResult> {
   });
   if (!parsed.success) return err(parsed.error.issues[0]?.message ?? "Dados inválidos");
 
-  const newHash = parsed.data.password
-    ? await bcrypt.hash(parsed.data.password, 10)
-    : null;
+  const newHash = parsed.data.password ? await bcrypt.hash(parsed.data.password, 10) : null;
 
   // Guarda de "último admin ativo" (FR-008), cobrindo a via de edição
   // (papel/status), não só desativar/excluir. Se a mudança remove a condição

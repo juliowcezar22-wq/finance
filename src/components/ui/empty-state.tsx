@@ -23,13 +23,9 @@ export function EmptyState({
         className
       )}
     >
-      <div className="mb-4 opacity-40">
-        {icon ?? <NummiqSymbol size={40} />}
-      </div>
+      <div className="mb-4 opacity-40">{icon ?? <NummiqSymbol size={40} />}</div>
       <p className="text-sm font-medium text-nummiq-white">{title}</p>
-      {description && (
-        <p className="mt-1 max-w-sm text-sm text-nummiq-muted">{description}</p>
-      )}
+      {description && <p className="mt-1 max-w-sm text-sm text-nummiq-muted">{description}</p>}
       {action && <div className="mt-5">{action}</div>}
     </div>
   );

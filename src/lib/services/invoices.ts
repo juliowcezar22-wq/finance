@@ -73,8 +73,7 @@ export async function ensureInvoiceForReference(
     return existing;
   }
 
-  const closingDate =
-    detected?.closingDate ?? new Date(refYear, refMonth - 1, card.closingDay);
+  const closingDate = detected?.closingDate ?? new Date(refYear, refMonth - 1, card.closingDay);
   const dueDate = detected?.dueDate ?? new Date(refYear, refMonth - 1, card.dueDay);
 
   // Fatura importada é uma fatura já emitida pelo banco → "fechada".

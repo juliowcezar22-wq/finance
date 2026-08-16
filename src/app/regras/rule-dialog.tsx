@@ -32,7 +32,7 @@ export function RuleDialog({
       <DialogTrigger asChild>
         {trigger ?? (
           <Button>
-            <Plus className="h-4 w-4 mr-1" /> Nova regra
+            <Plus className="mr-1 h-4 w-4" /> Nova regra
           </Button>
         )}
       </DialogTrigger>
@@ -45,7 +45,7 @@ export function RuleDialog({
             await saveRule(fd);
             setOpen(false);
           }}
-          className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2"
         >
           {initial?.id && <input type="hidden" name="id" value={initial.id} />}
           <div className="col-span-2">
@@ -66,7 +66,11 @@ export function RuleDialog({
           </div>
           <div className="col-span-2">
             <Label>Descrição contém</Label>
-            <Input name="descriptionContains" defaultValue={initial?.descriptionContains ?? ""} placeholder="Ex: META, UBER, POSTO..." />
+            <Input
+              name="descriptionContains"
+              defaultValue={initial?.descriptionContains ?? ""}
+              placeholder="Ex: META, UBER, POSTO..."
+            />
           </div>
           <div>
             <Label>Cartão</Label>
@@ -81,11 +85,19 @@ export function RuleDialog({
           </div>
           <div>
             <Label>Valor maior que</Label>
-            <Input name="amountGreaterThan" defaultValue={initial?.amountGreaterThan ?? ""} placeholder="0,00" />
+            <Input
+              name="amountGreaterThan"
+              defaultValue={initial?.amountGreaterThan ?? ""}
+              placeholder="0,00"
+            />
           </div>
           <div>
             <Label>Valor menor que</Label>
-            <Input name="amountLessThan" defaultValue={initial?.amountLessThan ?? ""} placeholder="0,00" />
+            <Input
+              name="amountLessThan"
+              defaultValue={initial?.amountLessThan ?? ""}
+              placeholder="0,00"
+            />
           </div>
 
           <div className="col-span-2 border-t pt-3">
@@ -127,7 +139,11 @@ export function RuleDialog({
             </Select>
           </div>
           <div className="col-span-2 flex items-center gap-2">
-            <input type="checkbox" name="reimbursable" defaultChecked={initial?.reimbursable ?? false} />
+            <input
+              type="checkbox"
+              name="reimbursable"
+              defaultChecked={initial?.reimbursable ?? false}
+            />
             <Label>Marcar como reembolsável</Label>
           </div>
           <DialogFooter className="col-span-2">

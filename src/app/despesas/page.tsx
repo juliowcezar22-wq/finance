@@ -104,9 +104,7 @@ export default async function DespesasPage({ searchParams }: { searchParams: Sea
       <PageHeader
         title="Despesas"
         description={`Despesas do dia a dia (débito, pix, dinheiro…) · ${monthLabel(ref)}`}
-        actions={
-          <ExpenseDialog people={people} categories={categories} accounts={accounts} />
-        }
+        actions={<ExpenseDialog people={people} categories={categories} accounts={accounts} />}
       />
 
       <Card className="mb-4">
@@ -115,7 +113,7 @@ export default async function DespesasPage({ searchParams }: { searchParams: Sea
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+      <div className="mb-4 grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard title="Total de despesas" value={formatBRL(totalMes)} intent="negative" />
         <StatCard title="Nº de despesas" value={String(qtd)} />
         <StatCard title="Pagas" value={formatBRL(totalPago)} intent="positive" />
@@ -126,60 +124,60 @@ export default async function DespesasPage({ searchParams }: { searchParams: Sea
         <CardContent className="p-0">
           {/* Desktop: tabela completa */}
           <div className="hidden md:block">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Data</TableHead>
-                <TableHead>Descrição</TableHead>
-                <TableHead>Categoria</TableHead>
-                <TableHead>Forma</TableHead>
-                <TableHead>Pessoa</TableHead>
-                <TableHead>Parcelas</TableHead>
-                <TableHead>Vencimento</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Valor</TableHead>
-                <TableHead></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {expenses.length === 0 && (
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={10} className="text-center text-muted-foreground py-10">
-                    Nenhuma despesa neste período. Adicione sua primeira despesa.
-                  </TableCell>
+                  <TableHead>Data</TableHead>
+                  <TableHead>Descrição</TableHead>
+                  <TableHead>Categoria</TableHead>
+                  <TableHead>Forma</TableHead>
+                  <TableHead>Pessoa</TableHead>
+                  <TableHead>Parcelas</TableHead>
+                  <TableHead>Vencimento</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Valor</TableHead>
+                  <TableHead></TableHead>
                 </TableRow>
-              )}
-              {expenses.map((e) => {
-                const st = statusInfo(e.status, e.dueDate);
-                const parc = e.installments.length;
-                return (
-                  <TableRow key={e.id}>
-                    <TableCell>{formatDateBR(e.date)}</TableCell>
-                    <TableCell className="max-w-xs truncate">{e.description}</TableCell>
-                    <TableCell>{e.category?.name ?? "—"}</TableCell>
-                    <TableCell>{ORIGIN_LABEL[e.origin] ?? e.origin}</TableCell>
-                    <TableCell>{e.responsible?.name ?? "—"}</TableCell>
-                    <TableCell>{parc > 1 ? `${parc}x` : "à vista"}</TableCell>
-                    <TableCell>{e.dueDate ? formatDateBR(e.dueDate) : "—"}</TableCell>
-                    <TableCell>
-                      <Badge variant={st.variant}>{st.label}</Badge>
-                    </TableCell>
-                    <TableCell className="text-right font-medium text-nummiq-danger">
-                      -{formatBRL(e.amount)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <ExpenseActions
-                        expense={{ ...e, installmentsCount: parc }}
-                        people={people}
-                        categories={categories}
-                        accounts={accounts}
-                      />
+              </TableHeader>
+              <TableBody>
+                {expenses.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={10} className="py-10 text-center text-muted-foreground">
+                      Nenhuma despesa neste período. Adicione sua primeira despesa.
                     </TableCell>
                   </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
+                )}
+                {expenses.map((e) => {
+                  const st = statusInfo(e.status, e.dueDate);
+                  const parc = e.installments.length;
+                  return (
+                    <TableRow key={e.id}>
+                      <TableCell>{formatDateBR(e.date)}</TableCell>
+                      <TableCell className="max-w-xs truncate">{e.description}</TableCell>
+                      <TableCell>{e.category?.name ?? "—"}</TableCell>
+                      <TableCell>{ORIGIN_LABEL[e.origin] ?? e.origin}</TableCell>
+                      <TableCell>{e.responsible?.name ?? "—"}</TableCell>
+                      <TableCell>{parc > 1 ? `${parc}x` : "à vista"}</TableCell>
+                      <TableCell>{e.dueDate ? formatDateBR(e.dueDate) : "—"}</TableCell>
+                      <TableCell>
+                        <Badge variant={st.variant}>{st.label}</Badge>
+                      </TableCell>
+                      <TableCell className="text-right font-medium text-nummiq-danger">
+                        -{formatBRL(e.amount)}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <ExpenseActions
+                          expense={{ ...e, installmentsCount: parc }}
+                          people={people}
+                          categories={categories}
+                          accounts={accounts}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
           </div>
 
           {/* Mobile: cada despesa vira um card */}
@@ -212,9 +210,7 @@ export default async function DespesasPage({ searchParams }: { searchParams: Sea
                       <Field label="Forma">{ORIGIN_LABEL[e.origin] ?? e.origin}</Field>
                       <Field label="Pessoa">{e.responsible?.name ?? "—"}</Field>
                       <Field label="Parcelas">{parc > 1 ? `${parc}x` : "à vista"}</Field>
-                      <Field label="Vencimento">
-                        {e.dueDate ? formatDateBR(e.dueDate) : "—"}
-                      </Field>
+                      <Field label="Vencimento">{e.dueDate ? formatDateBR(e.dueDate) : "—"}</Field>
                     </div>
                     <MobileCardActions>
                       <ExpenseActions

@@ -70,8 +70,7 @@ export async function registerPersonPayment(
   formData: FormData
 ): Promise<ActionResult<{ paymentId: string; leftover: number }>> {
   await getViewer();
-  const paidAt =
-    parseDateBR(String(formData.get("paidAt") || "")) ?? new Date();
+  const paidAt = parseDateBR(String(formData.get("paidAt") || "")) ?? new Date();
   const parsed = PaymentSchema.safeParse({
     personId: String(formData.get("personId") || ""),
     amount: parseBRL(String(formData.get("amount") || "0")),
@@ -147,13 +146,7 @@ export async function deletePersonPayment(id: string): Promise<ActionResult> {
   return ok();
 }
 
-const TxStatusSchema = z.enum([
-  "pendente",
-  "pago",
-  "devendo",
-  "reembolsado",
-  "cancelado",
-]);
+const TxStatusSchema = z.enum(["pendente", "pago", "devendo", "reembolsado", "cancelado"]);
 
 export async function setPersonTxStatus(
   transactionId: string,

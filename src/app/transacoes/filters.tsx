@@ -30,14 +30,17 @@ export function Filters({
   }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2 items-end">
+    <div className="grid grid-cols-2 items-end gap-2 sm:grid-cols-3 lg:grid-cols-7">
       <div>
         <Label className="text-xs">Mês</Label>
         <MonthPicker value={sp.get("mes") ?? ""} onChange={(v) => update("mes", v)} />
       </div>
       <div>
         <Label className="text-xs">Pessoa</Label>
-        <Select defaultValue={sp.get("pessoa") ?? ""} onChange={(e) => update("pessoa", e.target.value)}>
+        <Select
+          defaultValue={sp.get("pessoa") ?? ""}
+          onChange={(e) => update("pessoa", e.target.value)}
+        >
           <option value="">Todas</option>
           {people.map((p) => (
             <option key={p.id} value={p.id}>
@@ -48,7 +51,10 @@ export function Filters({
       </div>
       <div>
         <Label className="text-xs">Cartão</Label>
-        <Select defaultValue={sp.get("cartao") ?? ""} onChange={(e) => update("cartao", e.target.value)}>
+        <Select
+          defaultValue={sp.get("cartao") ?? ""}
+          onChange={(e) => update("cartao", e.target.value)}
+        >
           <option value="">Todos</option>
           {cards.map((c) => (
             <option key={c.id} value={c.id}>
@@ -59,7 +65,10 @@ export function Filters({
       </div>
       <div>
         <Label className="text-xs">Categoria</Label>
-        <Select defaultValue={sp.get("categoria") ?? ""} onChange={(e) => update("categoria", e.target.value)}>
+        <Select
+          defaultValue={sp.get("categoria") ?? ""}
+          onChange={(e) => update("categoria", e.target.value)}
+        >
           <option value="">Todas</option>
           {categories.map((c) => (
             <option key={c.id} value={c.id}>
@@ -70,7 +79,10 @@ export function Filters({
       </div>
       <div>
         <Label className="text-xs">Status</Label>
-        <Select defaultValue={sp.get("status") ?? ""} onChange={(e) => update("status", e.target.value)}>
+        <Select
+          defaultValue={sp.get("status") ?? ""}
+          onChange={(e) => update("status", e.target.value)}
+        >
           <option value="">Todos</option>
           <option value="pendente">Pendente</option>
           <option value="pago">Pago</option>
@@ -81,7 +93,10 @@ export function Filters({
       </div>
       <div>
         <Label className="text-xs">Tipo</Label>
-        <Select defaultValue={sp.get("tipo") ?? ""} onChange={(e) => update("tipo", e.target.value)}>
+        <Select
+          defaultValue={sp.get("tipo") ?? ""}
+          onChange={(e) => update("tipo", e.target.value)}
+        >
           <option value="">Todos</option>
           <option value="despesa">Despesa</option>
           <option value="receita">Receita</option>

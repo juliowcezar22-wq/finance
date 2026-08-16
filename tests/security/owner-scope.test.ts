@@ -6,13 +6,7 @@ vi.mock("@/lib/auth/owner-scope", () => import("../setup/owner-scope-double"));
 
 import { prisma } from "@/lib/prisma";
 import { runWithoutScope } from "@/lib/auth/owner-scope";
-import {
-  asUser,
-  createTwoUsers,
-  cleanupTestData,
-  TEST_PREFIX,
-  type TestUser,
-} from "../setup/db";
+import { asUser, createTwoUsers, cleanupTestData, TEST_PREFIX, type TestUser } from "../setup/db";
 
 /**
  * Teste de intrusão entre dois usuários (US1). Valida o mecanismo real de
@@ -118,9 +112,7 @@ describe("Isolamento cross-tenant (extensão Prisma)", () => {
   it("B não EXCLUI registro de A (delete → erro, dado permanece)", async () => {
     const a = await seedOwned(userA.id);
     await asUser(userB.id, async () => {
-      await expect(
-        prisma.account.delete({ where: { id: a.accountId } })
-      ).rejects.toThrow();
+      await expect(prisma.account.delete({ where: { id: a.accountId } })).rejects.toThrow();
     });
     const still = await asUser(userA.id, () =>
       prisma.account.findUnique({ where: { id: a.accountId } })

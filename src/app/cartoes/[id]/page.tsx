@@ -181,7 +181,10 @@ export default async function CardDetailPage({
   return (
     <div>
       <div className="mb-2">
-        <Link href="/cartoes" className="text-sm text-muted-foreground hover:underline inline-flex items-center gap-1">
+        <Link
+          href="/cartoes"
+          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:underline"
+        >
           <ArrowLeft className="h-3 w-3" /> Voltar para cartões
         </Link>
       </div>
@@ -191,19 +194,16 @@ export default async function CardDetailPage({
         actions={<InvoiceImportDialog cardId={card.id} cardName={card.name} />}
       />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard title="Limite total" value={formatBRL(card.limitTotal)} />
         <StatCard title="Limite usado" value={formatBRL(used)} intent="negative" />
         <StatCard title="Limite disponível" value={formatBRL(available)} intent="positive" />
-        <StatCard
-          title="Parcelas futuras (estimativa)"
-          value={formatBRL(futureEstimate)}
-        />
+        <StatCard title="Parcelas futuras (estimativa)" value={formatBRL(futureEstimate)} />
         <Card>
           <CardContent className="p-5">
             <p className="text-xs uppercase tracking-wide text-muted-foreground">Fechamento</p>
-            <p className="text-2xl font-bold mt-1">Dia {card.closingDay}</p>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="mt-1 text-2xl font-bold">Dia {card.closingDay}</p>
+            <p className="mt-1 text-xs text-muted-foreground">
               Melhor dia de compra: {bestPurchaseDay(card.closingDay)}
             </p>
           </CardContent>
@@ -211,10 +211,11 @@ export default async function CardDetailPage({
         <Card>
           <CardContent className="p-5">
             <p className="text-xs uppercase tracking-wide text-muted-foreground">Vencimento</p>
-            <p className="text-2xl font-bold mt-1">Dia {card.dueDay}</p>
+            <p className="mt-1 text-2xl font-bold">Dia {card.dueDay}</p>
             {nextDueInvoice && (
-              <p className="text-xs text-muted-foreground mt-1">
-                Próximo: {formatDateBR(nextDueInvoice.dueDate)} ({formatBRL(toNum(nextDueInvoice.total) - toNum(nextDueInvoice.paid))})
+              <p className="mt-1 text-xs text-muted-foreground">
+                Próximo: {formatDateBR(nextDueInvoice.dueDate)} (
+                {formatBRL(toNum(nextDueInvoice.total) - toNum(nextDueInvoice.paid))})
               </p>
             )}
           </CardContent>
@@ -222,11 +223,14 @@ export default async function CardDetailPage({
         <Card>
           <CardContent className="p-5">
             <p className="text-xs uppercase tracking-wide text-muted-foreground">Fatura do mês</p>
-            <p className="text-2xl font-bold mt-1">
+            <p className="mt-1 text-2xl font-bold">
               {currentInvoice ? formatBRL(currentInvoice.total) : "—"}
             </p>
             {currentInvoice && (
-              <Badge variant={invoiceStatusVariant(currentInvoice.status)} className="mt-1 capitalize">
+              <Badge
+                variant={invoiceStatusVariant(currentInvoice.status)}
+                className="mt-1 capitalize"
+              >
                 {currentInvoice.status}
               </Badge>
             )}
@@ -235,7 +239,7 @@ export default async function CardDetailPage({
         <Card>
           <CardContent className="p-5">
             <p className="text-xs uppercase tracking-wide text-muted-foreground">Uso do limite</p>
-            <p className="text-2xl font-bold mt-1">{pct.toFixed(0)}%</p>
+            <p className="mt-1 text-2xl font-bold">{pct.toFixed(0)}%</p>
             <Progress value={Math.min(100, pct)} className="mt-2" />
           </CardContent>
         </Card>
@@ -253,54 +257,54 @@ export default async function CardDetailPage({
         <CardContent className="p-0">
           {/* Desktop: tabela */}
           <div className="hidden md:block">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Referência</TableHead>
-                <TableHead>Fechamento</TableHead>
-                <TableHead>Vencimento</TableHead>
-                <TableHead className="text-right">Total</TableHead>
-                <TableHead className="text-right">Pago</TableHead>
-                <TableHead className="text-right">Em aberto</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {invoices.length === 0 && (
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
-                    Sem faturas geradas ainda. Importe transações para criar faturas.
-                  </TableCell>
+                  <TableHead>Referência</TableHead>
+                  <TableHead>Fechamento</TableHead>
+                  <TableHead>Vencimento</TableHead>
+                  <TableHead className="text-right">Total</TableHead>
+                  <TableHead className="text-right">Pago</TableHead>
+                  <TableHead className="text-right">Em aberto</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead></TableHead>
                 </TableRow>
-              )}
-              {invoices.map((inv) => (
-                <TableRow key={inv.id}>
-                  <TableCell>
-                    {String(inv.referenceMonth).padStart(2, "0")}/{inv.referenceYear}
-                  </TableCell>
-                  <TableCell>{formatDateBR(inv.closingDate)}</TableCell>
-                  <TableCell>{formatDateBR(inv.dueDate)}</TableCell>
-                  <TableCell className="text-right">{formatBRL(inv.total)}</TableCell>
-                  <TableCell className="text-right">{formatBRL(inv.paid)}</TableCell>
-                  <TableCell className="text-right font-medium">
-                    {formatBRL(toNum(inv.total) - toNum(inv.paid))}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={invoiceStatusVariant(inv.status)} className="capitalize">
-                      {inv.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <DeleteInvoiceButton
-                      invoiceId={inv.id}
-                      label={`${String(inv.referenceMonth).padStart(2, "0")}/${inv.referenceYear} — ${card.name}`}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {invoices.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={8} className="py-8 text-center text-muted-foreground">
+                      Sem faturas geradas ainda. Importe transações para criar faturas.
+                    </TableCell>
+                  </TableRow>
+                )}
+                {invoices.map((inv) => (
+                  <TableRow key={inv.id}>
+                    <TableCell>
+                      {String(inv.referenceMonth).padStart(2, "0")}/{inv.referenceYear}
+                    </TableCell>
+                    <TableCell>{formatDateBR(inv.closingDate)}</TableCell>
+                    <TableCell>{formatDateBR(inv.dueDate)}</TableCell>
+                    <TableCell className="text-right">{formatBRL(inv.total)}</TableCell>
+                    <TableCell className="text-right">{formatBRL(inv.paid)}</TableCell>
+                    <TableCell className="text-right font-medium">
+                      {formatBRL(toNum(inv.total) - toNum(inv.paid))}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={invoiceStatusVariant(inv.status)} className="capitalize">
+                        {inv.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <DeleteInvoiceButton
+                        invoiceId={inv.id}
+                        label={`${String(inv.referenceMonth).padStart(2, "0")}/${inv.referenceYear} — ${card.name}`}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </div>
 
           {/* Mobile: cada fatura vira um card */}
@@ -326,7 +330,9 @@ export default async function CardDetailPage({
                     <Field label="Total">{formatBRL(inv.total)}</Field>
                     <Field label="Pago">{formatBRL(inv.paid)}</Field>
                     <Field label="Em aberto">
-                      <span className="font-medium">{formatBRL(toNum(inv.total) - toNum(inv.paid))}</span>
+                      <span className="font-medium">
+                        {formatBRL(toNum(inv.total) - toNum(inv.paid))}
+                      </span>
                     </Field>
                   </div>
                   <MobileCardActions>
@@ -355,37 +361,41 @@ export default async function CardDetailPage({
         <CardContent className="p-0">
           {/* Desktop: tabela */}
           <div className="hidden md:block">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Pessoa</TableHead>
-                <TableHead className="text-right">Total</TableHead>
-                <TableHead className="text-right">Pago</TableHead>
-                <TableHead className="text-right">Pendente</TableHead>
-                <TableHead className="text-right">Devendo</TableHead>
-                <TableHead className="text-right">Reembolsável</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {personSummary.length === 0 && (
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground py-6">
-                    Sem transações no período selecionado.
-                  </TableCell>
+                  <TableHead>Pessoa</TableHead>
+                  <TableHead className="text-right">Total</TableHead>
+                  <TableHead className="text-right">Pago</TableHead>
+                  <TableHead className="text-right">Pendente</TableHead>
+                  <TableHead className="text-right">Devendo</TableHead>
+                  <TableHead className="text-right">Reembolsável</TableHead>
                 </TableRow>
-              )}
-              {personSummary.map((s) => (
-                <TableRow key={s.personId ?? "none"}>
-                  <TableCell className="font-medium">{s.name}</TableCell>
-                  <TableCell className="text-right">{formatBRL(s.total)}</TableCell>
-                  <TableCell className="text-right text-nummiq-success">{formatBRL(s.pago)}</TableCell>
-                  <TableCell className="text-right">{formatBRL(s.pendente)}</TableCell>
-                  <TableCell className="text-right text-nummiq-danger">{formatBRL(s.devendo)}</TableCell>
-                  <TableCell className="text-right">{formatBRL(s.reembolsavel)}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {personSummary.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={6} className="py-6 text-center text-muted-foreground">
+                      Sem transações no período selecionado.
+                    </TableCell>
+                  </TableRow>
+                )}
+                {personSummary.map((s) => (
+                  <TableRow key={s.personId ?? "none"}>
+                    <TableCell className="font-medium">{s.name}</TableCell>
+                    <TableCell className="text-right">{formatBRL(s.total)}</TableCell>
+                    <TableCell className="text-right text-nummiq-success">
+                      {formatBRL(s.pago)}
+                    </TableCell>
+                    <TableCell className="text-right">{formatBRL(s.pendente)}</TableCell>
+                    <TableCell className="text-right text-nummiq-danger">
+                      {formatBRL(s.devendo)}
+                    </TableCell>
+                    <TableCell className="text-right">{formatBRL(s.reembolsavel)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </div>
 
           {/* Mobile: resumo por pessoa em cards */}
@@ -425,81 +435,81 @@ export default async function CardDetailPage({
           </CardTitle>
           {currentInvoice?.declaredTotal != null && (
             <p className="text-xs text-muted-foreground">
-              Total declarado no PDF: {formatBRL(currentInvoice.declaredTotal)} · Total
-              importado: {formatBRL(currentInvoice.total)}
+              Total declarado no PDF: {formatBRL(currentInvoice.declaredTotal)} · Total importado:{" "}
+              {formatBRL(currentInvoice.total)}
             </p>
           )}
         </CardHeader>
         <CardContent className="p-0">
           {/* Desktop: tabela */}
           <div className="hidden md:block">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Data</TableHead>
-                <TableHead>Descrição</TableHead>
-                <TableHead>Parcela</TableHead>
-                <TableHead>Cartão</TableHead>
-                <TableHead>Categoria</TableHead>
-                <TableHead>Responsável</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Valor</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {transactions.length === 0 && (
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
-                    Nenhuma transação no período selecionado.
-                  </TableCell>
+                  <TableHead>Data</TableHead>
+                  <TableHead>Descrição</TableHead>
+                  <TableHead>Parcela</TableHead>
+                  <TableHead>Cartão</TableHead>
+                  <TableHead>Categoria</TableHead>
+                  <TableHead>Responsável</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Valor</TableHead>
                 </TableRow>
-              )}
-              {transactions.map((t) => (
-                <TableRow key={t.id}>
-                  <TableCell>{formatDateBR(t.date)}</TableCell>
-                  <TableCell className="max-w-xs truncate">
-                    {t.description}
-                    {t.historyMatched && (
-                      <Badge
-                        variant="secondary"
-                        className="ml-2 align-middle"
-                        title="Categoria/pessoa herdadas de parcela anterior reconhecida pelo histórico"
-                      >
-                        reconhecida
+              </TableHeader>
+              <TableBody>
+                {transactions.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={8} className="py-8 text-center text-muted-foreground">
+                      Nenhuma transação no período selecionado.
+                    </TableCell>
+                  </TableRow>
+                )}
+                {transactions.map((t) => (
+                  <TableRow key={t.id}>
+                    <TableCell>{formatDateBR(t.date)}</TableCell>
+                    <TableCell className="max-w-xs truncate">
+                      {t.description}
+                      {t.historyMatched && (
+                        <Badge
+                          variant="secondary"
+                          className="ml-2 align-middle"
+                          title="Categoria/pessoa herdadas de parcela anterior reconhecida pelo histórico"
+                        >
+                          reconhecida
+                        </Badge>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {t.installmentNumber && t.installmentTotal ? (
+                        <Badge variant="outline">
+                          {t.installmentNumber}/{t.installmentTotal}
+                        </Badge>
+                      ) : (
+                        "—"
+                      )}
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground">
+                      {t.accountCard
+                        ? `${t.accountCard.name}${t.accountCard.lastDigits ? ` ·${t.accountCard.lastDigits}` : ""}`
+                        : "—"}
+                    </TableCell>
+                    <TableCell>{t.category?.name ?? "—"}</TableCell>
+                    <TableCell className="min-w-[180px]">
+                      <ResponsibleSelect txId={t.id} value={t.responsibleId} people={people} />
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={statusVariant(t.status)} className="capitalize">
+                        {t.status}
                       </Badge>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {t.installmentNumber && t.installmentTotal ? (
-                      <Badge variant="outline">
-                        {t.installmentNumber}/{t.installmentTotal}
-                      </Badge>
-                    ) : (
-                      "—"
-                    )}
-                  </TableCell>
-                  <TableCell className="text-xs text-muted-foreground">
-                    {t.accountCard
-                      ? `${t.accountCard.name}${t.accountCard.lastDigits ? ` ·${t.accountCard.lastDigits}` : ""}`
-                      : "—"}
-                  </TableCell>
-                  <TableCell>{t.category?.name ?? "—"}</TableCell>
-                  <TableCell className="min-w-[180px]">
-                    <ResponsibleSelect txId={t.id} value={t.responsibleId} people={people} />
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={statusVariant(t.status)} className="capitalize">
-                      {t.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right font-medium">
-                    {t.type === "despesa" ? "-" : "+"}
-                    {formatBRL(t.amount)}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                    </TableCell>
+                    <TableCell className="text-right font-medium">
+                      {t.type === "despesa" ? "-" : "+"}
+                      {formatBRL(t.amount)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </div>
 
           {/* Mobile: transações da fatura em cards (com seleção de responsável) */}

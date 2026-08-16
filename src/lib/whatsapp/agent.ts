@@ -1,6 +1,12 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { getAISettings, isConfigured, chatComplete, resilientFetch, type AISettings } from "@/lib/ai/provider";
+import {
+  getAISettings,
+  isConfigured,
+  chatComplete,
+  resilientFetch,
+  type AISettings,
+} from "@/lib/ai/provider";
 import { assertUnderDailyCap, recordUsage } from "@/lib/ai/usage";
 import { buildFinancialSnapshot, snapshotToText, loadMemoryText } from "@/lib/ai/context";
 import { splitReais, toNum } from "@/lib/services/money";
@@ -68,7 +74,8 @@ ${snapshot}${memory ? "\n\n===== MEMÓRIA =====\n" + memory : ""}`;
       raw = await visionComplete(
         ai,
         system,
-        input.text || "Analise a imagem (comprovante/nota fiscal) e registre a despesa correspondente.",
+        input.text ||
+          "Analise a imagem (comprovante/nota fiscal) e registre a despesa correspondente.",
         input.imageUrl
       );
     } else {
@@ -111,7 +118,10 @@ ${snapshot}${memory ? "\n\n===== MEMÓRIA =====\n" + memory : ""}`;
             description: String(f.description || "Despesa"),
             amount,
             type: "despesa",
-            origin: f.origin && ["debito", "pix", "dinheiro", "boleto"].includes(f.origin) ? f.origin : "debito",
+            origin:
+              f.origin && ["debito", "pix", "dinheiro", "boleto"].includes(f.origin)
+                ? f.origin
+                : "debito",
             cardId: null,
             status: f.status === "pago" ? "pago" : "pendente",
             belongsTo: "pessoal",
@@ -231,7 +241,11 @@ function revalidateAll() {
 
 function num(v: unknown): number {
   if (typeof v === "number") return v;
-  const n = Number(String(v ?? "0").replace(/\./g, "").replace(",", "."));
+  const n = Number(
+    String(v ?? "0")
+      .replace(/\./g, "")
+      .replace(",", ".")
+  );
   return Number.isFinite(n) ? n : Number(String(v ?? "0").replace(",", ".")) || 0;
 }
 
@@ -283,7 +297,11 @@ type AgentPlan = {
 
 function parseJson(raw: string): AgentPlan | null {
   if (!raw) return null;
-  const t = raw.trim().replace(/^```(json)?/i, "").replace(/```$/, "").trim();
+  const t = raw
+    .trim()
+    .replace(/^```(json)?/i, "")
+    .replace(/```$/, "")
+    .trim();
   const start = t.indexOf("{");
   const end = t.lastIndexOf("}");
   if (start === -1 || end === -1) return null;
@@ -302,7 +320,9 @@ async function visionComplete(
   imageUrl: string
 ): Promise<string> {
   const base =
-    s.provider === "custom" && s.baseUrl ? s.baseUrl.replace(/\/$/, "") : "https://api.openai.com/v1";
+    s.provider === "custom" && s.baseUrl
+      ? s.baseUrl.replace(/\/$/, "")
+      : "https://api.openai.com/v1";
   // Teto de custo antes de contatar o provedor (0 custo ao exceder).
   await assertUnderDailyCap();
   const res = await resilientFetch(`${base}/chat/completions`, {

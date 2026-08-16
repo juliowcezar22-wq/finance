@@ -21,11 +21,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import {
-  previewImport,
-  commitImport,
-  type PreviewResult,
-} from "@/lib/actions/import";
+import { previewImport, commitImport, type PreviewResult } from "@/lib/actions/import";
 import {
   previewPdfImport,
   commitPdfImport,
@@ -89,7 +85,7 @@ export function InvoiceImportDialog({
       <DialogTrigger asChild>
         {trigger ?? (
           <Button variant="outline" size="sm">
-            <FileUp className="h-4 w-4 mr-1" /> Importar extrato
+            <FileUp className="mr-1 h-4 w-4" /> Importar extrato
           </Button>
         )}
       </DialogTrigger>
@@ -106,11 +102,11 @@ export function InvoiceImportDialog({
 
           <TabsContent value="csv" className="space-y-4 pt-4">
             <p className="text-sm text-muted-foreground">
-              Suba o extrato mensal do cartão em CSV ou XLSX. Reconhecemos colunas
-              comuns (data, descrição/title, valor) em português ou inglês. Transações
-              serão vinculadas automaticamente a este cartão.
+              Suba o extrato mensal do cartão em CSV ou XLSX. Reconhecemos colunas comuns (data,
+              descrição/title, valor) em português ou inglês. Transações serão vinculadas
+              automaticamente a este cartão.
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <Label>Arquivo CSV/XLSX do extrato</Label>
                 <Input
@@ -130,7 +126,7 @@ export function InvoiceImportDialog({
                   value={reference}
                   onChange={(e) => setReference(e.target.value)}
                 />
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="mt-1 text-xs text-muted-foreground">
                   Todas as linhas entram nessa fatura. Vazio = detectar pelo arquivo.
                 </p>
               </div>
@@ -194,9 +190,7 @@ export function InvoiceImportDialog({
               </Button>
             </div>
 
-            {result && (
-              <p className="text-sm rounded-md border bg-muted/40 px-3 py-2">{result}</p>
-            )}
+            {result && <p className="rounded-md border bg-muted/40 px-3 py-2 text-sm">{result}</p>}
 
             {preview?.ok === false && (
               <div className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
@@ -204,9 +198,7 @@ export function InvoiceImportDialog({
               </div>
             )}
 
-            {preview?.ok && (
-              <CsvDiagnostics preview={preview} />
-            )}
+            {preview?.ok && <CsvDiagnostics preview={preview} />}
           </TabsContent>
 
           <TabsContent value="pdf" className="pt-4">
@@ -224,13 +216,7 @@ export function InvoiceImportDialog({
   );
 }
 
-function PdfImportPanel({
-  cardId,
-  cardName,
-}: {
-  cardId: string;
-  cardName: string;
-}) {
+function PdfImportPanel({ cardId, cardName }: { cardId: string; cardName: string }) {
   const [file, setFile] = useState<File | null>(null);
   const [reference, setReference] = useState("");
   const [preview, setPreview] = useState<PdfPreviewResult | null>(null);
@@ -248,12 +234,12 @@ function PdfImportPanel({
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Suba o extrato mensal de <strong>{cardName}</strong> em PDF. Tentamos múltiplos
-        layouts (Nubank, Itaú e genérico). PDFs escaneados (imagem) não funcionam —
-        exporte em CSV/XLSX nesses casos.
+        Suba o extrato mensal de <strong>{cardName}</strong> em PDF. Tentamos múltiplos layouts
+        (Nubank, Itaú e genérico). PDFs escaneados (imagem) não funcionam — exporte em CSV/XLSX
+        nesses casos.
       </p>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <Label>Arquivo PDF do extrato</Label>
           <Input
@@ -268,12 +254,8 @@ function PdfImportPanel({
         </div>
         <div>
           <Label>Fatura de referência (mês)</Label>
-          <Input
-            type="month"
-            value={reference}
-            onChange={(e) => setReference(e.target.value)}
-          />
-          <p className="text-xs text-muted-foreground mt-1">
+          <Input type="month" value={reference} onChange={(e) => setReference(e.target.value)} />
+          <p className="mt-1 text-xs text-muted-foreground">
             Detectada pelo vencimento do PDF; ajuste se necessário.
           </p>
         </div>
@@ -318,9 +300,7 @@ function PdfImportPanel({
               }
               const r = await commitPdfImport(buildFormData());
               if (r.ok) {
-                const refTxt = r.reference
-                  ? ` na fatura ${refLabel(refToInput(r.reference))}`
-                  : "";
+                const refTxt = r.reference ? ` na fatura ${refLabel(refToInput(r.reference))}` : "";
                 setResult(
                   `✓ ${r.imported} importadas${refTxt} · ${r.duplicates} duplicatas · total ${r.total}`
                 );
@@ -336,24 +316,20 @@ function PdfImportPanel({
         </Button>
       </div>
 
-      {result && (
-        <p className="text-sm rounded-md border bg-muted/40 px-3 py-2">{result}</p>
-      )}
+      {result && <p className="rounded-md border bg-muted/40 px-3 py-2 text-sm">{result}</p>}
 
       {preview && preview.ok === false && (
-        <div className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive space-y-2">
+        <div className="space-y-2 rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
           <p className="font-medium">{preview.error}</p>
           {preview.reason && (
             <p className="text-xs text-foreground/70">
               Motivo técnico: <code>{preview.reason}</code>
             </p>
           )}
-          {preview.diagnostics && (
-            <PdfErrorDiagnostics diag={preview.diagnostics} />
-          )}
+          {preview.diagnostics && <PdfErrorDiagnostics diag={preview.diagnostics} />}
           <p className="text-xs text-foreground/70">
-            Sugestão: tentar exportar o extrato em CSV/XLSX ou baixar novamente o PDF
-            pelo app/banco.
+            Sugestão: tentar exportar o extrato em CSV/XLSX ou baixar novamente o PDF pelo
+            app/banco.
           </p>
         </div>
       )}
@@ -366,31 +342,23 @@ function PdfImportPanel({
               {preview.total} linhas · {preview.duplicates} duplicatas
             </Badge>
             {preview.totalDetected != null && (
-              <Badge variant="outline">
-                total extrato: {formatBRL(preview.totalDetected)}
-              </Badge>
+              <Badge variant="outline">total extrato: {formatBRL(preview.totalDetected)}</Badge>
             )}
             <Badge variant="outline">
               diagnóstico: {preview.diagnostics.recognized}/{preview.diagnostics.totalLines} linhas
             </Badge>
             {preview.dueDate && (
-              <Badge variant="outline">
-                vencimento: {formatDateBR(preview.dueDate)}
-              </Badge>
+              <Badge variant="outline">vencimento: {formatDateBR(preview.dueDate)}</Badge>
             )}
             {preview.closingDate && (
-              <Badge variant="outline">
-                fechamento: {formatDateBR(preview.closingDate)}
-              </Badge>
+              <Badge variant="outline">fechamento: {formatDateBR(preview.closingDate)}</Badge>
             )}
             {preview.ignoredLines.length > 0 && (
-              <Badge variant="warning">
-                {preview.ignoredLines.length} linhas ignoradas
-              </Badge>
+              <Badge variant="warning">{preview.ignoredLines.length} linhas ignoradas</Badge>
             )}
           </div>
 
-          <div className="border rounded max-h-80 overflow-auto">
+          <div className="max-h-80 overflow-auto rounded border">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -443,7 +411,7 @@ function PdfImportPanel({
               <summary className="cursor-pointer text-muted-foreground">
                 Ver {preview.ignoredLines.length} linhas ignoradas
               </summary>
-              <pre className="mt-2 max-h-40 overflow-auto bg-muted/50 p-2 rounded text-[11px] whitespace-pre-wrap">
+              <pre className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap rounded bg-muted/50 p-2 text-[11px]">
                 {preview.ignoredLines.join("\n")}
               </pre>
             </details>
@@ -476,7 +444,7 @@ function CsvDiagnostics({ preview }: { preview: Extract<PreviewResult, { ok: tru
         {colChips.map((c) =>
           c.value ? (
             <Badge key={c.label} variant="outline">
-              {c.label}: <span className="font-mono ml-1">{c.value}</span>
+              {c.label}: <span className="ml-1 font-mono">{c.value}</span>
             </Badge>
           ) : (
             <Badge key={c.label} variant="destructive">
@@ -493,7 +461,7 @@ function CsvDiagnostics({ preview }: { preview: Extract<PreviewResult, { ok: tru
         </div>
       )}
 
-      <div className="border rounded max-h-80 overflow-auto">
+      <div className="max-h-80 overflow-auto rounded border">
         <Table>
           <TableHeader>
             <TableRow>
@@ -558,7 +526,7 @@ function CsvDiagnostics({ preview }: { preview: Extract<PreviewResult, { ok: tru
           <summary className="cursor-pointer text-muted-foreground">
             Ver exemplo de 3 linhas brutas lidas
           </summary>
-          <pre className="mt-2 max-h-40 overflow-auto bg-muted/50 p-2 rounded text-[11px] whitespace-pre-wrap">
+          <pre className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap rounded bg-muted/50 p-2 text-[11px]">
             {JSON.stringify(preview.rawSample, null, 2)}
           </pre>
         </details>
@@ -569,7 +537,7 @@ function CsvDiagnostics({ preview }: { preview: Extract<PreviewResult, { ok: tru
           <summary className="cursor-pointer text-muted-foreground">
             Ver exemplo de 3 transações normalizadas
           </summary>
-          <pre className="mt-2 max-h-40 overflow-auto bg-muted/50 p-2 rounded text-[11px] whitespace-pre-wrap">
+          <pre className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap rounded bg-muted/50 p-2 text-[11px]">
             {JSON.stringify(
               preview.parsedSample.map((r) => ({
                 date: r.date,
@@ -592,7 +560,7 @@ function CsvDiagnostics({ preview }: { preview: Extract<PreviewResult, { ok: tru
           <summary className="cursor-pointer text-muted-foreground">
             Ver motivos das {preview.ignored} linhas ignoradas
           </summary>
-          <ul className="mt-2 max-h-40 overflow-auto bg-muted/50 p-2 rounded text-[11px] space-y-1">
+          <ul className="mt-2 max-h-40 space-y-1 overflow-auto rounded bg-muted/50 p-2 text-[11px]">
             {preview.ignoredReasons.map((r) => (
               <li key={r.line}>
                 <span className="font-mono">linha {r.line}:</span> {r.reason}
@@ -606,24 +574,19 @@ function CsvDiagnostics({ preview }: { preview: Extract<PreviewResult, { ok: tru
 }
 
 function PdfErrorDiagnostics({ diag }: { diag: PdfDiagnostics }) {
-  const sizeKb =
-    diag.fileSize != null ? `${(diag.fileSize / 1024).toFixed(1)} KB` : "—";
+  const sizeKb = diag.fileSize != null ? `${(diag.fileSize / 1024).toFixed(1)} KB` : "—";
   return (
     <details className="text-xs text-foreground/80">
-      <summary className="cursor-pointer">
-        Diagnóstico do arquivo
-      </summary>
-      <div className="mt-2 space-y-1.5 bg-background/60 p-3 rounded font-mono text-[11px]">
+      <summary className="cursor-pointer">Diagnóstico do arquivo</summary>
+      <div className="mt-2 space-y-1.5 rounded bg-background/60 p-3 font-mono text-[11px]">
         <p>
-          <span className="text-muted-foreground">arquivo:</span>{" "}
-          {diag.fileName ?? "—"}
+          <span className="text-muted-foreground">arquivo:</span> {diag.fileName ?? "—"}
         </p>
         <p>
           <span className="text-muted-foreground">tamanho:</span> {sizeKb}
         </p>
         <p>
-          <span className="text-muted-foreground">mime:</span>{" "}
-          {diag.fileType || "—"}
+          <span className="text-muted-foreground">mime:</span> {diag.fileType || "—"}
         </p>
         <p>
           <span className="text-muted-foreground">cabeçalho %PDF:</span>{" "}
@@ -638,21 +601,17 @@ function PdfErrorDiagnostics({ diag }: { diag: PdfDiagnostics }) {
           {diag.firstBytesAscii ?? "—"}
         </p>
         <p>
-          <span className="text-muted-foreground">layout:</span>{" "}
-          {diag.layout}
+          <span className="text-muted-foreground">layout:</span> {diag.layout}
         </p>
         <p>
-          <span className="text-muted-foreground">linhas extraídas:</span>{" "}
-          {diag.totalLines}
+          <span className="text-muted-foreground">linhas extraídas:</span> {diag.totalLines}
         </p>
         <p>
-          <span className="text-muted-foreground">linhas reconhecidas:</span>{" "}
-          {diag.recognized}
+          <span className="text-muted-foreground">linhas reconhecidas:</span> {diag.recognized}
         </p>
         {diag.technicalError && (
           <p className="break-words">
-            <span className="text-muted-foreground">erro técnico:</span>{" "}
-            {diag.technicalError}
+            <span className="text-muted-foreground">erro técnico:</span> {diag.technicalError}
           </p>
         )}
         {diag.sampleLines.length > 0 && (

@@ -24,7 +24,7 @@ export function Insights({ configured }: { configured: boolean }) {
           })
         }
       >
-        <Sparkles className="h-4 w-4 mr-1" />
+        <Sparkles className="mr-1 h-4 w-4" />
         {pending ? "Gerando análise…" : "Gerar análise do meu momento"}
       </Button>
 
@@ -35,7 +35,7 @@ export function Insights({ configured }: { configured: boolean }) {
       )}
 
       {report && (
-        <div className="rounded-lg border bg-card p-3 max-h-[420px] overflow-y-auto">
+        <div className="max-h-[420px] overflow-y-auto rounded-lg border bg-card p-3">
           <SimpleMarkdown text={report} />
         </div>
       )}

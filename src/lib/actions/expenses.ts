@@ -102,12 +102,7 @@ export async function saveExpense(formData: FormData): Promise<ActionResult> {
     txId = tx.id;
   }
 
-  await rebuildInstallments(
-    txId,
-    input.amount,
-    input.installments,
-    input.dueDate ?? input.date
-  );
+  await rebuildInstallments(txId, input.amount, input.installments, input.dueDate ?? input.date);
 
   revalidatePath("/despesas");
   revalidatePath("/dashboard");
