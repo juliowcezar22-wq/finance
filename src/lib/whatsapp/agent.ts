@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { log } from "@/lib/log";
 import { revalidatePath } from "next/cache";
 import {
   getAISettings,
@@ -349,7 +350,7 @@ async function visionComplete(
   });
   if (!res.ok) {
     const t = await res.text().catch(() => "");
-    console.error(`[ai] visão erro ${res.status}: ${t.slice(0, 500)}`);
+    log.error("ai.vision_http_error", { status: res.status, body: t.slice(0, 500) });
     throw new Error("Não consegui analisar a imagem agora. Tente novamente mais tarde.");
   }
   const data = (await res.json()) as {

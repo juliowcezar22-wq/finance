@@ -50,12 +50,17 @@ export async function loadRuleContext(): Promise<RuleContext> {
   };
 }
 
-/** Aplica as regras já carregadas a uma linha — 100% em memória. */
+/**
+ * Aplica as regras já carregadas a uma linha — 100% em memória.
+ * Auto-suficiente: filtra inativas e ordena por prioridade internamente
+ * (loadRuleContext já entrega assim; aqui é defesa para outros callers/testes).
+ */
 export function applyRulesSync(ctx: RuleContext, input: RuleInput): RuleEffect {
   const desc = (input.description || "").toUpperCase();
   const effect: RuleEffect = {};
+  const ordered = [...ctx.rules].filter((r) => r.active).sort((a, b) => a.priority - b.priority);
 
-  for (const r of ctx.rules) {
+  for (const r of ordered) {
     let matches = true;
 
     if (r.descriptionContains) {

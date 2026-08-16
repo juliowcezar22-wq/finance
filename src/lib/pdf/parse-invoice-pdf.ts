@@ -2,6 +2,7 @@
 // no index.js (que tenta abrir ./test/data/05-versions-space.pdf quando
 // module.parent é falsy — caso comum em bundlers).
 import { extractPdfText, PdfPasswordError } from "./extract-pdf-text";
+import { log } from "@/lib/log";
 import { tryNubankLike } from "./parsers/nubank-like";
 import { tryNubankStatement } from "./parsers/nubank-statement";
 import { tryItauLike } from "./parsers/itau-like";
@@ -88,9 +89,7 @@ export async function parseInvoicePdf(
 
   // 1. tamanho zero
   if (!buffer || buffer.length === 0) {
-    if (process.env.NODE_ENV !== "production") {
-      console.warn("[pdf-import] arquivo vazio", baseDiag);
-    }
+    log.warn("pdf_import.empty_file", baseDiag);
     throw new PdfImportError(
       "EMPTY_FILE",
       "O arquivo enviado está vazio. Tente fazer o download novamente.",
@@ -109,9 +108,7 @@ export async function parseInvoicePdf(
   //    o lixo e usamos o PDF de verdade. Só rejeitamos se não houver %PDF algum.
   const pdfStart = buffer.indexOf("%PDF");
   if (pdfStart === -1) {
-    if (process.env.NODE_ENV !== "production") {
-      console.warn("[pdf-import] cabeçalho %PDF não encontrado", baseDiag);
-    }
+    log.warn("pdf_import.no_pdf_header", baseDiag);
     throw new PdfImportError(
       "NOT_A_PDF",
       "O arquivo enviado não parece ser um PDF válido. Verifique se o download foi feito corretamente.",
@@ -152,9 +149,7 @@ export async function parseInvoicePdf(
       );
     }
     const technical = e?.message ?? String(e);
-    if (process.env.NODE_ENV !== "production") {
-      console.error("[pdf-import] extração falhou:", technical, baseDiag);
-    }
+    log.error("pdf_import.extract_failed", { ...baseDiag, technical: String(technical) });
     throw new PdfImportError(
       "PARSE_FAIL",
       "Não conseguimos extrair o conteúdo deste PDF. Tente exportar o extrato em CSV/XLSX ou baixar o PDF novamente pelo app/banco.",
@@ -171,9 +166,7 @@ export async function parseInvoicePdf(
 
   const text = (parsed.text ?? "").trim();
   if (!text) {
-    if (process.env.NODE_ENV !== "production") {
-      console.warn("[pdf-import] PDF sem texto extraível", baseDiag);
-    }
+    log.warn("pdf_import.no_text", baseDiag);
     throw new PdfImportError(
       "NO_TEXT",
       "Este PDF parece ser escaneado/imagem. Exporte o extrato em CSV/XLSX ou use um PDF digital.",

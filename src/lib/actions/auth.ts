@@ -1,5 +1,6 @@
 "use server";
 import { cookies, headers } from "next/headers";
+import { log } from "@/lib/log";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
@@ -158,7 +159,7 @@ export async function logoutAction() {
       } catch (err2) {
         // Sem observabilidade estruturada ainda (feature 012): ao menos loga,
         // para que uma revogação falha seja visível e possa ser reprocessada.
-        console.error("logout: falha ao revogar sessão (sessionVersion)", err2);
+        log.error("auth.logout_revoke_failed", { uid: payload.uid }, err2);
       }
     }
   }

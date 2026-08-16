@@ -69,8 +69,13 @@ async function isSessionValid(token: string | undefined): Promise<boolean> {
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // Webhook do WhatsApp / cron de lembretes: chamados externamente, sem sessão.
-  if (pathname.startsWith("/api/whatsapp")) {
+  // Rotas públicas de máquina: webhook/cron do WhatsApp, healthcheck (uptime
+  // monitor) e coletor de CSP — chamados externamente, sem sessão.
+  if (
+    pathname.startsWith("/api/whatsapp") ||
+    pathname === "/api/health" ||
+    pathname === "/api/csp-report"
+  ) {
     return NextResponse.next();
   }
 
