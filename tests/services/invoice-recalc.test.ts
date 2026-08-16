@@ -81,6 +81,15 @@ beforeAll(async () => {
         },
         {
           date: ref,
+          description: `${P}credito`,
+          amount: 10,
+          type: "receita",
+          status: "pago",
+          invoiceId,
+          cardId,
+        },
+        {
+          date: ref,
           description: `${P}cancelada`,
           amount: 999,
           type: "despesa",
@@ -103,12 +112,12 @@ afterAll(async () => {
 });
 
 describe("recalcInvoiceTotal", () => {
-  it("compras − estornos, cancelados fora: 120,50 + 79,50 − 30 = 170,00", async () => {
+  it("compras − estornos/créditos, cancelados fora: 120,50 + 79,50 − 30 − 10 = 160,00", async () => {
     await runWithOwner(userId, () => recalcInvoiceTotal(invoiceId));
     const inv = await runWithOwner(userId, () =>
       prisma.creditCardInvoice.findUnique({ where: { id: invoiceId } })
     );
-    expect(toNum(inv!.total)).toBe(170);
+    expect(toNum(inv!.total)).toBe(160);
   });
 
   it("idempotente: recalcular de novo não muda o total", async () => {
@@ -117,6 +126,6 @@ describe("recalcInvoiceTotal", () => {
     const inv = await runWithOwner(userId, () =>
       prisma.creditCardInvoice.findUnique({ where: { id: invoiceId } })
     );
-    expect(toNum(inv!.total)).toBe(170);
+    expect(toNum(inv!.total)).toBe(160);
   });
 });

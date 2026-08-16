@@ -68,10 +68,11 @@ describe("applyRulesSync", () => {
     ).toBeUndefined();
   });
 
-  it("prioridade: primeira regra a definir um campo vence (não sobrescreve)", () => {
+  it("prioridade: menor priority vence MESMO com array fora de ordem", () => {
     const c = ctx([
-      rule({ descriptionContains: "ifood", categoryId: "cat-a", priority: 1 }),
+      // array propositalmente invertido: a priority manda, não a ordem
       rule({ descriptionContains: "ifood", categoryId: "cat-b", status: "pago", priority: 2 }),
+      rule({ descriptionContains: "ifood", categoryId: "cat-a", priority: 1 }),
     ]);
     const eff = applyRulesSync(c, { description: "IFOOD *PEDIDO", amount: 50 });
     expect(eff.categoryId).toBe("cat-a"); // primeira vence
@@ -90,6 +91,11 @@ describe("applyRulesSync", () => {
     expect(
       applyRulesSync(c2, { description: "ESCOLA X", amount: 1 }).responsibleId
     ).toBeUndefined();
+  });
+
+  it("regra INATIVA é ignorada", () => {
+    const c = ctx([rule({ descriptionContains: "uber", categoryId: "cat-x", active: false })]);
+    expect(applyRulesSync(c, { description: "UBER", amount: 1 }).categoryId).toBeUndefined();
   });
 
   it("regra sem condições casa tudo (efeito default)", () => {

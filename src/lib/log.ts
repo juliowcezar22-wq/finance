@@ -10,11 +10,12 @@
 type Level = "debug" | "info" | "warn" | "error";
 
 function emit(level: Level, event: string, ctx?: Record<string, unknown>, err?: unknown) {
+  // ctx primeiro: os campos do envelope (ts/level/event) sempre vencem.
   const entry: Record<string, unknown> = {
+    ...ctx,
     ts: new Date().toISOString(),
     level,
     event,
-    ...ctx,
   };
   if (err) {
     entry.error = err instanceof Error ? err.message : String(err);
@@ -22,7 +23,13 @@ function emit(level: Level, event: string, ctx?: Record<string, unknown>, err?: 
       entry.stack = err.stack.split("\n").slice(0, 6).join("\n");
     }
   }
-  const line = JSON.stringify(entry);
+  let line: string;
+  try {
+    line = JSON.stringify(entry, (_k, v) => (typeof v === "bigint" ? v.toString() : v));
+  } catch {
+    // O logger NUNCA pode lançar (roda dentro de catch de rotas): fallback mínimo.
+    line = JSON.stringify({ ts: entry.ts, level, event, logError: "unserializable ctx" });
+  }
   if (level === "error") console.error(line);
   else if (level === "warn") console.warn(line);
   else console.log(line);
