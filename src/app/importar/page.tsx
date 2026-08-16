@@ -1,6 +1,10 @@
 import { PageHeader } from "@/components/page-header";
 import { prisma } from "@/lib/prisma";
-import { ImportForm } from "./import-form";
+import dynamic from "next/dynamic";
+
+// Lazy (feature 009): o formulário de importação (654 linhas) sai do bundle
+// inicial da rota e carrega em chunk próprio.
+const ImportForm = dynamic(() => import("./import-form").then((m) => m.ImportForm));
 import { InvoicesHistory } from "./invoices-history";
 import { DeleteBatchButton } from "./delete-actions";
 import { Card, CardContent } from "@/components/ui/card";

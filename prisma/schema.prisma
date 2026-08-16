@@ -214,6 +214,9 @@ model Transaction {
   updatedAt       DateTime      @updatedAt
 
   @@index([date])
+  // Consulta mais quente: toda query de Transaction filtra por ownerId (extensão)
+  // + date (mês). Índice composto cobre listagem/somatórios mensais.
+  @@index([ownerId, date])
   @@index([cardId])
   @@index([categoryId])
   @@index([responsibleId])

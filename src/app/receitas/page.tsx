@@ -24,6 +24,7 @@ import {
 import { IncomeDialog } from "./income-dialog";
 import { IncomeActions } from "./row-actions";
 import { IncomeFilters } from "./filters";
+import { LoadMore, parseLimit } from "@/components/load-more";
 import { getViewer } from "@/lib/auth/viewer";
 import { toNum } from "@/lib/services/money";
 
@@ -32,6 +33,7 @@ type Search = {
   status?: string;
   origem?: string;
   pessoa?: string;
+  limit?: string;
 };
 
 // #1 Unificação: receitas = Transaction(type=receita). Vocabulário do Transaction.
@@ -81,12 +83,14 @@ export default async function ReceitasPage({ searchParams }: { searchParams: Sea
   if (searchParams.origem) where.origin = searchParams.origem;
   if (searchParams.pessoa) where.responsibleId = searchParams.pessoa;
 
-  const [incomes, accounts, people, categories] = await Promise.all([
+  const limit = parseLimit(searchParams.limit);
+
+  const [rows, accounts, people, categories, totalCount] = await Promise.all([
     prisma.transaction.findMany({
       where,
       orderBy: { date: "desc" },
       include: { account: true, responsible: true, category: true },
-      take: 200,
+      take: limit + 1,
     }),
     prisma.account.findMany({ orderBy: { name: "asc" } }),
     prisma.person.findMany({ orderBy: { name: "asc" } }),
@@ -94,7 +98,11 @@ export default async function ReceitasPage({ searchParams }: { searchParams: Sea
       where: { kind: { in: ["receita", "mista"] } },
       orderBy: { name: "asc" },
     }),
+    prisma.transaction.count({ where }),
   ]);
+
+  const hasExtra = rows.length > limit;
+  const incomes = hasExtra ? rows.slice(0, limit) : rows;
 
   // Totais dos cards seguem o período selecionado no filtro (ou mês atual)
   let ref = new Date();
@@ -235,6 +243,14 @@ export default async function ReceitasPage({ searchParams }: { searchParams: Sea
               ))
             )}
           </MobileCards>
+
+          <LoadMore
+            shown={incomes.length}
+            total={totalCount}
+            limit={limit}
+            searchParams={searchParams}
+            label="receitas"
+          />
         </CardContent>
       </Card>
     </div>

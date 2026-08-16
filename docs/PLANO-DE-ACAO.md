@@ -176,20 +176,18 @@ O maior risco do sistema: um usuário logado pode alterar/apagar dados de outro.
 
 ## MÓDULO 9 — 🟡 Performance e paginação
 
-- [ ] Paginação real (cursor ou skip/take + UI) nas listas que hoje truncam
-      silenciosamente: `transacoes` (200), `despesas` (300), `receitas` (200),
-      `cartoes/[id]` (500), `importar`, `caixa`, `whatsapp`.
-      Mostrar contagem total e aviso quando houver mais registros.
-- [ ] Revisar N+1 e `include` largos nas páginas mais pesadas
-      (`pessoas/[id]/page.tsx` 686 linhas, `cartoes/[id]/page.tsx` 564);
-      usar `select` enxuto onde der.
-- [ ] Conferir se os 9 índices de `Transaction` cobrem os filtros reais das
-      páginas (`filters.tsx` usa mês/categoria/status) — adicionar índice
-      composto se necessário (e checar com `EXPLAIN ANALYZE` no Supabase).
-- [ ] Lazy-load dos dialogs pesados (`invoice-import-dialog.tsx` 671 linhas,
-      `import-form.tsx` 654) com `next/dynamic`.
-- [ ] Memoização apenas onde medir re-render real (React DevTools Profiler) —
-      não espalhar `memo` às cegas.
+- [x] Paginação "Carregar mais" (lotes de 50, searchParam `limit`, filtros
+      preservados) + contagem total nas 4 listas grandes; listas fixas
+      rotuladas ("últimas N"). **Feito (feature 009).**
+- [x] Selects enxutos em `pessoas/[id]` (relações só com name/bank; include
+      de transaction removido de receivables); resumo por pessoa do cartão em
+      query própria (select mínimo). **Feito (009).**
+- [x] Índice composto `(ownerId, date)` em Transaction (toda query passa por
+      ownerId via extensão + mês). **Feito (009)** — EXPLAIN em prod fica p/ 012.
+- [x] Lazy via `next/dynamic`: InvoiceImportDialog (3 consumers) e ImportForm.
+      **Feito (009).**
+- [ ] Memoização apenas onde medir re-render real — **aceito/adiado**: sem
+      medição de profiler nesta fase; nada de memo às cegas (decisão da 009).
 
 ## MÓDULO 10 — 🟡 UX
 

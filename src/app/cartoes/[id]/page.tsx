@@ -29,11 +29,17 @@ import {
   limitesUsadosPorCartao,
   parcelasFuturasEstimadasPorCartao,
 } from "@/lib/services/calculations";
-import { InvoiceImportDialog } from "../invoice-import-dialog";
+import dynamic from "next/dynamic";
+
+// Lazy (feature 009): dialog de importação de fatura (671 linhas) em chunk próprio.
+const InvoiceImportDialog = dynamic(() =>
+  import("../invoice-import-dialog").then((m) => m.InvoiceImportDialog)
+);
 import { DeleteInvoiceButton } from "../../importar/delete-actions";
 import { ResponsibleSelect } from "./responsible-select";
 import { CardDetailFilters } from "./month-filter";
 import { AccountCardsSection } from "./account-cards-section";
+import { LoadMore, parseLimit } from "@/components/load-more";
 import { ArrowLeft } from "lucide-react";
 import { getViewer } from "@/lib/auth/viewer";
 
@@ -42,6 +48,7 @@ type Search = {
   pessoa?: string;
   categoria?: string;
   status?: string;
+  limit?: string;
 };
 
 function statusVariant(status: string): any {
@@ -138,12 +145,32 @@ export default async function CardDetailPage({
   if (searchParams.categoria) txWhere.categoryId = searchParams.categoria;
   if (searchParams.status) txWhere.status = searchParams.status;
 
-  const transactions = await prisma.transaction.findMany({
-    where: txWhere,
-    orderBy: { date: "desc" },
-    include: { category: true, responsible: true, accountCard: true },
-    take: 500,
-  });
+  const limit = parseLimit(searchParams.limit);
+
+  const [txRows, totalCount, summaryRows] = await Promise.all([
+    prisma.transaction.findMany({
+      where: txWhere,
+      orderBy: { date: "desc" },
+      include: { category: true, responsible: true, accountCard: true },
+      take: limit + 1,
+    }),
+    prisma.transaction.count({ where: txWhere }),
+    // Resumo por pessoa: SEMPRE sobre o mês/filtro COMPLETO (não a página
+    // visível) — select mínimo, sem take (feature 009/FR-006).
+    prisma.transaction.findMany({
+      where: txWhere,
+      select: {
+        responsibleId: true,
+        amount: true,
+        status: true,
+        reimbursable: true,
+        responsible: { select: { name: true } },
+      },
+    }),
+  ]);
+
+  const hasExtra = txRows.length > limit;
+  const transactions = hasExtra ? txRows.slice(0, limit) : txRows;
 
   // Resumo por pessoa baseado nas transações filtradas (mês selecionado)
   type Summary = {
@@ -156,7 +183,7 @@ export default async function CardDetailPage({
     reembolsavel: number;
   };
   const byPerson = new Map<string, Summary>();
-  for (const t of transactions) {
+  for (const t of summaryRows) {
     const key = t.responsibleId ?? "__none__";
     const s = byPerson.get(key) ?? {
       personId: t.responsibleId,
@@ -571,6 +598,14 @@ export default async function CardDetailPage({
               ))
             )}
           </MobileCards>
+
+          <LoadMore
+            shown={transactions.length}
+            total={totalCount}
+            limit={limit}
+            searchParams={searchParams}
+            label="lançamentos"
+          />
         </CardContent>
       </Card>
     </div>

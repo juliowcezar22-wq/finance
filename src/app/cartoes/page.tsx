@@ -8,7 +8,12 @@ import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { CardDialog } from "./card-dialog";
 import { CardRowActions } from "./row-actions";
-import { InvoiceImportDialog } from "./invoice-import-dialog";
+import dynamic from "next/dynamic";
+
+// Lazy (feature 009): dialog de importação de fatura (671 linhas) em chunk próprio.
+const InvoiceImportDialog = dynamic(() =>
+  import("./invoice-import-dialog").then((m) => m.InvoiceImportDialog)
+);
 import { QuickRenameCard } from "./quick-rename";
 import { Badge } from "@/components/ui/badge";
 import {

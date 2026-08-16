@@ -23,10 +23,11 @@ import {
 import { ExpenseDialog } from "./expense-dialog";
 import { ExpenseActions } from "./row-actions";
 import { ExpenseFilters } from "./filters";
+import { LoadMore, parseLimit } from "@/components/load-more";
 import { getViewer } from "@/lib/auth/viewer";
 import { toNum } from "@/lib/services/money";
 
-type Search = { mes?: string; status?: string; pessoa?: string };
+type Search = { mes?: string; status?: string; pessoa?: string; limit?: string };
 
 const ORIGIN_LABEL: Record<string, string> = {
   debito: "Débito",
@@ -69,7 +70,9 @@ export default async function DespesasPage({ searchParams }: { searchParams: Sea
   if (searchParams.status) tableWhere.status = searchParams.status;
   if (searchParams.pessoa) tableWhere.responsibleId = searchParams.pessoa;
 
-  const [monthExpenses, expenses, people, categories, accounts] = await Promise.all([
+  const limit = parseLimit(searchParams.limit);
+
+  const [monthExpenses, rows, people, categories, accounts, totalCount] = await Promise.all([
     prisma.transaction.findMany({
       where: monthWhere,
       select: { amount: true, status: true },
@@ -78,7 +81,7 @@ export default async function DespesasPage({ searchParams }: { searchParams: Sea
       where: tableWhere,
       orderBy: { date: "desc" },
       include: { category: true, responsible: true, account: true, installments: true },
-      take: 300,
+      take: limit + 1,
     }),
     prisma.person.findMany({ orderBy: { name: "asc" } }),
     prisma.category.findMany({
@@ -86,7 +89,11 @@ export default async function DespesasPage({ searchParams }: { searchParams: Sea
       orderBy: { name: "asc" },
     }),
     prisma.account.findMany({ orderBy: { name: "asc" } }),
+    prisma.transaction.count({ where: tableWhere }),
   ]);
+
+  const hasExtra = rows.length > limit;
+  const expenses = hasExtra ? rows.slice(0, limit) : rows;
 
   const totalMes = monthExpenses
     .filter((e) => e.status !== "cancelado")
@@ -225,6 +232,14 @@ export default async function DespesasPage({ searchParams }: { searchParams: Sea
               })
             )}
           </MobileCards>
+
+          <LoadMore
+            shown={expenses.length}
+            total={totalCount}
+            limit={limit}
+            searchParams={searchParams}
+            label="despesas"
+          />
         </CardContent>
       </Card>
     </div>
