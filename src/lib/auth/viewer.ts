@@ -36,10 +36,3 @@ export async function requireAdmin(): Promise<Viewer> {
   return v;
 }
 
-/**
- * Para USER comum sem Person vinculada, devolve true para que a página
- * mostre uma mensagem de "fale com o admin".
- */
-export function isUnlinkedUser(v: Viewer): boolean {
-  return v.role === "USER" && !v.personId;
-}

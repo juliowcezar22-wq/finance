@@ -3,10 +3,18 @@ import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
+// Sem senha default embutida (constituição, princípio IV): o seed exige
+// ADMIN_PASSWORD explícita (≥ 8 chars) — nunca cria credencial previsível.
+if (!process.env.ADMIN_PASSWORD || process.env.ADMIN_PASSWORD.length < 8) {
+  throw new Error(
+    "Seed requer ADMIN_PASSWORD (mínimo 8 caracteres) definida no ambiente — sem senha padrão."
+  );
+}
+
 const ADMIN = {
-  name: process.env.ADMIN_NAME ?? "Admin Bugia's Money",
-  email: process.env.ADMIN_EMAIL ?? "admin@bugiasmoney.local",
-  password: process.env.ADMIN_PASSWORD ?? "admin123",
+  name: process.env.ADMIN_NAME ?? "Admin Nummiq",
+  email: process.env.ADMIN_EMAIL ?? "admin@nummiq.local",
+  password: process.env.ADMIN_PASSWORD,
 };
 
 const PEOPLE = [

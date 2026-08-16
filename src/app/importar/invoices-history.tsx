@@ -2,7 +2,7 @@ import { formatBRL, formatDateBR } from "@/lib/format";
 import { NummiqSymbol } from "@/components/brand";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { PayInvoiceDialog } from "../faturas/pay-dialog";
+import { PayInvoiceDialog } from "./pay-dialog";
 import { DeleteInvoiceButton } from "./delete-actions";
 import {
   MobileCards,

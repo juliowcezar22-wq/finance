@@ -1,5 +1,6 @@
 "use server";
 import { prisma } from "@/lib/prisma";
+import { errorMessage } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
 import { requireAdmin, getViewer } from "@/lib/auth/viewer";
 import { encryptSecret } from "@/lib/crypto/secrets";
@@ -125,7 +126,14 @@ export async function saveAISettings(formData: FormData) {
   const apiKeyRaw = String(formData.get("apiKey") || "");
 
   // Só sobrescreve a chave se um novo valor (não-mascarado) foi enviado.
-  const data: any = { provider, baseUrl, model, temperature, enabled };
+  const data: {
+    provider: string;
+    baseUrl: string | null;
+    model: string;
+    temperature: number;
+    enabled: boolean;
+    apiKey?: string;
+  } = { provider, baseUrl, model, temperature, enabled };
   if (apiKeyRaw && !apiKeyRaw.startsWith("•")) data.apiKey = encryptSecret(apiKeyRaw.trim());
 
   await prisma.aISetting.upsert({
@@ -161,8 +169,8 @@ export async function sendChatMessage(
   let settings: AISettings;
   try {
     settings = await requireConfigured();
-  } catch (e: any) {
-    return { ok: false, error: e.message };
+  } catch (e: unknown) {
+    return { ok: false, error: errorMessage(e) };
   }
 
   // Garante conversa DO PRÓPRIO usuário. Se veio um id, confirma que pertence a
@@ -197,8 +205,8 @@ export async function sendChatMessage(
   try {
     const system = await buildSystemPrompt();
     result = await chatComplete({ settings, system, messages });
-  } catch (e: any) {
-    return { ok: false, error: e?.message ?? "Falha ao consultar a IA." };
+  } catch (e: unknown) {
+    return { ok: false, error: errorMessage(e) ?? "Falha ao consultar a IA." };
   }
 
   // Persiste as duas mensagens
@@ -244,8 +252,8 @@ export async function generateInsights(): Promise<InsightsResult> {
   let settings: AISettings;
   try {
     settings = await requireConfigured();
-  } catch (e: any) {
-    return { ok: false, error: e.message };
+  } catch (e: unknown) {
+    return { ok: false, error: errorMessage(e) };
   }
 
   const prompt = `Gere um RELATÓRIO PERSONALIZADO do meu momento financeiro, em markdown, com EXATAMENTE estas seções:
@@ -265,8 +273,8 @@ Use os números reais do retrato financeiro. Seja específico e priorize o que t
       messages: [{ role: "user", content: prompt }],
       maxTokens: 1500,
     });
-  } catch (e: any) {
-    return { ok: false, error: e?.message ?? "Falha ao gerar análise." };
+  } catch (e: unknown) {
+    return { ok: false, error: errorMessage(e) ?? "Falha ao gerar análise." };
   }
 
   // Extrai memórias automáticas da última linha "MEMÓRIAS: a | b | c"

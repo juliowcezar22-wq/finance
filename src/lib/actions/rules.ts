@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { parseBRL } from "@/lib/format";
+import { type ActionResult, ok, err } from "@/lib/types/action";
 
 const Schema = z.object({
   id: z.string().optional(),
@@ -21,14 +22,14 @@ const Schema = z.object({
   status: z.string().optional().nullable(),
 });
 
-export async function saveRule(formData: FormData) {
+export async function saveRule(formData: FormData): Promise<ActionResult> {
   await getViewer();
   const num = (k: string) => {
     const v = String(formData.get(k) || "").trim();
     if (!v) return null;
     return parseBRL(v);
   };
-  const parsed = Schema.parse({
+  const parsed = Schema.safeParse({
     id: formData.get("id") || undefined,
     name: formData.get("name"),
     priority: Number(formData.get("priority") || 100),
@@ -48,20 +49,25 @@ export async function saveRule(formData: FormData) {
           : null,
     status: (formData.get("status") as string) || null,
   });
+  if (!parsed.success) return err(parsed.error.issues[0]?.message ?? "Dados inválidos");
 
-  if (parsed.id) {
+  if (parsed.data.id) {
     await prisma.categorizationRule.update({
-      where: { id: parsed.id },
-      data: { ...parsed, id: undefined } as any,
+      where: { id: parsed.data.id },
+      data: { ...parsed.data, id: undefined } as any,
     });
   } else {
-    await prisma.categorizationRule.create({ data: { ...parsed, id: undefined } as any });
+    await prisma.categorizationRule.create({
+      data: { ...parsed.data, id: undefined } as any,
+    });
   }
   revalidatePath("/regras");
+  return ok();
 }
 
-export async function deleteRule(id: string) {
+export async function deleteRule(id: string): Promise<ActionResult> {
   await getViewer();
   await prisma.categorizationRule.delete({ where: { id } });
   revalidatePath("/regras");
+  return ok();
 }

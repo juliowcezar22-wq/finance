@@ -62,14 +62,17 @@ export default async function WhatsAppPage() {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <Card className="lg:col-span-2">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">Simulador do agente</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <WhatsAppSimulator />
-          </CardContent>
-        </Card>
+        {/* Simulador: só em desenvolvimento — em produção o card some (008/FR-009). */}
+        {process.env.NODE_ENV !== "production" && (
+          <Card className="lg:col-span-2">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Simulador do agente (dev)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <WhatsAppSimulator />
+            </CardContent>
+          </Card>
+        )}
 
         <div className="space-y-4">
           <Card>

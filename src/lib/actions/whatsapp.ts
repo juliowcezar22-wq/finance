@@ -78,6 +78,10 @@ export async function testWhatsAppSend(): Promise<{ ok: boolean; message: string
 /** Simulador: roda o agente como se fosse uma mensagem do WhatsApp (sem enviar nada). */
 export async function simulateMessage(text: string): Promise<AgentResult> {
   await requireAdmin();
+  // Ferramenta de DEV: em produção a action não executa (o card também some).
+  if (process.env.NODE_ENV === "production") {
+    return { reply: "Simulador disponível apenas em desenvolvimento.", action: "error", error: "dev_only" };
+  }
   const t = text.trim();
   if (!t) return { reply: "Escreva uma mensagem.", action: "smalltalk" };
   const result = await runAgent({ text: t });

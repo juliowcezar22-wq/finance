@@ -40,6 +40,14 @@ const nextConfig = {
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
+  // URLs antigas (rotas-stub removidas na 008) continuam resolvendo.
+  async redirects() {
+    return [
+      { source: "/faturas", destination: "/importar", permanent: false },
+      { source: "/fluxo-de-caixa", destination: "/dashboard", permanent: false },
+      { source: "/receber", destination: "/pessoas", permanent: false },
+    ];
+  },
 };
 
 export default nextConfig;

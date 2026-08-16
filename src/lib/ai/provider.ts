@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { errorMessage } from "@/lib/utils";
 import { decryptMaybe } from "@/lib/crypto/secrets";
 import { assertUnderDailyCap, recordUsage } from "@/lib/ai/usage";
 
@@ -34,9 +35,9 @@ export async function resilientFetch(
         continue;
       }
       return res;
-    } catch (e: any) {
+    } catch (e: unknown) {
       clearTimeout(timer);
-      const aborted = e?.name === "AbortError";
+      const aborted = e instanceof Error && e.name === "AbortError";
       if (attempt < retries) {
         await sleep(backoff(attempt));
         continue;
@@ -151,7 +152,10 @@ async function openAiChat(
     console.error(`[ai] provedor OpenAI erro ${res.status}: ${body.slice(0, 500)}`);
     throw new Error(prettyHttpError(res.status));
   }
-  const data: any = await res.json();
+  const data = (await res.json()) as {
+    choices?: Array<{ message?: { content?: string } }>;
+    usage?: { prompt_tokens?: number; completion_tokens?: number };
+  };
   const text = data?.choices?.[0]?.message?.content ?? "";
   return {
     text: String(text).trim(),
@@ -189,9 +193,12 @@ async function anthropicChat(
     console.error(`[ai] provedor Anthropic erro ${res.status}: ${body.slice(0, 500)}`);
     throw new Error(prettyHttpError(res.status));
   }
-  const data: any = await res.json();
+  const data = (await res.json()) as {
+    content?: Array<{ text?: string }>;
+    usage?: { input_tokens?: number; output_tokens?: number };
+  };
   const text = Array.isArray(data?.content)
-    ? data.content.map((c: any) => c?.text ?? "").join("")
+    ? data.content.map((c) => c?.text ?? "").join("")
     : "";
   return {
     text: String(text).trim(),
@@ -227,7 +234,7 @@ export async function testConnection(s: AISettings): Promise<{ ok: boolean; mess
       skipCap: true, // teste barato: sempre valida a chave, sem bloquear/contar
     });
     return { ok: true, message: `Conexão OK (resposta: "${r.text.slice(0, 20)}").` };
-  } catch (e: any) {
-    return { ok: false, message: e?.message ?? "Falha desconhecida." };
+  } catch (e: unknown) {
+    return { ok: false, message: errorMessage(e) };
   }
 }

@@ -553,6 +553,16 @@ model AiUsage {
   @@index([ownerId])
 }
 
+
+// Contador de requisições do webhook WhatsApp para rate-limit (30/min).
+// GLOBAL (sem dono): conta antes de qualquer processamento; limpeza best-effort.
+model WebhookHit {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
 // Tentativas de login para lockout (5 falhas / 15 min por e-mail). Modelo
 // GLOBAL: registrado antes de existir sessão; fora de OWNED_MODELS. O IP é só
 // auditoria — o bloqueio conta apenas por e-mail (resistência a distribuído).
