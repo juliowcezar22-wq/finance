@@ -1,7 +1,14 @@
 "use client";
 import { useTransition } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatBRL } from "@/lib/format";
@@ -35,50 +42,50 @@ export function AccountCardsSection({
       <CardContent className="p-0">
         {/* Desktop: tabela completa */}
         <div className="hidden md:block">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Cartão</TableHead>
-              <TableHead>Tipo</TableHead>
-              <TableHead>Final</TableHead>
-              <TableHead className="text-right">Limite</TableHead>
-              <TableHead></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {accountCards.length === 0 && (
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell colSpan={5} className="text-center text-muted-foreground py-6">
-                  Nenhum cartão nesta conta. Adicione os cartões físicos e virtuais.
-                </TableCell>
+                <TableHead>Cartão</TableHead>
+                <TableHead>Tipo</TableHead>
+                <TableHead>Final</TableHead>
+                <TableHead className="text-right">Limite</TableHead>
+                <TableHead></TableHead>
               </TableRow>
-            )}
-            {accountCards.map((c) => (
-              <TableRow key={c.id}>
-                <TableCell className="font-medium">{c.name}</TableCell>
-                <TableCell>
-                  <Badge variant={c.kind === "virtual" ? "secondary" : "outline"}>
-                    {c.kind === "virtual" ? "Virtual" : "Físico"}
-                  </Badge>
-                </TableCell>
-                <TableCell>{c.lastDigits ? `•••• ${c.lastDigits}` : "—"}</TableCell>
-                <TableCell className="text-right">{formatBRL(c.limit ?? 0)}</TableCell>
-                <TableCell className="text-right">
-                  <RowActions cardId={cardId} accountCard={c} />
-                </TableCell>
-              </TableRow>
-            ))}
-            {accountCards.length > 0 && (
-              <TableRow>
-                <TableCell colSpan={3} className="text-right font-medium text-muted-foreground">
-                  Soma dos limites dos cartões
-                </TableCell>
-                <TableCell className="text-right font-semibold">{formatBRL(sumLimits)}</TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {accountCards.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={5} className="py-6 text-center text-muted-foreground">
+                    Nenhum cartão nesta conta. Adicione os cartões físicos e virtuais.
+                  </TableCell>
+                </TableRow>
+              )}
+              {accountCards.map((c) => (
+                <TableRow key={c.id}>
+                  <TableCell className="font-medium">{c.name}</TableCell>
+                  <TableCell>
+                    <Badge variant={c.kind === "virtual" ? "secondary" : "outline"}>
+                      {c.kind === "virtual" ? "Virtual" : "Físico"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>{c.lastDigits ? `•••• ${c.lastDigits}` : "—"}</TableCell>
+                  <TableCell className="text-right">{formatBRL(c.limit ?? 0)}</TableCell>
+                  <TableCell className="text-right">
+                    <RowActions cardId={cardId} accountCard={c} />
+                  </TableCell>
+                </TableRow>
+              ))}
+              {accountCards.length > 0 && (
+                <TableRow>
+                  <TableCell colSpan={3} className="text-right font-medium text-muted-foreground">
+                    Soma dos limites dos cartões
+                  </TableCell>
+                  <TableCell className="text-right font-semibold">{formatBRL(sumLimits)}</TableCell>
+                  <TableCell></TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
         </div>
 
         {/* Mobile: cada cartão vira um card */}
@@ -141,7 +148,7 @@ function RowActions({ cardId, accountCard }: { cardId: string; accountCard: any 
         disabled={pending}
         onClick={() => {
           if (confirm(`Excluir o cartão "${accountCard.name}"?`)) {
-            start(() => deleteAccountCard(accountCard.id));
+            start(() => void deleteAccountCard(accountCard.id));
           }
         }}
       >

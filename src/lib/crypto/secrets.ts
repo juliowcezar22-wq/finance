@@ -21,9 +21,7 @@ function loadKey(): Buffer {
   }
   const key = Buffer.from(raw, "base64");
   if (key.length !== 32) {
-    throw new Error(
-      `SECRETS_KEY inválida: esperado 32 bytes (base64), obtido ${key.length}.`
-    );
+    throw new Error(`SECRETS_KEY inválida: esperado 32 bytes (base64), obtido ${key.length}.`);
   }
   return key;
 }

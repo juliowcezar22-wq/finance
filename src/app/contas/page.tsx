@@ -30,7 +30,7 @@ export default async function ContasPage() {
         actions={<AccountDialog />}
       />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+      <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <StatCard title="Saldo total em contas" value={formatBRL(total)} intent="positive" />
         <StatCard title="Contas cadastradas" value={String(accounts.length)} />
       </div>
@@ -42,12 +42,12 @@ export default async function ContasPage() {
           action={<AccountDialog />}
         />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {accounts.map((a) => (
             <Card key={a.id} className="p-5">
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <h3 className="font-medium text-nummiq-white truncate">{a.name}</h3>
+                  <h3 className="truncate font-medium text-nummiq-white">{a.name}</h3>
                   <p className="mt-0.5 text-xs text-nummiq-muted">
                     {a.bank ?? "—"} · {TYPE_LABEL[a.type] ?? a.type}
                   </p>

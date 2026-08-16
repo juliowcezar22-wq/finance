@@ -43,8 +43,7 @@ export async function getMonthlyHistory(maxMonths = 12): Promise<MonthlyHistory>
   if (dataDates.length > 0) {
     const earliest = new Date(Math.min(...dataDates.map((d) => d.getTime())));
     const diff =
-      (now.getFullYear() - earliest.getFullYear()) * 12 +
-      (now.getMonth() - earliest.getMonth());
+      (now.getFullYear() - earliest.getFullYear()) * 12 + (now.getMonth() - earliest.getMonth());
     count = Math.min(maxMonths, Math.max(6, diff + 1));
   }
 
@@ -59,7 +58,11 @@ export async function getMonthlyHistory(maxMonths = 12): Promise<MonthlyHistory>
 
   const [txs, movements] = await Promise.all([
     prisma.transaction.findMany({
-      where: { type: { in: ["despesa", "receita"] }, status: { not: "cancelado" }, date: { gte: rangeStart } },
+      where: {
+        type: { in: ["despesa", "receita"] },
+        status: { not: "cancelado" },
+        date: { gte: rangeStart },
+      },
       select: { date: true, amount: true, type: true, status: true },
     }),
     prisma.cashBoxMovement.findMany({ select: { date: true, amount: true, type: true } }),

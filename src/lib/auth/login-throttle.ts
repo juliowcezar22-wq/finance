@@ -20,8 +20,7 @@ async function countFails(db: any, email: string): Promise<number> {
     orderBy: { createdAt: "desc" },
     select: { createdAt: true },
   });
-  const floor =
-    lastSuccess && lastSuccess.createdAt > since ? lastSuccess.createdAt : since;
+  const floor = lastSuccess && lastSuccess.createdAt > since ? lastSuccess.createdAt : since;
   return db.loginAttempt.count({
     where: { email, success: false, createdAt: { gt: floor } },
   });

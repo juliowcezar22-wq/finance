@@ -14,26 +14,23 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import {
-  previewImport,
-  commitImport,
-  type PreviewResult,
-} from "@/lib/actions/import";
-import {
-  previewPdfImport,
-  commitPdfImport,
-  type PdfPreviewResult,
-} from "@/lib/actions/import-pdf";
+import { previewImport, commitImport, type PreviewResult } from "@/lib/actions/import";
+import { previewPdfImport, commitPdfImport, type PdfPreviewResult } from "@/lib/actions/import-pdf";
 import { createBankAccountQuick } from "@/lib/actions/cards";
 import { formatBRL, formatDateBR } from "@/lib/format";
 import { FileUp, Sparkles, Plus } from "lucide-react";
 
 /** {referenceMonth, referenceYear} → "YYYY-MM" (input type="month") */
-function refToInput(
-  ref: { referenceMonth: number; referenceYear: number } | null | undefined
-) {
+function refToInput(ref: { referenceMonth: number; referenceYear: number } | null | undefined) {
   if (!ref) return "";
   return `${ref.referenceYear}-${String(ref.referenceMonth).padStart(2, "0")}`;
 }
@@ -48,7 +45,7 @@ export function ImportForm({ cards, accounts }: { cards: any[]; accounts: any[] 
     <Tabs defaultValue="pdf">
       <TabsList className="max-w-full overflow-x-auto">
         <TabsTrigger value="pdf">
-          <Sparkles className="h-4 w-4 mr-1" /> Fatura/Extrato (PDF ou DOCX)
+          <Sparkles className="mr-1 h-4 w-4" /> Fatura/Extrato (PDF ou DOCX)
         </TabsTrigger>
         <TabsTrigger value="csv">CSV / XLSX</TabsTrigger>
       </TabsList>
@@ -76,9 +73,7 @@ function PdfAutoPanel({ cards }: { cards: any[] }) {
   const [result, setResult] = useState<string | null>(null);
 
   function onAccountCreated(id: string, account: any) {
-    setLocalCards((prev) =>
-      prev.some((c) => c.id === id) ? prev : [...prev, account]
-    );
+    setLocalCards((prev) => (prev.some((c) => c.id === id) ? prev : [...prev, account]));
     setCardId(id);
     router.refresh();
   }
@@ -123,7 +118,8 @@ function PdfAutoPanel({ cards }: { cards: any[] }) {
   }
 
   const needsPassword =
-    preview && preview.ok === false &&
+    preview &&
+    preview.ok === false &&
     (preview.reason === "ENCRYPTED" || preview.reason === "WRONG_PASSWORD");
 
   const detectedLabel =
@@ -133,12 +129,12 @@ function PdfAutoPanel({ cards }: { cards: any[] }) {
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
         Suba a <strong>fatura</strong> ou o <strong>extrato</strong> do seu cartão em{" "}
-        <strong>PDF</strong> ou <strong>DOCX</strong>. O sistema lê o documento, identifica o
-        banco automaticamente, vincula à conta bancária correspondente e lança as compras no
-        mês. Use o <strong>extrato</strong> para conferir os gastos e atribuir os responsáveis
-        antes de pagar a fatura. Documentos de bancos ainda não mapeados são lidos por{" "}
-        <strong>IA</strong> (com o Assistente ativado), extraindo transações, limite, saldo e
-        mais — mesmo com a fatura em aberto.
+        <strong>PDF</strong> ou <strong>DOCX</strong>. O sistema lê o documento, identifica o banco
+        automaticamente, vincula à conta bancária correspondente e lança as compras no mês. Use o{" "}
+        <strong>extrato</strong> para conferir os gastos e atribuir os responsáveis antes de pagar a
+        fatura. Documentos de bancos ainda não mapeados são lidos por <strong>IA</strong> (com o
+        Assistente ativado), extraindo transações, limite, saldo e mais — mesmo com a fatura em
+        aberto.
       </p>
 
       <div>
@@ -162,7 +158,7 @@ function PdfAutoPanel({ cards }: { cards: any[] }) {
       )}
 
       {preview && preview.ok === false && !needsPassword && (
-        <div className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive space-y-1">
+        <div className="space-y-1 rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
           <p className="font-medium">{preview.error}</p>
           {preview.reason && (
             <p className="text-xs text-foreground/70">
@@ -173,7 +169,7 @@ function PdfAutoPanel({ cards }: { cards: any[] }) {
       )}
 
       {needsPassword && (
-        <div className="rounded-md border border-nummiq-warning/50 bg-nummiq-warning/10 p-3 space-y-2">
+        <div className="space-y-2 rounded-md border border-nummiq-warning/50 bg-nummiq-warning/10 p-3">
           <p className="text-sm font-medium">🔒 Fatura protegida por senha</p>
           <p className="text-xs text-muted-foreground">
             {preview && preview.ok === false ? preview.error : ""}
@@ -203,7 +199,7 @@ function PdfAutoPanel({ cards }: { cards: any[] }) {
       {preview && preview.ok && (
         <div className="space-y-4">
           {/* Detecção de banco/cartão */}
-          <div className="rounded-md border bg-muted/30 p-3 space-y-2">
+          <div className="space-y-2 rounded-md border bg-muted/30 p-3">
             <div className="flex flex-wrap items-center gap-2 text-sm">
               <span className="text-muted-foreground">Banco detectado:</span>
               {detectedLabel ? (
@@ -214,13 +210,13 @@ function PdfAutoPanel({ cards }: { cards: any[] }) {
               <Badge variant="secondary">layout: {preview.layout}</Badge>
               {preview.layout === "ai" && (
                 <Badge variant="secondary">
-                  <Sparkles className="h-3 w-3 mr-1" /> lido por IA
+                  <Sparkles className="mr-1 h-3 w-3" /> lido por IA
                 </Badge>
               )}
             </div>
 
             {preview.meta && (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1 text-xs pt-1">
+              <div className="grid grid-cols-2 gap-x-4 gap-y-1 pt-1 text-xs sm:grid-cols-3">
                 {preview.meta.holder && (
                   <div>
                     <span className="text-muted-foreground">Titular: </span>
@@ -284,11 +280,11 @@ function PdfAutoPanel({ cards }: { cards: any[] }) {
                 <NewBankAccountDialog onCreated={onAccountCreated} />
               </div>
               {preview.suggestedCardId ? (
-                <p className="text-xs text-nummiq-success mt-1">
+                <p className="mt-1 text-xs text-nummiq-success">
                   Conta sugerida automaticamente pelo banco da fatura.
                 </p>
               ) : (
-                <p className="text-xs text-nummiq-warning mt-1">
+                <p className="mt-1 text-xs text-nummiq-warning">
                   Não foi possível casar com uma conta automaticamente — selecione ou crie uma.
                 </p>
               )}
@@ -301,9 +297,9 @@ function PdfAutoPanel({ cards }: { cards: any[] }) {
                 onChange={(e) => setReference(e.target.value)}
                 className="max-w-[200px]"
               />
-              <p className="text-xs text-muted-foreground mt-1">
-                Todas as compras do PDF entram nessa fatura — detectada pelo
-                vencimento; ajuste se necessário.
+              <p className="mt-1 text-xs text-muted-foreground">
+                Todas as compras do PDF entram nessa fatura — detectada pelo vencimento; ajuste se
+                necessário.
               </p>
             </div>
           </div>
@@ -315,9 +311,7 @@ function PdfAutoPanel({ cards }: { cards: any[] }) {
               <Badge variant="warning">{preview.duplicates} duplicatas</Badge>
             )}
             {preview.totalDetected != null && (
-              <Badge variant="outline">
-                total da fatura: {formatBRL(preview.totalDetected)}
-              </Badge>
+              <Badge variant="outline">total da fatura: {formatBRL(preview.totalDetected)}</Badge>
             )}
             {preview.closingDate && (
               <Badge variant="outline">fechamento: {formatDateBR(preview.closingDate)}</Badge>
@@ -334,10 +328,13 @@ function PdfAutoPanel({ cards }: { cards: any[] }) {
             const diff = Math.abs(soma - tot);
             if (diff <= Math.max(tot * 0.02, 1)) return null;
             return (
-              <div className="rounded-md border border-nummiq-warning/50 bg-nummiq-warning/10 p-3 text-xs space-y-1">
-                <p className="font-medium">⚠️ A soma das transações não bate com o total da fatura</p>
+              <div className="space-y-1 rounded-md border border-nummiq-warning/50 bg-nummiq-warning/10 p-3 text-xs">
+                <p className="font-medium">
+                  ⚠️ A soma das transações não bate com o total da fatura
+                </p>
                 <p className="text-muted-foreground">
-                  Soma lida: {formatBRL(soma)} · Total do documento: {formatBRL(tot)} · Diferença: {formatBRL(diff)}.
+                  Soma lida: {formatBRL(soma)} · Total do documento: {formatBRL(tot)} · Diferença:{" "}
+                  {formatBRL(diff)}.
                   {preview.layout === "ai"
                     ? " A leitura por IA pode estar incompleta neste documento — confira as transações antes de lançar."
                     : " Podem faltar transações ou haver créditos/pagamentos no valor — confira antes de lançar."}
@@ -346,7 +343,7 @@ function PdfAutoPanel({ cards }: { cards: any[] }) {
             );
           })()}
 
-          <div className="border rounded max-h-80 overflow-auto">
+          <div className="max-h-80 overflow-auto rounded border">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -375,9 +372,7 @@ function PdfAutoPanel({ cards }: { cards: any[] }) {
                         <Badge
                           variant="secondary"
                           title={`Reconhecida pelo histórico${
-                            r.suggestedResponsibleName
-                              ? ` → ${r.suggestedResponsibleName}`
-                              : ""
+                            r.suggestedResponsibleName ? ` → ${r.suggestedResponsibleName}` : ""
                           }${r.suggestedCategoryName ? ` · ${r.suggestedCategoryName}` : ""}`}
                         >
                           reconhecida
@@ -399,9 +394,7 @@ function PdfAutoPanel({ cards }: { cards: any[] }) {
               start(async () => {
                 const r = await commitPdfImport(buildFormData());
                 if (r.ok) {
-                  const refTxt = r.reference
-                    ? ` ${refLabel(refToInput(r.reference))}`
-                    : "";
+                  const refTxt = r.reference ? ` ${refLabel(refToInput(r.reference))}` : "";
                   setResult(
                     `✓ ${r.imported} compras lançadas na fatura${refTxt} · ${r.duplicates} duplicatas ignoradas · total ${r.total}`
                   );
@@ -415,15 +408,13 @@ function PdfAutoPanel({ cards }: { cards: any[] }) {
               })
             }
           >
-            <FileUp className="h-4 w-4 mr-1" />
+            <FileUp className="mr-1 h-4 w-4" />
             {cardId ? "Lançar na fatura" : "Selecione uma conta"}
           </Button>
         </div>
       )}
 
-      {result && (
-        <p className="text-sm rounded-md border bg-muted/40 px-3 py-2">{result}</p>
-      )}
+      {result && <p className="rounded-md border bg-muted/40 px-3 py-2 text-sm">{result}</p>}
     </div>
   );
 }
@@ -448,7 +439,7 @@ function CsvPanel({ cards, accounts }: { cards: any[]; accounts: any[] }) {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
         <div>
           <Label>Arquivo (CSV/XLSX)</Label>
           <Input
@@ -487,9 +478,7 @@ function CsvPanel({ cards, accounts }: { cards: any[]; accounts: any[] }) {
             onChange={(e) => setReference(e.target.value)}
             disabled={!cardId}
           />
-          <p className="text-xs text-muted-foreground mt-1">
-            Só para cartão. Vazio = detectar.
-          </p>
+          <p className="mt-1 text-xs text-muted-foreground">Só para cartão. Vazio = detectar.</p>
         </div>
       </div>
 
@@ -539,10 +528,11 @@ function CsvPanel({ cards, accounts }: { cards: any[]; accounts: any[] }) {
 
       {preview?.ok && (
         <div>
-          <p className="text-sm text-muted-foreground mb-2">
-            {preview.total} lidas · {preview.valid} válidas · {preview.ignored} ignoradas · {preview.duplicates} duplicatas
+          <p className="mb-2 text-sm text-muted-foreground">
+            {preview.total} lidas · {preview.valid} válidas · {preview.ignored} ignoradas ·{" "}
+            {preview.duplicates} duplicatas
           </p>
-          <div className="border rounded max-h-96 overflow-auto">
+          <div className="max-h-96 overflow-auto rounded border">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -560,7 +550,9 @@ function CsvPanel({ cards, accounts }: { cards: any[]; accounts: any[] }) {
                     <TableCell className="max-w-xs truncate">{r.description || "—"}</TableCell>
                     <TableCell className="text-right">{formatBRL(r.amount)}</TableCell>
                     <TableCell>
-                      {r.installment && r.totalInstallments ? `${r.installment}/${r.totalInstallments}` : "—"}
+                      {r.installment && r.totalInstallments
+                        ? `${r.installment}/${r.totalInstallments}`
+                        : "—"}
                     </TableCell>
                     <TableCell>
                       {r.reason ? (
@@ -584,11 +576,7 @@ function CsvPanel({ cards, accounts }: { cards: any[]; accounts: any[] }) {
   );
 }
 
-function NewBankAccountDialog({
-  onCreated,
-}: {
-  onCreated: (id: string, account: any) => void;
-}) {
+function NewBankAccountDialog({ onCreated }: { onCreated: (id: string, account: any) => void }) {
   const [open, setOpen] = useState(false);
   const [pending, start] = useTransition();
 
@@ -606,7 +594,9 @@ function NewBankAccountDialog({
         <form
           action={(fd) =>
             start(async () => {
-              const { id } = await createBankAccountQuick(fd);
+              const res = await createBankAccountQuick(fd);
+              if (!res.ok || !res.data) return;
+              const { id } = res.data;
               onCreated(id, {
                 id,
                 name: String(fd.get("name") || ""),
@@ -615,7 +605,7 @@ function NewBankAccountDialog({
               setOpen(false);
             })
           }
-          className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2"
         >
           <div className="col-span-2">
             <Label>Nome</Label>
@@ -629,7 +619,7 @@ function NewBankAccountDialog({
             <Label>Limite total</Label>
             <Input name="limitTotal" defaultValue="0,00" />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             <div>
               <Label>Fechamento</Label>
               <Input name="closingDay" type="number" min={1} max={31} defaultValue={1} />

@@ -38,7 +38,7 @@ export default async function UsuariosPage() {
         actions={<UserDialog people={peopleAll} />}
       />
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard title="Usuários" value={String(rows.length)} />
         <StatCard title="Administradores" value={String(admins)} />
         <StatCard title="Ativos" value={String(ativos)} intent="positive" />

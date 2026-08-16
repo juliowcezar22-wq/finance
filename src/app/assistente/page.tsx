@@ -55,8 +55,8 @@ export default async function AssistentePage() {
 
       {!configured && (
         <Card className="mb-6 border-nummiq-warning/40 bg-nummiq-warning/5">
-          <CardContent className="p-5 flex flex-col sm:flex-row sm:items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-nummiq-warning/15 flex items-center justify-center shrink-0">
+          <CardContent className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-nummiq-warning/15">
               <Sparkles className="h-5 w-5 text-nummiq-warning" />
             </div>
             <div className="flex-1">
@@ -74,7 +74,7 @@ export default async function AssistentePage() {
         </Card>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-base">

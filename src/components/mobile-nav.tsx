@@ -19,7 +19,7 @@ export function MobileNav({ user }: { user: UserLike }) {
 
   return (
     <nav
-      className="md:hidden fixed bottom-0 inset-x-0 z-40 flex items-stretch justify-around border-t bg-background/95 px-1 pt-1 backdrop-blur supports-[backdrop-filter]:bg-background/80"
+      className="fixed inset-x-0 bottom-0 z-40 flex items-stretch justify-around border-t bg-background/95 px-1 pt-1 backdrop-blur supports-[backdrop-filter]:bg-background/80 md:hidden"
       style={{ paddingBottom: "max(0.25rem, env(safe-area-inset-bottom))" }}
     >
       {primary.map((it) => {

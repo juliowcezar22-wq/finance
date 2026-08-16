@@ -1,7 +1,14 @@
 import { PageHeader } from "@/components/page-header";
 import { prisma } from "@/lib/prisma";
 import { formatBRL, formatDateBR, monthRange } from "@/lib/format";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -88,7 +95,7 @@ export default async function TransacoesPage({ searchParams }: { searchParams: S
             accounts={accounts}
             trigger={
               <Button>
-                <Plus className="h-4 w-4 mr-1" /> Nova transação
+                <Plus className="mr-1 h-4 w-4" /> Nova transação
               </Button>
             }
           />
@@ -105,56 +112,58 @@ export default async function TransacoesPage({ searchParams }: { searchParams: S
         <CardContent className="p-0">
           {/* Desktop: tabela completa */}
           <div className="hidden md:block">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Data</TableHead>
-                <TableHead>Descrição</TableHead>
-                <TableHead>Categoria</TableHead>
-                <TableHead>Cartão / Conta</TableHead>
-                <TableHead>Pessoa</TableHead>
-                <TableHead>Grupo</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Valor</TableHead>
-                <TableHead className="w-10" />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {transactions.length === 0 && (
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center text-muted-foreground py-8">
-                    Nenhuma transação encontrada.
-                  </TableCell>
+                  <TableHead>Data</TableHead>
+                  <TableHead>Descrição</TableHead>
+                  <TableHead>Categoria</TableHead>
+                  <TableHead>Cartão / Conta</TableHead>
+                  <TableHead>Pessoa</TableHead>
+                  <TableHead>Grupo</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Valor</TableHead>
+                  <TableHead className="w-10" />
                 </TableRow>
-              )}
-              {transactions.map((t) => (
-                <TableRow key={t.id}>
-                  <TableCell>{formatDateBR(t.date)}</TableCell>
-                  <TableCell className="max-w-xs truncate">{t.description}</TableCell>
-                  <TableCell>{t.category?.name ?? "—"}</TableCell>
-                  <TableCell>{t.card?.name ?? t.account?.name ?? "—"}</TableCell>
-                  <TableCell>{t.responsible?.name ?? "—"}</TableCell>
-                  <TableCell className="capitalize">{t.belongsTo}</TableCell>
-                  <TableCell>
-                    <Badge variant={statusVariant(t.status)}>{t.status}</Badge>
-                  </TableCell>
-                  <TableCell className={`text-right font-medium ${t.type === "receita" ? "text-nummiq-success" : ""}`}>
-                    {t.type === "despesa" ? "-" : "+"}
-                    {formatBRL(t.amount)}
-                  </TableCell>
-                  <TableCell>
-                    <TransactionRowActions
-                      tx={t}
-                      cards={cards}
-                      people={people}
-                      categories={categories}
-                      accounts={accounts}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {transactions.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={9} className="py-8 text-center text-muted-foreground">
+                      Nenhuma transação encontrada.
+                    </TableCell>
+                  </TableRow>
+                )}
+                {transactions.map((t) => (
+                  <TableRow key={t.id}>
+                    <TableCell>{formatDateBR(t.date)}</TableCell>
+                    <TableCell className="max-w-xs truncate">{t.description}</TableCell>
+                    <TableCell>{t.category?.name ?? "—"}</TableCell>
+                    <TableCell>{t.card?.name ?? t.account?.name ?? "—"}</TableCell>
+                    <TableCell>{t.responsible?.name ?? "—"}</TableCell>
+                    <TableCell className="capitalize">{t.belongsTo}</TableCell>
+                    <TableCell>
+                      <Badge variant={statusVariant(t.status)}>{t.status}</Badge>
+                    </TableCell>
+                    <TableCell
+                      className={`text-right font-medium ${t.type === "receita" ? "text-nummiq-success" : ""}`}
+                    >
+                      {t.type === "despesa" ? "-" : "+"}
+                      {formatBRL(t.amount)}
+                    </TableCell>
+                    <TableCell>
+                      <TransactionRowActions
+                        tx={t}
+                        cards={cards}
+                        people={people}
+                        categories={categories}
+                        accounts={accounts}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </div>
 
           {/* Mobile: cada movimentação vira um card */}
@@ -184,9 +193,7 @@ export default async function TransacoesPage({ searchParams }: { searchParams: S
                     <Badge variant={statusVariant(t.status)}>{t.status}</Badge>
                   </div>
                   <div className="space-y-1.5">
-                    <Field label="Cartão / Conta">
-                      {t.card?.name ?? t.account?.name ?? "—"}
-                    </Field>
+                    <Field label="Cartão / Conta">{t.card?.name ?? t.account?.name ?? "—"}</Field>
                     <Field label="Pessoa">{t.responsible?.name ?? "—"}</Field>
                     <Field label="Grupo">
                       <span className="capitalize">{t.belongsTo}</span>

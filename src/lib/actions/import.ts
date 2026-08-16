@@ -31,9 +31,9 @@ export type PreviewRow = {
 export type PreviewResult =
   | {
       ok: true;
-      total: number;             // total de linhas lidas
-      valid: number;             // linhas reconhecidas
-      ignored: number;           // linhas ignoradas
+      total: number; // total de linhas lidas
+      valid: number; // linhas reconhecidas
+      ignored: number; // linhas ignoradas
       duplicates: number;
       detectedColumns: ParseDiagnostics["detectedColumns"];
       rawSample: Record<string, any>[];
@@ -57,10 +57,7 @@ function parseReferenceInput(value: string | null): ImportReference | null {
 }
 
 /** Fallback de referência: fatura correspondente à compra mais recente. */
-function inferReference(
-  rows: { date: Date | null }[],
-  card: CreditCard
-): ImportReference | null {
+function inferReference(rows: { date: Date | null }[], card: CreditCard): ImportReference | null {
   const dates = rows.map((r) => r.date).filter(Boolean) as Date[];
   if (dates.length === 0) return null;
   const latest = new Date(Math.max(...dates.map((d) => d.getTime())));
@@ -93,14 +90,10 @@ export async function previewImport(formData: FormData): Promise<PreviewResult> 
     return { ok: false, error: e?.message ?? "Falha ao ler arquivo." };
   }
 
-  const card = cardId
-    ? await prisma.creditCard.findUnique({ where: { id: cardId } })
-    : null;
+  const card = cardId ? await prisma.creditCard.findUnique({ where: { id: cardId } }) : null;
 
   const validRows = diag.rows.filter((r) => !r.reason && r.date);
-  const reference = card
-    ? referenceInput ?? inferReference(validRows, card)
-    : null;
+  const reference = card ? (referenceInput ?? inferReference(validRows, card)) : null;
 
   const analysis = await analyzeImportRows({
     rows: toEngineRows(validRows),
@@ -137,10 +130,10 @@ export async function previewImport(formData: FormData): Promise<PreviewResult> 
       duplicate: a.duplicate,
       hash: a.hash,
       suggestedCategoryName: a.categoryId
-        ? analysis.categoryNameById.get(a.categoryId) ?? null
+        ? (analysis.categoryNameById.get(a.categoryId) ?? null)
         : null,
       suggestedResponsibleName: a.responsibleId
-        ? analysis.personNameById.get(a.responsibleId) ?? null
+        ? (analysis.personNameById.get(a.responsibleId) ?? null)
         : null,
       historyMatched: a.historyMatched,
     };
@@ -205,15 +198,11 @@ export async function commitImport(formData: FormData): Promise<CommitResult> {
     };
   }
 
-  const card = cardId
-    ? await prisma.creditCard.findUnique({ where: { id: cardId } })
-    : null;
+  const card = cardId ? await prisma.creditCard.findUnique({ where: { id: cardId } }) : null;
   if (cardId && !card) return { ok: false, error: "Cartão não encontrado." };
 
   const validRows = diag.rows.filter((r) => !r.reason && r.date);
-  const reference = card
-    ? referenceInput ?? inferReference(validRows, card)
-    : null;
+  const reference = card ? (referenceInput ?? inferReference(validRows, card)) : null;
 
   const analysis = await analyzeImportRows({
     rows: toEngineRows(validRows),
@@ -268,9 +257,7 @@ export async function deleteImportBatch(id: string) {
     select: { id: true, invoiceId: true },
   });
   const txIds = txs.map((t) => t.id);
-  const invoiceIds = Array.from(
-    new Set(txs.map((t) => t.invoiceId).filter(Boolean))
-  ) as string[];
+  const invoiceIds = Array.from(new Set(txs.map((t) => t.invoiceId).filter(Boolean))) as string[];
 
   await prisma.$transaction([
     prisma.receivable.deleteMany({ where: { transactionId: { in: txIds } } }),
@@ -286,7 +273,12 @@ export async function deleteImportBatch(id: string) {
     ]);
     if (!inv) continue;
     if (remaining === 0 && toNum(inv.paid) <= 0) {
-      await prisma.creditCardInvoice.delete({ where: { id: invId } });
+      // deleteMany CONDICIONAL (paid <= 0 no próprio WHERE): se um pagamento
+      // entrou entre o check e o delete, a fatura não é apagada (0 linhas).
+      const del = await prisma.creditCardInvoice.deleteMany({
+        where: { id: invId, paid: { lte: 0 } },
+      });
+      if (del.count === 0) await recalcInvoiceTotal(invId);
     } else {
       await recalcInvoiceTotal(invId);
     }

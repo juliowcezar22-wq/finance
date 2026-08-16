@@ -1,10 +1,6 @@
 import { describe, it, expect, afterAll, beforeAll, vi } from "vitest";
 import { createHmac } from "crypto";
-import {
-  createSessionToken,
-  verifySessionToken,
-  SESSION_COOKIE,
-} from "@/lib/auth/session";
+import { createSessionToken, verifySessionToken, SESSION_COOKIE } from "@/lib/auth/session";
 import { getUserFromToken } from "@/lib/auth/resolve-user";
 import { prisma } from "@/lib/prisma";
 import { runWithoutScope } from "@/lib/auth/owner-scope";
@@ -16,7 +12,11 @@ import { TEST_PREFIX } from "../setup/db";
  */
 
 function b64url(s: string | Buffer): string {
-  return Buffer.from(s).toString("base64").replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
+  return Buffer.from(s)
+    .toString("base64")
+    .replace(/=/g, "")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_");
 }
 
 // Forja um token no formato ANTIGO (sem `sv`), assinado com o mesmo segredo.

@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { parseBRL, parseDateBR, formatBRL } from "@/lib/format";
 import { toNum } from "@/lib/services/money";
+import { type ActionResult, ok, err } from "@/lib/types/action";
 
 const PersonSchema = z.object({
   id: z.string().optional(),
@@ -13,31 +14,42 @@ const PersonSchema = z.object({
   notes: z.string().optional().nullable(),
 });
 
-export async function savePerson(formData: FormData) {
+export async function savePerson(formData: FormData): Promise<ActionResult> {
   await getViewer();
-  const parsed = PersonSchema.parse({
+  const parsed = PersonSchema.safeParse({
     id: formData.get("id") || undefined,
     name: formData.get("name"),
     type: formData.get("type") || "pessoal",
     notes: formData.get("notes") || null,
   });
-  if (parsed.id) {
+  if (!parsed.success) return err(parsed.error.issues[0]?.message ?? "Dados inválidos");
+  if (parsed.data.id) {
     await prisma.person.update({
-      where: { id: parsed.id },
-      data: { name: parsed.name, type: parsed.type, notes: parsed.notes ?? null },
+      where: { id: parsed.data.id },
+      data: {
+        name: parsed.data.name,
+        type: parsed.data.type,
+        notes: parsed.data.notes ?? null,
+      },
     });
   } else {
     await prisma.person.create({
-      data: { name: parsed.name, type: parsed.type, notes: parsed.notes ?? null },
+      data: {
+        name: parsed.data.name,
+        type: parsed.data.type,
+        notes: parsed.data.notes ?? null,
+      },
     });
   }
   revalidatePath("/pessoas");
+  return ok();
 }
 
-export async function deletePerson(id: string) {
+export async function deletePerson(id: string): Promise<ActionResult> {
   await getViewer();
   await prisma.person.delete({ where: { id } });
   revalidatePath("/pessoas");
+  return ok();
 }
 
 const PaymentSchema = z.object({
@@ -54,11 +66,12 @@ const PaymentSchema = z.object({
  * O valor pago reduz primeiro o vencimento mais antigo. Se sobra, distribui no próximo.
  * Receivables totalmente quitados viram "pago"; parcialmente quitados são reduzidos.
  */
-export async function registerPersonPayment(formData: FormData) {
+export async function registerPersonPayment(
+  formData: FormData
+): Promise<ActionResult<{ paymentId: string; leftover: number }>> {
   await getViewer();
-  const paidAt =
-    parseDateBR(String(formData.get("paidAt") || "")) ?? new Date();
-  const parsed = PaymentSchema.parse({
+  const paidAt = parseDateBR(String(formData.get("paidAt") || "")) ?? new Date();
+  const parsed = PaymentSchema.safeParse({
     personId: String(formData.get("personId") || ""),
     amount: parseBRL(String(formData.get("amount") || "0")),
     paidAt,
@@ -66,23 +79,24 @@ export async function registerPersonPayment(formData: FormData) {
     accountId: (formData.get("accountId") as string) || null,
     notes: (formData.get("notes") as string) || null,
   });
+  if (!parsed.success) return err(parsed.error.issues[0]?.message ?? "Dados inválidos");
 
   const payment = await prisma.personPayment.create({
     data: {
-      personId: parsed.personId,
-      amount: parsed.amount,
-      paidAt: parsed.paidAt,
-      method: parsed.method,
-      accountId: parsed.accountId,
-      notes: parsed.notes,
+      personId: parsed.data.personId,
+      amount: parsed.data.amount,
+      paidAt: parsed.data.paidAt,
+      method: parsed.data.method,
+      accountId: parsed.data.accountId,
+      notes: parsed.data.notes,
     },
   });
 
   // Amortizar Receivables abertos
-  let remaining = parsed.amount;
+  let remaining = parsed.data.amount;
   const open = await prisma.receivable.findMany({
     where: {
-      personId: parsed.personId,
+      personId: parsed.data.personId,
       status: { in: ["aberto", "atrasado", "renegociado"] },
     },
     orderBy: { dueDate: "asc" },
@@ -95,7 +109,7 @@ export async function registerPersonPayment(formData: FormData) {
       remaining -= toNum(r.amount);
       await prisma.receivable.update({
         where: { id: r.id },
-        data: { status: "pago", paidAt: parsed.paidAt },
+        data: { status: "pago", paidAt: parsed.data.paidAt },
       });
       // Marca a transação relacionada como reembolsada/paga (devia → reembolsado)
       if (r.transactionId) {
@@ -115,33 +129,33 @@ export async function registerPersonPayment(formData: FormData) {
   }
 
   revalidatePath("/pessoas");
-  revalidatePath(`/pessoas/${parsed.personId}`);
+  revalidatePath(`/pessoas/${parsed.data.personId}`);
   revalidatePath("/dashboard");
   revalidatePath("/transacoes");
 
-  return { ok: true, paymentId: payment.id, leftover: remaining };
+  return ok({ paymentId: payment.id, leftover: remaining });
 }
 
-export async function deletePersonPayment(id: string) {
+export async function deletePersonPayment(id: string): Promise<ActionResult> {
   await getViewer();
   const p = await prisma.personPayment.findUnique({ where: { id } });
-  if (!p) return;
+  if (!p) return ok();
   await prisma.personPayment.delete({ where: { id } });
   revalidatePath("/pessoas");
   revalidatePath(`/pessoas/${p.personId}`);
+  return ok();
 }
 
-const TxStatusSchema = z.enum([
-  "pendente",
-  "pago",
-  "devendo",
-  "reembolsado",
-  "cancelado",
-]);
+const TxStatusSchema = z.enum(["pendente", "pago", "devendo", "reembolsado", "cancelado"]);
 
-export async function setPersonTxStatus(transactionId: string, status: string) {
+export async function setPersonTxStatus(
+  transactionId: string,
+  status: string
+): Promise<ActionResult> {
   await getViewer();
-  const s = TxStatusSchema.parse(status);
+  const parsed = TxStatusSchema.safeParse(status);
+  if (!parsed.success) return err(parsed.error.issues[0]?.message ?? "Dados inválidos");
+  const s = parsed.data;
   const tx = await prisma.transaction.update({
     where: { id: transactionId },
     data: { status: s },
@@ -163,12 +177,13 @@ export async function setPersonTxStatus(transactionId: string, status: string) {
   revalidatePath("/transacoes");
   revalidatePath("/dashboard");
   if (tx.cardId) revalidatePath(`/cartoes/${tx.cardId}`);
+  return ok();
 }
 
 export async function setPersonTxCategory(
   transactionId: string,
   categoryId: string | null
-) {
+): Promise<ActionResult> {
   await getViewer();
   const tx = await prisma.transaction.update({
     where: { id: transactionId },
@@ -178,6 +193,7 @@ export async function setPersonTxCategory(
   if (tx.responsibleId) revalidatePath(`/pessoas/${tx.responsibleId}`);
   revalidatePath("/transacoes");
   if (tx.cardId) revalidatePath(`/cartoes/${tx.cardId}`);
+  return ok();
 }
 
 /**

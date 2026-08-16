@@ -6,12 +6,7 @@ function sha1(key: string): string {
 
 /** Normalização de descrição usada nas chaves (acentos, espaços, caixa). */
 export function normalizeDescriptionKey(s: string): string {
-  return (s || "")
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .replace(/\s+/g, " ")
-    .trim()
-    .toUpperCase();
+  return (s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/\s+/g, " ").trim().toUpperCase();
 }
 
 function dayOf(date: Date | string): string {

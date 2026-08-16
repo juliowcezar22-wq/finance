@@ -16,13 +16,7 @@ import { logoutAction } from "@/lib/actions/auth";
  * na barra inferior), além de perfil, troca de tema e logout — antes só disponíveis
  * na sidebar do desktop.
  */
-export function MobileMenu({
-  user,
-  trigger,
-}: {
-  user: UserLike;
-  trigger: React.ReactNode;
-}) {
+export function MobileMenu({ user, trigger }: { user: UserLike; trigger: React.ReactNode }) {
   const [open, setOpen] = React.useState(false);
   const [pending, start] = useTransition();
   const path = usePathname();
@@ -51,12 +45,10 @@ export function MobileMenu({
         >
           {/* Cabeçalho */}
           <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-4">
-            <div className="flex items-center gap-2.5 min-w-0">
+            <div className="flex min-w-0 items-center gap-2.5">
               <NummiqLogo />
               <Dialog.Title className="sr-only">Menu Nummiq</Dialog.Title>
-              <Dialog.Description className="sr-only">
-                Navegação principal
-              </Dialog.Description>
+              <Dialog.Description className="sr-only">Navegação principal</Dialog.Description>
             </div>
             <Dialog.Close className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] text-nummiq-silver hover:bg-accent hover:text-nummiq-white">
               <X className="h-5 w-5" />
@@ -65,7 +57,7 @@ export function MobileMenu({
           </div>
 
           {/* Navegação (rolável) */}
-          <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-0.5">
+          <nav className="flex-1 space-y-0.5 overflow-y-auto px-2 py-3">
             {items.map((it) => {
               const Icon = it.icon;
               const active = path === it.href || path?.startsWith(it.href + "/");
@@ -75,9 +67,9 @@ export function MobileMenu({
                   href={it.href}
                   onClick={() => setOpen(false)}
                   className={cn(
-                    "flex items-center gap-3 rounded-[10px] px-3 min-h-[48px] text-[15px] font-medium transition-colors",
+                    "flex min-h-[48px] items-center gap-3 rounded-[10px] px-3 text-[15px] font-medium transition-colors",
                     active
-                      ? "bg-accent border border-border text-nummiq-white"
+                      ? "border border-border bg-accent text-nummiq-white"
                       : "border border-transparent text-nummiq-silver hover:bg-accent hover:text-nummiq-white"
                   )}
                 >
@@ -97,8 +89,8 @@ export function MobileMenu({
               <ThemeToggle />
             </div>
             {user && (
-              <div className="flex items-center gap-3 border-t px-4 py-3 bg-card/40">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
+              <div className="flex items-center gap-3 border-t bg-card/40 px-4 py-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
                   {initials || "U"}
                 </div>
                 <div className="min-w-0 flex-1">

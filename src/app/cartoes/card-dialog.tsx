@@ -27,12 +27,19 @@ export function CardDialog({
   trigger?: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        setError(null);
+      }}
+    >
       <DialogTrigger asChild>
         {trigger ?? (
           <Button>
-            <Plus className="h-4 w-4 mr-1" /> Novo cartão
+            <Plus className="mr-1 h-4 w-4" /> Novo cartão
           </Button>
         )}
       </DialogTrigger>
@@ -42,10 +49,15 @@ export function CardDialog({
         </DialogHeader>
         <form
           action={async (fd) => {
-            await saveCard(fd);
+            const res = await saveCard(fd);
+            if (!res.ok) {
+              setError(res.error);
+              return;
+            }
+            setError(null);
             setOpen(false);
           }}
-          className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2"
         >
           {initial?.id && <input type="hidden" name="id" value={initial.id} />}
           <div className="col-span-2">
@@ -77,20 +89,43 @@ export function CardDialog({
           </div>
           <div>
             <Label>Limite total</Label>
-            <Input name="limitTotal" defaultValue={initial?.limitTotal?.toString().replace(".", ",") ?? "0,00"} />
+            <Input
+              name="limitTotal"
+              defaultValue={initial?.limitTotal?.toString().replace(".", ",") ?? "0,00"}
+            />
           </div>
           <div>
             <Label>Dia de fechamento</Label>
-            <Input name="closingDay" type="number" min={1} max={31} defaultValue={initial?.closingDay ?? 1} />
+            <Input
+              name="closingDay"
+              type="number"
+              min={1}
+              max={31}
+              defaultValue={initial?.closingDay ?? 1}
+            />
           </div>
           <div>
             <Label>Dia de vencimento</Label>
-            <Input name="dueDay" type="number" min={1} max={31} defaultValue={initial?.dueDay ?? 10} />
+            <Input
+              name="dueDay"
+              type="number"
+              min={1}
+              max={31}
+              defaultValue={initial?.dueDay ?? 10}
+            />
           </div>
           <div className="col-span-2 flex items-center gap-2">
             <input type="checkbox" name="active" defaultChecked={initial?.active ?? true} />
             <Label>Ativo</Label>
           </div>
+          {error && (
+            <p
+              role="alert"
+              className="col-span-2 text-sm font-medium text-red-600 dark:text-red-400"
+            >
+              {error}
+            </p>
+          )}
           <DialogFooter className="col-span-2">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancelar

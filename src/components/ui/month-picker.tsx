@@ -4,13 +4,20 @@ import * as Popover from "@radix-ui/react-popover";
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const MESES = [
-  "jan", "fev", "mar", "abr", "mai", "jun",
-  "jul", "ago", "set", "out", "nov", "dez",
-];
+const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
 const MESES_LONGOS = [
-  "janeiro", "fevereiro", "março", "abril", "maio", "junho",
-  "julho", "agosto", "setembro", "outubro", "novembro", "dezembro",
+  "janeiro",
+  "fevereiro",
+  "março",
+  "abril",
+  "maio",
+  "junho",
+  "julho",
+  "agosto",
+  "setembro",
+  "outubro",
+  "novembro",
+  "dezembro",
 ];
 
 // NQ UI — MonthPicker. Substitui o <input type="month"> nativo.
@@ -48,7 +55,7 @@ export function MonthPicker({
         <button
           type="button"
           className={cn(
-            "flex h-11 w-full items-center gap-2 rounded-[10px] border border-border bg-nummiq-surface2 px-3 text-sm text-nummiq-white transition-colors hover:border-nummiq-silver/30 focus-visible:outline-none focus-visible:border-nummiq-silver",
+            "flex h-11 w-full items-center gap-2 rounded-[10px] border border-border bg-nummiq-surface2 px-3 text-sm text-nummiq-white transition-colors hover:border-nummiq-silver/30 focus-visible:border-nummiq-silver focus-visible:outline-none",
             className
           )}
         >
@@ -71,7 +78,7 @@ export function MonthPicker({
             >
               <ChevronLeft size={18} />
             </button>
-            <span className="text-sm font-medium text-nummiq-white tabular-nums">{viewYear}</span>
+            <span className="text-sm font-medium tabular-nums text-nummiq-white">{viewYear}</span>
             <button
               type="button"
               onClick={() => setViewYear((v) => v + 1)}

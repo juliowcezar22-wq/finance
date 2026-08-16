@@ -147,36 +147,32 @@ O maior risco do sistema: um usuário logado pode alterar/apagar dados de outro.
 
 ## MÓDULO 7 — 🟡 Limpeza de arquitetura
 
-- [ ] Remover rotas-stub e órfãos: `src/app/faturas/` (incl. `pay-dialog.tsx`),
-      `src/app/receber/`, `src/app/fluxo-de-caixa/` (redirects via
-      `next.config.mjs` `redirects()` se quiser preservar URLs antigas).
-- [ ] Remover `src/components/unlinked-banner.tsx` e `isUnlinkedUser()` de
-      `src/lib/auth/viewer.ts` (nunca usados).
-- [ ] Desinstalar deps não usadas: `react-hook-form`, `@hookform/resolvers`,
-      `date-fns`, `@radix-ui/react-toast`*, `@radix-ui/react-popover`,
-      `@radix-ui/react-dropdown-menu`, `@radix-ui/react-select`
-      (*manter react-toast se o Módulo 10 implementar toasts com ele).
-- [ ] Criar alias de import `@/` no `tsconfig.json` (se ainda não usado em
-      100% dos imports) e padronizar.
-- [ ] Varredura de comentários obsoletos e código comentado.
+- [x] Rotas-stub removidas (`faturas`, `receber`, `fluxo-de-caixa`) com
+      `redirects()` no `next.config.mjs`; `pay-dialog.tsx` movido para
+      `importar/` (quem o usa). **Feito (feature 008).**
+- [x] `unlinked-banner.tsx` e `isUnlinkedUser()` removidos. **Feito (008).**
+- [x] Deps não usadas desinstaladas: `react-hook-form`, `@hookform/resolvers`,
+      `date-fns`, `@radix-ui/react-dropdown-menu`, `@radix-ui/react-select`.
+      Mantidos: `react-toast` (Módulo 10) e `react-popover` (importado 2×).
+      **Feito (008).**
+- [x] Alias `@/` já era padrão (tsconfig) — conferido. **Feito.**
+- [x] Varredura na 008 (lint `prefer-const`/`no-var` + prettier em massa). **Feito.**
 
 ## MÓDULO 8 — 🟡 Qualidade: lint, formatação, tipos
 
-- [ ] Instalar e configurar ESLint (`eslint`, `eslint-config-next`) +
-      `.eslintrc.json`; rodar `next lint` e zerar errors/warnings.
-- [ ] Adicionar Prettier + `prettier-plugin-tailwindcss`; formatar o repo
-      inteiro num commit isolado ("chore: format").
-- [ ] Reduzir os 128 `: any` começando pelos hotspots:
-      `src/lib/whatsapp/agent.ts` (7), `src/lib/ai/provider.ts` (6),
-      `src/lib/actions/ai.ts` (5), `transacoes/transaction-dialog.tsx` (5),
-      `transacoes/row-actions.tsx` (5), `importar/import-form.tsx` (5).
-      Tipar payloads de webhook/LLM com zod (parse na borda).
-- [ ] Resolver os 2 `@ts-ignore` de `src/middleware.ts:29,36`.
-- [ ] Tipar retorno das server actions (um tipo `ActionResult<T>` padrão).
-- [ ] Revisar promises sem `await` (`no-floating-promises` via
-      `@typescript-eslint`) e try/catch que engolem erro sem log.
-- [ ] Script `npm run check` = lint + `tsc --noEmit` + prettier check; rodar
-      antes de todo commit.
+- [x] ESLint configurado (`next/core-web-vitals` + regras extras) e zerado.
+      **Feito (008).**
+- [x] Prettier + tailwind plugin; repo formatado em commit isolado. **Feito (008).**
+- [x] `any` zerado nos hotspots de lib (agent 7→0, ai/provider 5→0,
+      actions/ai 5→0) com bordas de LLM/JSON tipadas; hotspots de UI ficam
+      para quando os dialogs forem tocados (010). **Feito (008, parcial UI).**
+- [x] `@ts-ignore` já zerados (001). **Feito.**
+- [x] `ActionResult<T>` criado (types/action.ts) e aplicado em 14 arquivos de
+      actions (45 actions: safeParse + ok/err; throws de negócio viraram err).
+      **Feito (008).**
+- [ ] Revisar promises sem `await` (`no-floating-promises` exige parser TS
+      dedicado — adiado; os `void action()` atuais são intencionais).
+- [x] `npm run check` = lint + tsc + prettier check. **Feito (008).**
 
 ## MÓDULO 9 — 🟡 Performance e paginação
 

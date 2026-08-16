@@ -20,7 +20,7 @@ export type PdfDiagnostics = {
   totalLines: number;
   recognized: number;
   sampleLines: string[]; // primeiras linhas do texto extraído
-  fullText?: string;     // texto completo (usado pelo fallback de IA em NO_LAYOUT)
+  fullText?: string; // texto completo (usado pelo fallback de IA em NO_LAYOUT)
   fileName?: string;
   fileSize?: number;
   fileType?: string;
@@ -36,8 +36,8 @@ export type PdfErrorReason =
   | "PARSE_FAIL"
   | "NO_TEXT"
   | "NO_LAYOUT"
-  | "ENCRYPTED"          // PDF protegido — falta a senha
-  | "WRONG_PASSWORD";    // senha informada está incorreta
+  | "ENCRYPTED" // PDF protegido — falta a senha
+  | "WRONG_PASSWORD"; // senha informada está incorreta
 
 export class PdfImportError extends Error {
   diagnostics?: PdfDiagnostics;
@@ -54,12 +54,17 @@ export class PdfImportError extends Error {
 function bufferDiagnostics(
   buffer: Buffer | null,
   meta: { name?: string; size?: number; type?: string }
-): Pick<PdfDiagnostics, "fileName" | "fileSize" | "fileType" | "firstBytesHex" | "firstBytesAscii" | "startsWithPdfMagic"> {
+): Pick<
+  PdfDiagnostics,
+  "fileName" | "fileSize" | "fileType" | "firstBytesHex" | "firstBytesAscii" | "startsWithPdfMagic"
+> {
   const head = buffer ? buffer.subarray(0, 20) : Buffer.alloc(0);
-  const hex = head.toString("hex").match(/.{1,2}/g)?.join(" ") ?? "";
-  const ascii = head
-    .toString("latin1")
-    .replace(/[^\x20-\x7e]/g, ".");
+  const hex =
+    head
+      .toString("hex")
+      .match(/.{1,2}/g)
+      ?.join(" ") ?? "";
+  const ascii = head.toString("latin1").replace(/[^\x20-\x7e]/g, ".");
   return {
     fileName: meta.name,
     fileSize: meta.size,
@@ -197,10 +202,19 @@ export function buildResultFromText(
   spacedText: string = text,
   baseDiag: Partial<PdfDiagnostics> = {}
 ): PdfParseResult & { diagnostics: PdfDiagnostics } {
-  const allLines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  const allLines = text
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter(Boolean);
 
   // Parsers sobre o texto COLADO (Nubank/Inter/Itaú/genérico) + C6 sobre o ESPAÇADO.
-  const candidates = [tryNubankStatement, tryNubankLike, tryItauStatement, tryItauLike, tryInterLike];
+  const candidates = [
+    tryNubankStatement,
+    tryNubankLike,
+    tryItauStatement,
+    tryItauLike,
+    tryInterLike,
+  ];
   let best: PdfParseResult | null = null;
   for (const fn of candidates) {
     const r = fn(text);

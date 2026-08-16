@@ -32,10 +32,7 @@ const ISSUERS: { key: string; label: string; re: RegExp }[] = [
  * estabelecimentos no corpo da fatura.
  */
 export function detectIssuer(text: string): DetectedIssuer | null {
-  const head = text
-    .split(/\r?\n/)
-    .slice(0, 60)
-    .join("\n");
+  const head = text.split(/\r?\n/).slice(0, 60).join("\n");
   for (const issuer of ISSUERS) {
     if (issuer.re.test(head)) {
       return { key: issuer.key, label: issuer.label };

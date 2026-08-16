@@ -44,14 +44,21 @@ describe("isAllowedSender", () => {
 
 describe("parseIncoming — providerMessageId", () => {
   it("extrai messageId do payload Z-API", () => {
-    const msg = parseIncoming({ phone: "5511987654321", messageId: "zapi-123", text: { message: "oi" } });
+    const msg = parseIncoming({
+      phone: "5511987654321",
+      messageId: "zapi-123",
+      text: { message: "oi" },
+    });
     expect(msg.providerMessageId).toBe("zapi-123");
     expect(msg.from).toBe("5511987654321");
   });
 
   it("extrai key.id do payload Evolution", () => {
     const msg = parseIncoming({
-      data: { key: { remoteJid: "5511987654321@s.whatsapp.net", id: "evo-999" }, message: { conversation: "oi" } },
+      data: {
+        key: { remoteJid: "5511987654321@s.whatsapp.net", id: "evo-999" },
+        message: { conversation: "oi" },
+      },
     });
     expect(msg.providerMessageId).toBe("evo-999");
   });

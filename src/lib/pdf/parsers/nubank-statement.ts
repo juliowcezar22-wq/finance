@@ -14,15 +14,24 @@ import type { PdfParseResult, PdfTransaction } from "../types";
  */
 
 const MONTHS_PT: Record<string, number> = {
-  jan: 0, fev: 1, mar: 2, abr: 3, mai: 4, jun: 5,
-  jul: 6, ago: 7, set: 8, out: 9, nov: 10, dez: 11,
+  jan: 0,
+  fev: 1,
+  mar: 2,
+  abr: 3,
+  mai: 4,
+  jun: 5,
+  jul: 6,
+  ago: 7,
+  set: 8,
+  out: 9,
+  nov: 10,
+  dez: 11,
 };
 
 // Linha que contém apenas a data: "04 JUN", "14 jun"
 const DATE_ONLY_RE = /^(\d{1,2})\s+([A-Za-zçÇ]{3})\.?$/;
 // Linha de compra: um ou mais bullets, 4 dígitos do cartão, descrição e valor colado
-const TX_RE =
-  /^[••·]{2,}\s*(\d{4})(.+?)R\$\s*(-?\d{1,3}(?:\.\d{3})*,\d{2})\s*$/;
+const TX_RE = /^[••·]{2,}\s*(\d{4})(.+?)R\$\s*(-?\d{1,3}(?:\.\d{3})*,\d{2})\s*$/;
 // Parcela ao fim da descrição: "- Parcela 3/4" ou "Parcela 3 de 4"
 const INSTALLMENT_RE = /-?\s*parcela\s+(\d{1,2})\s*(?:\/|de)\s*(\d{1,2})\s*$/i;
 
@@ -71,11 +80,7 @@ export function tryNubankStatement(text: string): PdfParseResult | null {
   for (const line of lines) {
     const dateMatch = line.match(DATE_ONLY_RE);
     if (dateMatch) {
-      const key = dateMatch[2]
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[̀-ͯ]/g, "")
-        .slice(0, 3);
+      const key = dateMatch[2].toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").slice(0, 3);
       if (key in MONTHS_PT) {
         lastMonth = MONTHS_PT[key];
         lastDay = Number(dateMatch[1]);
@@ -100,7 +105,10 @@ export function tryNubankStatement(text: string): PdfParseResult | null {
     if (inst) {
       installment = Number(inst[1]);
       totalInstallments = Number(inst[2]);
-      description = description.replace(INSTALLMENT_RE, "").replace(/[-\s]+$/, "").trim();
+      description = description
+        .replace(INSTALLMENT_RE, "")
+        .replace(/[-\s]+$/, "")
+        .trim();
     }
     if (!description) description = "Transação";
 

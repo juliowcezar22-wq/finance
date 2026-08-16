@@ -27,7 +27,9 @@ const ACTION_LABEL: Record<string, string> = {
 export function WhatsAppSimulator() {
   const [text, setText] = useState("");
   const [pending, start] = useTransition();
-  const [result, setResult] = useState<{ reply: string; action: string; error?: string } | null>(null);
+  const [result, setResult] = useState<{ reply: string; action: string; error?: string } | null>(
+    null
+  );
   const [reminderMsg, setReminderMsg] = useState<string | null>(null);
 
   function run(t: string) {
@@ -54,7 +56,7 @@ export function WhatsAppSimulator() {
             key={e}
             onClick={() => run(e)}
             disabled={pending}
-            className="text-xs rounded-full border px-3 py-1.5 hover:bg-accent transition-colors"
+            className="rounded-full border px-3 py-1.5 text-xs transition-colors hover:bg-accent"
           >
             {e}
           </button>
@@ -73,30 +75,35 @@ export function WhatsAppSimulator() {
           }}
           placeholder="Ex.: paguei 120 de luz, vence dia 30"
           rows={1}
-          className="resize-none min-h-[44px]"
+          className="min-h-[44px] resize-none"
         />
         <Button onClick={() => run(text)} disabled={pending || !text.trim()}>
           <Send className="h-4 w-4" />
         </Button>
       </div>
 
-      {pending && <p className="text-sm text-muted-foreground animate-pulse">Nummiq está pensando…</p>}
+      {pending && (
+        <p className="animate-pulse text-sm text-muted-foreground">Nummiq está pensando…</p>
+      )}
 
       {result && (
         <div className="flex gap-2">
-          <div className="shrink-0 h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/10">
             <NummiqSymbol size={26} />
           </div>
           <div className="flex-1 rounded-2xl bg-muted px-3.5 py-2.5">
-            <Badge variant={result.error ? "destructive" : "secondary"} className="mb-1.5 text-[10px]">
+            <Badge
+              variant={result.error ? "destructive" : "secondary"}
+              className="mb-1.5 text-[10px]"
+            >
               {ACTION_LABEL[result.action] ?? result.action}
             </Badge>
-            <p className="text-sm whitespace-pre-wrap">{result.reply}</p>
+            <p className="whitespace-pre-wrap text-sm">{result.reply}</p>
           </div>
         </div>
       )}
 
-      <div className="pt-2 border-t">
+      <div className="border-t pt-2">
         <Button
           variant="outline"
           size="sm"
@@ -108,9 +115,9 @@ export function WhatsAppSimulator() {
             })
           }
         >
-          <Bell className="h-4 w-4 mr-1" /> Enviar lembretes agora
+          <Bell className="mr-1 h-4 w-4" /> Enviar lembretes agora
         </Button>
-        {reminderMsg && <p className="text-xs text-muted-foreground mt-2">{reminderMsg}</p>}
+        {reminderMsg && <p className="mt-2 text-xs text-muted-foreground">{reminderMsg}</p>}
       </div>
     </div>
   );

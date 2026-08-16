@@ -113,7 +113,8 @@ export async function comprometimentoFaturas(reference: Date = new Date()) {
 export async function nivelReserva(reference: Date = new Date()) {
   const caixa = await totalEmCaixa();
   const desp = await totalDespesasMes(reference);
-  if (desp <= 0) return { meses: caixa > 0 ? Infinity : 0, classificacao: caixa > 0 ? "Forte" : "Sem reserva" };
+  if (desp <= 0)
+    return { meses: caixa > 0 ? Infinity : 0, classificacao: caixa > 0 ? "Forte" : "Sem reserva" };
   const meses = caixa / desp;
   let classificacao: "Sem reserva" | "Baixa" | "Boa" | "Forte" = "Sem reserva";
   if (meses >= 6) classificacao = "Forte";
@@ -178,9 +179,7 @@ export async function totalFaturas(status?: string[]) {
  * Limite usado por cartão em UMA query (groupBy) para vários cartões.
  * Substitui limiteUsado/limiteDisponivel chamados em loop por cartão.
  */
-export async function limitesUsadosPorCartao(
-  cardIds: string[]
-): Promise<Map<string, number>> {
+export async function limitesUsadosPorCartao(cardIds: string[]): Promise<Map<string, number>> {
   if (cardIds.length === 0) return new Map();
   const rows = await prisma.creditCardInvoice.groupBy({
     by: ["cardId"],
@@ -188,10 +187,7 @@ export async function limitesUsadosPorCartao(
     _sum: { total: true, paid: true },
   });
   return new Map(
-    rows.map((r) => [
-      r.cardId,
-      Math.max(0, toNum(r._sum.total) - toNum(r._sum.paid)),
-    ])
+    rows.map((r) => [r.cardId, Math.max(0, toNum(r._sum.total) - toNum(r._sum.paid))])
   );
 }
 
@@ -318,9 +314,7 @@ export type DashboardSummary = {
  * Todas as métricas do dashboard em UMA passada: ~11 queries em paralelo e
  * derivações em memória (antes: ~25 aggregates, vários repetidos em série).
  */
-export async function getDashboardSummary(
-  reference: Date = new Date()
-): Promise<DashboardSummary> {
+export async function getDashboardSummary(reference: Date = new Date()): Promise<DashboardSummary> {
   const { start, end } = monthRange(reference);
 
   const [
@@ -407,8 +401,7 @@ export async function getDashboardSummary(
     },
     caixa: toNum(caixaAgg._sum.currentAmount),
     taxaEndividamento: receitas <= 0 ? (obrig > 0 ? 1 : 0) : obrig / receitas,
-    sobraReal:
-      receitas - toNum(despesasPagasAgg._sum.amount) - toNum(faturasPagasAgg._sum.paid),
+    sobraReal: receitas - toNum(despesasPagasAgg._sum.amount) - toNum(faturasPagasAgg._sum.paid),
     receitasPrevistas: toNum(receitasPrevAgg._sum.amount),
     despesasPrevistas,
   };

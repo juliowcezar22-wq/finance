@@ -23,7 +23,7 @@ export function Sidebar({ user }: { user: UserLike }) {
         className={cn(
           "group flex items-center gap-3 rounded-[10px] px-3 py-2 text-sm font-medium transition-colors duration-150 ease-nq",
           active
-            ? "bg-accent border border-border text-nummiq-white"
+            ? "border border-border bg-accent text-nummiq-white"
             : "border border-transparent text-nummiq-silver hover:bg-accent hover:text-nummiq-white"
         )}
       >
@@ -34,19 +34,15 @@ export function Sidebar({ user }: { user: UserLike }) {
   };
 
   return (
-    <aside className="hidden md:flex md:w-60 shrink-0 flex-col md:sticky md:top-0 md:h-screen border-r border-border bg-nummiq-black">
-      <div className="h-[72px] flex items-center px-5 border-b border-border">
+    <aside className="hidden shrink-0 flex-col border-r border-border bg-nummiq-black md:sticky md:top-0 md:flex md:h-screen md:w-60">
+      <div className="flex h-[72px] items-center border-b border-border px-5">
         <Link href="/dashboard" aria-label="Nummiq — Visão Geral">
           <NummiqLogo />
         </Link>
       </div>
-      <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-        {main.map(renderItem)}
-      </nav>
+      <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">{main.map(renderItem)}</nav>
       {footer.length > 0 && (
-        <div className="px-3 py-3 border-t border-border space-y-0.5">
-          {footer.map(renderItem)}
-        </div>
+        <div className="space-y-0.5 border-t border-border px-3 py-3">{footer.map(renderItem)}</div>
       )}
     </aside>
   );

@@ -17,7 +17,7 @@ export function SimpleMarkdown({ text }: { text: string }) {
   const flushList = (key: string) => {
     if (list.length) {
       blocks.push(
-        <ul key={key} className="list-disc pl-5 space-y-1 my-2">
+        <ul key={key} className="my-2 list-disc space-y-1 pl-5">
           {list.map((item, i) => (
             <li key={i}>{renderInline(item)}</li>
           ))}
@@ -36,14 +36,17 @@ export function SimpleMarkdown({ text }: { text: string }) {
     if (line.startsWith("## ")) {
       flushList(`l-${i}`);
       blocks.push(
-        <h3 key={i} className="text-sm font-semibold uppercase tracking-wide text-muted-foreground mt-4 mb-1">
+        <h3
+          key={i}
+          className="mb-1 mt-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground"
+        >
           {renderInline(line.slice(3))}
         </h3>
       );
     } else if (line.startsWith("# ")) {
       flushList(`l-${i}`);
       blocks.push(
-        <h2 key={i} className="text-base font-bold mt-4 mb-1">
+        <h2 key={i} className="mb-1 mt-4 text-base font-bold">
           {renderInline(line.slice(2))}
         </h2>
       );

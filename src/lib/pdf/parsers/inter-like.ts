@@ -16,8 +16,18 @@ import { matchCardSection } from "./shared";
  */
 
 const MONTHS_PT: Record<string, number> = {
-  jan: 0, fev: 1, mar: 2, abr: 3, mai: 4, jun: 5,
-  jul: 6, ago: 7, set: 8, out: 9, nov: 10, dez: 11,
+  jan: 0,
+  fev: 1,
+  mar: 2,
+  abr: 3,
+  mai: 4,
+  jun: 5,
+  jul: 6,
+  ago: 7,
+  set: 8,
+  out: 9,
+  nov: 10,
+  dez: 11,
 };
 
 const DATE_RE = /^(\d{1,2})\s+de\s+([a-zçA-ZÇ]{3,4})\.?\s+(\d{4})(.+)$/;
@@ -32,11 +42,7 @@ function parseAmount(raw: string): number {
 }
 
 function normMonth(mmm: string): string {
-  return mmm
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .slice(0, 3);
+  return mmm.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").slice(0, 3);
 }
 
 function detectDue(text: string): Date | undefined {

@@ -23,7 +23,9 @@ export class AiBudgetExceededError extends Error {
 
 /** Dia atual no fuso America/Sao_Paulo, normalizado para uma coluna DATE. */
 function todaySP(): Date {
-  const ymd = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date());
+  const ymd = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(
+    new Date()
+  );
   return new Date(`${ymd}T00:00:00.000Z`);
 }
 

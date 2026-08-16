@@ -21,11 +21,30 @@ const prisma = new PrismaClient();
 
 // Todos os modelos com dados (owned + globais). Mantido explícito de propósito.
 const MODELS = [
-  "user", "person", "account", "creditCard", "accountCard", "category",
-  "transaction", "installment", "creditCardInvoice", "receivable", "income",
-  "cashBox", "cashBoxMovement", "personPayment", "goal", "importBatch",
-  "categorizationRule", "aISetting", "aIConversation", "aIMessage", "aIMemory",
-  "whatsAppSetting", "whatsAppMessage", "loginAttempt",
+  "user",
+  "person",
+  "account",
+  "creditCard",
+  "accountCard",
+  "category",
+  "transaction",
+  "installment",
+  "creditCardInvoice",
+  "receivable",
+  "income",
+  "cashBox",
+  "cashBoxMovement",
+  "personPayment",
+  "goal",
+  "importBatch",
+  "categorizationRule",
+  "aISetting",
+  "aIConversation",
+  "aIMessage",
+  "aIMemory",
+  "whatsAppSetting",
+  "whatsAppMessage",
+  "loginAttempt",
 ] as const;
 
 async function main() {

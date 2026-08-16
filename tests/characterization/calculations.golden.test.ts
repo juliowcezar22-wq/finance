@@ -34,7 +34,13 @@ const ratio = (n: number) => Number(n.toFixed(4));
 beforeAll(async () => {
   const seeded = await runWithoutScope(async () => {
     const u = await prisma.user.create({
-      data: { name: `${P}user`, email: `${P}${Date.now()}@example.test`, passwordHash: "x", role: "USER", active: true },
+      data: {
+        name: `${P}user`,
+        email: `${P}${Date.now()}@example.test`,
+        passwordHash: "x",
+        role: "USER",
+        active: true,
+      },
     });
     return u.id;
   });
@@ -43,19 +49,60 @@ beforeAll(async () => {
   await runWithOwner(userId, async () => {
     const person = await prisma.person.create({ data: { name: `${P}pessoa` } });
     personId = person.id;
-    const card = await prisma.creditCard.create({ data: { name: `${P}cartao`, closingDay: 1, dueDay: 10 } });
+    const card = await prisma.creditCard.create({
+      data: { name: `${P}cartao`, closingDay: 1, dueDay: 10 },
+    });
     cardId = card.id;
-    const goal = await prisma.goal.create({ data: { name: `${P}meta`, targetAmount: 2000, currentAmount: 500 } });
+    const goal = await prisma.goal.create({
+      data: { name: `${P}meta`, targetAmount: 2000, currentAmount: 500 },
+    });
     goalId = goal.id;
 
     // Transações (março/2026)
     await prisma.transaction.createMany({
       data: [
-        { date: inMarch, description: `${P}t1`, amount: 100, type: "despesa", status: "pago", belongsTo: "pessoal", cardId },
-        { date: inMarch, description: `${P}t2`, amount: 50, type: "despesa", status: "pendente", belongsTo: "empresa" },
-        { date: inMarch, description: `${P}t3`, amount: 25.5, type: "despesa", status: "devendo", belongsTo: "pessoal", responsibleId: personId },
-        { date: inMarch, description: `${P}t4`, amount: 200, type: "receita", status: "pago", belongsTo: "pessoal" },
-        { date: inMarch, description: `${P}t5`, amount: 999, type: "despesa", status: "cancelado", belongsTo: "pessoal" },
+        {
+          date: inMarch,
+          description: `${P}t1`,
+          amount: 100,
+          type: "despesa",
+          status: "pago",
+          belongsTo: "pessoal",
+          cardId,
+        },
+        {
+          date: inMarch,
+          description: `${P}t2`,
+          amount: 50,
+          type: "despesa",
+          status: "pendente",
+          belongsTo: "empresa",
+        },
+        {
+          date: inMarch,
+          description: `${P}t3`,
+          amount: 25.5,
+          type: "despesa",
+          status: "devendo",
+          belongsTo: "pessoal",
+          responsibleId: personId,
+        },
+        {
+          date: inMarch,
+          description: `${P}t4`,
+          amount: 200,
+          type: "receita",
+          status: "pago",
+          belongsTo: "pessoal",
+        },
+        {
+          date: inMarch,
+          description: `${P}t5`,
+          amount: 999,
+          type: "despesa",
+          status: "cancelado",
+          belongsTo: "pessoal",
+        },
       ],
     });
 
@@ -63,8 +110,22 @@ beforeAll(async () => {
     // "pendente" = prevista (feature 005 — unificação de movimentações).
     await prisma.transaction.createMany({
       data: [
-        { date: inMarch, description: `${P}r1`, amount: 300, type: "receita", status: "pago", belongsTo: "pessoal" },
-        { date: inMarch, description: `${P}r2`, amount: 150, type: "receita", status: "pendente", belongsTo: "pessoal" },
+        {
+          date: inMarch,
+          description: `${P}r1`,
+          amount: 300,
+          type: "receita",
+          status: "pago",
+          belongsTo: "pessoal",
+        },
+        {
+          date: inMarch,
+          description: `${P}r2`,
+          amount: 150,
+          type: "receita",
+          status: "pendente",
+          belongsTo: "pessoal",
+        },
       ],
     });
 
@@ -77,8 +138,26 @@ beforeAll(async () => {
 
     await prisma.creditCardInvoice.createMany({
       data: [
-        { cardId, referenceYear: 2026, referenceMonth: 3, closingDate: inMarch, dueDate: inMarch, total: 400, paid: 100, status: "aberta" },
-        { cardId, referenceYear: 2026, referenceMonth: 2, closingDate: inMarch, dueDate: inMarch, total: 200, paid: 200, status: "paga" },
+        {
+          cardId,
+          referenceYear: 2026,
+          referenceMonth: 3,
+          closingDate: inMarch,
+          dueDate: inMarch,
+          total: 400,
+          paid: 100,
+          status: "aberta",
+        },
+        {
+          cardId,
+          referenceYear: 2026,
+          referenceMonth: 2,
+          closingDate: inMarch,
+          dueDate: inMarch,
+          total: 200,
+          paid: 200,
+          status: "paga",
+        },
       ],
     });
 
@@ -107,19 +186,32 @@ afterAll(async () => {
 const as = <T>(fn: () => Promise<T>) => runWithOwner(userId, fn);
 
 describe("Golden — totais monetários (ao centavo)", () => {
-  it("totalDespesasMes = 175,50", async () => expect(money(await as(() => calc.totalDespesasMes(REF)) as number)).toBe(175.5));
-  it("totalReceitasMes = 500,00", async () => expect(money(await as(() => calc.totalReceitasMes(REF)) as number)).toBe(500));
-  it("receitasPrevistasMes = 150,00", async () => expect(money(await as(() => calc.receitasPrevistasMes(REF)) as number)).toBe(150));
-  it("despesasPrevistasMes = 75,50", async () => expect(money(await as(() => calc.despesasPrevistasMes(REF)) as number)).toBe(75.5));
-  it("despesasPagasMes = 100,00", async () => expect(money(await as(() => calc.despesasPagasMes(REF)) as number)).toBe(100));
-  it("faturasPagasMes = 200,00", async () => expect(money(await as(() => calc.faturasPagasMes(REF)) as number)).toBe(200));
-  it("totalEmCaixa = 1500,00", async () => expect(money(await as(() => calc.totalEmCaixa()) as number)).toBe(1500));
-  it("totalReservaEmergencia = 1000,00", async () => expect(money(await as(() => calc.totalReservaEmergencia()) as number)).toBe(1000));
-  it("totalAReceber = 80,00", async () => expect(money(await as(() => calc.totalAReceber()) as number)).toBe(80));
-  it("saldoPrevistoMes = 324,50", async () => expect(money(await as(() => calc.saldoPrevistoMes(REF)) as number)).toBe(324.5));
-  it("sobraReal = 200,00", async () => expect(money(await as(() => calc.sobraReal(REF)) as number)).toBe(200));
-  it("saldoPrevistoCompleto = 354,50", async () => expect(money(await as(() => calc.saldoPrevistoCompleto(REF)) as number)).toBe(354.5));
-  it("gastosPorPertenceA(pessoal) = 125,50", async () => expect(money(await as(() => calc.gastosPorPertenceA("pessoal", REF)) as number)).toBe(125.5));
+  it("totalDespesasMes = 175,50", async () =>
+    expect(money((await as(() => calc.totalDespesasMes(REF))) as number)).toBe(175.5));
+  it("totalReceitasMes = 500,00", async () =>
+    expect(money((await as(() => calc.totalReceitasMes(REF))) as number)).toBe(500));
+  it("receitasPrevistasMes = 150,00", async () =>
+    expect(money((await as(() => calc.receitasPrevistasMes(REF))) as number)).toBe(150));
+  it("despesasPrevistasMes = 75,50", async () =>
+    expect(money((await as(() => calc.despesasPrevistasMes(REF))) as number)).toBe(75.5));
+  it("despesasPagasMes = 100,00", async () =>
+    expect(money((await as(() => calc.despesasPagasMes(REF))) as number)).toBe(100));
+  it("faturasPagasMes = 200,00", async () =>
+    expect(money((await as(() => calc.faturasPagasMes(REF))) as number)).toBe(200));
+  it("totalEmCaixa = 1500,00", async () =>
+    expect(money((await as(() => calc.totalEmCaixa())) as number)).toBe(1500));
+  it("totalReservaEmergencia = 1000,00", async () =>
+    expect(money((await as(() => calc.totalReservaEmergencia())) as number)).toBe(1000));
+  it("totalAReceber = 80,00", async () =>
+    expect(money((await as(() => calc.totalAReceber())) as number)).toBe(80));
+  it("saldoPrevistoMes = 324,50", async () =>
+    expect(money((await as(() => calc.saldoPrevistoMes(REF))) as number)).toBe(324.5));
+  it("sobraReal = 200,00", async () =>
+    expect(money((await as(() => calc.sobraReal(REF))) as number)).toBe(200));
+  it("saldoPrevistoCompleto = 354,50", async () =>
+    expect(money((await as(() => calc.saldoPrevistoCompleto(REF))) as number)).toBe(354.5));
+  it("gastosPorPertenceA(pessoal) = 125,50", async () =>
+    expect(money((await as(() => calc.gastosPorPertenceA("pessoal", REF))) as number)).toBe(125.5));
 });
 
 describe("Golden — faturas e limites", () => {
@@ -129,12 +221,15 @@ describe("Golden — faturas e limites", () => {
     expect(money(f.paid)).toBe(100);
     expect(money(f.openAmount)).toBe(300);
   });
-  it("limiteUsado(cartao) = 300 (aberta: 400-100)", async () => expect(money(await as(() => calc.limiteUsado(cardId)) as number)).toBe(300));
+  it("limiteUsado(cartao) = 300 (aberta: 400-100)", async () =>
+    expect(money((await as(() => calc.limiteUsado(cardId))) as number)).toBe(300));
 });
 
 describe("Golden — razões e classificações (precisão exibida)", () => {
-  it("taxaEndividamento = 0,7510", async () => expect(ratio(await as(() => calc.taxaEndividamento(REF)) as number)).toBe(0.751));
-  it("comprometimentoFaturas = 0,6000", async () => expect(ratio(await as(() => calc.comprometimentoFaturas(REF)) as number)).toBe(0.6));
+  it("taxaEndividamento = 0,7510", async () =>
+    expect(ratio((await as(() => calc.taxaEndividamento(REF))) as number)).toBe(0.751));
+  it("comprometimentoFaturas = 0,6000", async () =>
+    expect(ratio((await as(() => calc.comprometimentoFaturas(REF))) as number)).toBe(0.6));
   it("progressoMeta = 25", async () => expect(await as(() => calc.progressoMeta(goalId))).toBe(25));
   it("nivelReserva ≈ 8,547 meses, Forte", async () => {
     const n = await as(() => calc.nivelReserva(REF));

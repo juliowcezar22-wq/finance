@@ -20,8 +20,18 @@ import { matchCardSection, adjustYearToAnchor } from "./shared";
  */
 
 const MONTHS_PT: Record<string, number> = {
-  jan: 0, fev: 1, mar: 2, abr: 3, mai: 4, jun: 5,
-  jul: 6, ago: 7, set: 8, out: 9, nov: 10, dez: 11,
+  jan: 0,
+  fev: 1,
+  mar: 2,
+  abr: 3,
+  mai: 4,
+  jun: 5,
+  jul: 6,
+  ago: 7,
+  set: 8,
+  out: 9,
+  nov: 10,
+  dez: 11,
 };
 
 const DATE_HEADER = String.raw`(?:(\d{1,2})\s+([A-Za-zçÇ]{3,4})|(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{2,4}))?)`;
@@ -35,7 +45,10 @@ const INSTALLMENT_PAREN = /(?:^|\s|\()\s*(\d{1,2})\s*\/\s*(\d{1,2})\s*(?=\)|$|\s
 function parseAmount(raw: string): number {
   let s = raw.replace(/r\$/i, "").replace(/\s+/g, "").replace(/cr$/i, "").trim();
   let neg = false;
-  if (s.startsWith("-")) { neg = true; s = s.slice(1); }
+  if (s.startsWith("-")) {
+    neg = true;
+    s = s.slice(1);
+  }
   // se tem , e .: o último é decimal
   const hasComma = s.includes(",");
   const hasDot = s.includes(".");
@@ -166,16 +179,9 @@ export function tryGenericStatement(text: string): PdfParseResult & {
 
     let date: Date | null = null;
     if (ddText && mmmText) {
-      const k = mmmText
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[̀-ͯ]/g, "")
-        .slice(0, 3);
+      const k = mmmText.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").slice(0, 3);
       if (k in MONTHS_PT) {
-        date = adjustYearToAnchor(
-          new Date(fallbackYear, MONTHS_PT[k], Number(ddText)),
-          anchor
-        );
+        date = adjustYearToAnchor(new Date(fallbackYear, MONTHS_PT[k], Number(ddText)), anchor);
       }
     } else if (ddNum && mmNum) {
       let y = fallbackYear;

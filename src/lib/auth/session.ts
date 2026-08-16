@@ -35,11 +35,7 @@ export type SessionPayload = {
 
 function b64urlEncode(buf: Buffer | string): string {
   const b = typeof buf === "string" ? Buffer.from(buf) : buf;
-  return b
-    .toString("base64")
-    .replace(/=/g, "")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_");
+  return b.toString("base64").replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
 }
 
 function b64urlDecode(s: string): Buffer {
@@ -51,7 +47,10 @@ function sign(data: string): string {
   return b64urlEncode(createHmac("sha256", SECRET).update(data).digest());
 }
 
-export function createSessionToken(payload: Omit<SessionPayload, "exp">, ttlDays = DEFAULT_TTL_DAYS): string {
+export function createSessionToken(
+  payload: Omit<SessionPayload, "exp">,
+  ttlDays = DEFAULT_TTL_DAYS
+): string {
   const exp = Math.floor(Date.now() / 1000) + ttlDays * 86400;
   const full: SessionPayload = { ...payload, exp };
   const body = b64urlEncode(JSON.stringify(full));

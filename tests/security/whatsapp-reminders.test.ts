@@ -29,7 +29,9 @@ describe("reminders — autenticação por Bearer", () => {
   });
 
   it("401 com Bearer errado", async () => {
-    const res = await GET(get("http://localhost/api/whatsapp/reminders", { authorization: "Bearer errado" }));
+    const res = await GET(
+      get("http://localhost/api/whatsapp/reminders", { authorization: "Bearer errado" })
+    );
     expect(res.status).toBe(401);
   });
 

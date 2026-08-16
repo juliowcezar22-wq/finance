@@ -4,7 +4,12 @@ vi.mock("@/lib/auth/owner-scope", () => import("../setup/owner-scope-double"));
 
 import { prisma } from "@/lib/prisma";
 import { runWithOwner, runWithoutScope } from "@/lib/auth/owner-scope";
-import { assertUnderDailyCap, recordUsage, DAILY_TOKEN_CAP, AiBudgetExceededError } from "@/lib/ai/usage";
+import {
+  assertUnderDailyCap,
+  recordUsage,
+  DAILY_TOKEN_CAP,
+  AiBudgetExceededError,
+} from "@/lib/ai/usage";
 import { chatComplete, type AISettings } from "@/lib/ai/provider";
 import { TEST_PREFIX } from "../setup/db";
 
@@ -18,7 +23,13 @@ let userId: string;
 beforeAll(async () => {
   const u = await runWithoutScope(() =>
     prisma.user.create({
-      data: { name: `${TEST_PREFIX}usage`, email: `${TEST_PREFIX}usage-${Date.now()}@example.test`, passwordHash: "x", role: "USER", active: true },
+      data: {
+        name: `${TEST_PREFIX}usage`,
+        email: `${TEST_PREFIX}usage-${Date.now()}@example.test`,
+        passwordHash: "x",
+        role: "USER",
+        active: true,
+      },
     })
   );
   userId = u.id;
@@ -33,7 +44,12 @@ afterAll(async () => {
 });
 
 const settings: AISettings = {
-  provider: "openai", baseUrl: null, apiKey: "sk-test", model: "gpt-4o-mini", temperature: 0.3, enabled: true,
+  provider: "openai",
+  baseUrl: null,
+  apiKey: "sk-test",
+  model: "gpt-4o-mini",
+  temperature: 0.3,
+  enabled: true,
 };
 
 describe("recordUsage / assertUnderDailyCap", () => {
@@ -63,12 +79,17 @@ describe("chatComplete respeita o teto ANTES de contatar o provedor", () => {
 
   it("skipCap ignora o teto (teste de conexão sempre valida a chave)", async () => {
     const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(
-      new Response(JSON.stringify({ choices: [{ message: { content: "OK" } }], usage: {} }), { status: 200 })
+      new Response(JSON.stringify({ choices: [{ message: { content: "OK" } }], usage: {} }), {
+        status: 200,
+      })
     );
     await runWithOwner(userId, async () => {
       await recordUsage({ promptTokens: DAILY_TOKEN_CAP, completionTokens: 0 }); // já no teto
       const r = await chatComplete({
-        settings, system: "s", messages: [{ role: "user", content: "ping" }], skipCap: true,
+        settings,
+        system: "s",
+        messages: [{ role: "user", content: "ping" }],
+        skipCap: true,
       });
       expect(r.text).toBe("OK");
     });

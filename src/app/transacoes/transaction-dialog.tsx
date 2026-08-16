@@ -34,13 +34,20 @@ export function TransactionDialog({
   initial?: any;
 }) {
   const [open, setOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        setError(null);
+      }}
+    >
       <DialogTrigger asChild>
         {trigger ?? (
           <Button>
-            <Plus className="h-4 w-4 mr-1" /> Nova transação
+            <Plus className="mr-1 h-4 w-4" /> Nova transação
           </Button>
         )}
       </DialogTrigger>
@@ -51,24 +58,37 @@ export function TransactionDialog({
 
         <form
           action={async (fd) => {
-            await saveTransaction(fd);
+            const res = await saveTransaction(fd);
+            if (!res.ok) {
+              setError(res.error);
+              return;
+            }
+            setError(null);
             setOpen(false);
           }}
-          className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2"
         >
           {initial?.id && <input type="hidden" name="id" value={initial.id} />}
 
           <div className="col-span-1">
             <Label>Data</Label>
             <DatePicker
-              name="date"defaultValue={initial?.date ? formatDateInput(initial.date) : formatDateInput(new Date())}
+              name="date"
+              defaultValue={
+                initial?.date ? formatDateInput(initial.date) : formatDateInput(new Date())
+              }
               required
             />
           </div>
 
           <div className="col-span-1">
             <Label>Valor</Label>
-            <Input name="amount" defaultValue={initial?.amount?.toString().replace(".", ",") ?? ""} placeholder="0,00" required />
+            <Input
+              name="amount"
+              defaultValue={initial?.amount?.toString().replace(".", ",") ?? ""}
+              placeholder="0,00"
+              required
+            />
           </div>
 
           <div className="col-span-2">
@@ -187,6 +207,15 @@ export function TransactionDialog({
             <Label>Observações</Label>
             <Textarea name="notes" defaultValue={initial?.notes ?? ""} />
           </div>
+
+          {error && (
+            <p
+              role="alert"
+              className="col-span-2 text-sm font-medium text-red-600 dark:text-red-400"
+            >
+              {error}
+            </p>
+          )}
 
           <DialogFooter className="col-span-2">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>

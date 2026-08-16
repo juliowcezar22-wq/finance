@@ -6,6 +6,7 @@ import { runAgent } from "@/lib/whatsapp/agent";
 import { runWithOwner } from "@/lib/auth/owner-scope";
 import { getPrimaryAdminId } from "@/lib/auth/system-owner";
 import { timingSafeEqualStr } from "@/lib/auth/timing";
+import { webhookRateLimited } from "@/lib/whatsapp/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -31,6 +32,15 @@ export async function POST(req: NextRequest) {
 
   if (!settings.enabled) {
     return NextResponse.json({ ok: true, ignored: "disabled" });
+  }
+
+  // Rate-limit (30/min, Postgres) — após auth, antes de gravar/IA. Fail-closed.
+  try {
+    if (await webhookRateLimited()) {
+      return NextResponse.json({ ok: false, error: "rate_limited" }, { status: 429 });
+    }
+  } catch {
+    return NextResponse.json({ ok: false, error: "rate_limit_unavailable" }, { status: 503 });
   }
 
   let body: any = null;

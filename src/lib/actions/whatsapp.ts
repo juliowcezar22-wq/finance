@@ -50,7 +50,8 @@ export async function saveWhatsAppSettings(formData: FormData) {
   // Segredos: só sobrescreve (e re-cifra) quando um valor novo, não-mascarado,
   // é enviado — o mascarado (`•`) preserva o valor atual.
   if (tokenRaw && !tokenRaw.startsWith("•")) data.token = encryptSecret(tokenRaw.trim());
-  if (clientTokenRaw && !clientTokenRaw.startsWith("•")) data.clientToken = encryptSecret(clientTokenRaw.trim());
+  if (clientTokenRaw && !clientTokenRaw.startsWith("•"))
+    data.clientToken = encryptSecret(clientTokenRaw.trim());
   if (remindersSecretRaw && !remindersSecretRaw.startsWith("•"))
     data.remindersSecret = encryptSecret(remindersSecretRaw.trim());
 
@@ -65,7 +66,8 @@ export async function saveWhatsAppSettings(formData: FormData) {
 export async function testWhatsAppSend(): Promise<{ ok: boolean; message: string }> {
   await requireAdmin();
   const s = await getWhatsAppSettings();
-  if (!isWhatsAppReady(s)) return { ok: false, message: "Configure URL, número e ative o WhatsApp antes." };
+  if (!isWhatsAppReady(s))
+    return { ok: false, message: "Configure URL, número e ative o WhatsApp antes." };
   const r = await sendText(
     s.myNumber!,
     "✅ Nummiq conectado! Este é um teste do seu agente financeiro no WhatsApp."
@@ -78,6 +80,14 @@ export async function testWhatsAppSend(): Promise<{ ok: boolean; message: string
 /** Simulador: roda o agente como se fosse uma mensagem do WhatsApp (sem enviar nada). */
 export async function simulateMessage(text: string): Promise<AgentResult> {
   await requireAdmin();
+  // Ferramenta de DEV: em produção a action não executa (o card também some).
+  if (process.env.NODE_ENV === "production") {
+    return {
+      reply: "Simulador disponível apenas em desenvolvimento.",
+      action: "error",
+      error: "dev_only",
+    };
+  }
   const t = text.trim();
   if (!t) return { reply: "Escreva uma mensagem.", action: "smalltalk" };
   const result = await runAgent({ text: t });

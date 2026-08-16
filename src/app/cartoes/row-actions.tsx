@@ -33,7 +33,7 @@ export function CardRowActions({
         disabled={pending}
         onClick={() => {
           if (!confirm("Excluir este cartão?")) return;
-          start(() => deleteCard(card.id));
+          start(() => void deleteCard(card.id));
         }}
         title="Excluir"
       >

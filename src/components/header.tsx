@@ -28,7 +28,7 @@ export function Header({ user }: { user: UserLike }) {
         >
           <Search size={18} strokeWidth={1.75} />
           <span className="flex-1 text-left">Buscar na Nummiq</span>
-          <kbd className="hidden sm:inline-flex items-center gap-0.5 rounded border border-border px-1.5 py-0.5 text-[11px] text-nummiq-muted">
+          <kbd className="hidden items-center gap-0.5 rounded border border-border px-1.5 py-0.5 text-[11px] text-nummiq-muted sm:inline-flex">
             ⌘K
           </kbd>
         </button>
@@ -49,8 +49,8 @@ export function Header({ user }: { user: UserLike }) {
               <div className="flex h-9 w-9 items-center justify-center rounded-full bg-nummiq-surface3 text-xs font-semibold text-nummiq-white ring-1 ring-nummiq-silver/25">
                 {initials}
               </div>
-              <div className="hidden lg:block leading-tight">
-                <p className="text-sm font-medium text-nummiq-white max-w-[160px] truncate">
+              <div className="hidden leading-tight lg:block">
+                <p className="max-w-[160px] truncate text-sm font-medium text-nummiq-white">
                   {user.name}
                 </p>
                 <p className="text-[11px] text-nummiq-muted">

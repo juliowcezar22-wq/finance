@@ -21,11 +21,7 @@ function emit() {
   for (const l of listeners) l(items);
 }
 
-export function toast(opts: {
-  title: string;
-  description?: string;
-  variant?: Variant;
-}) {
+export function toast(opts: { title: string; description?: string; variant?: Variant }) {
   const item: ToastItem = { id: ++counter, variant: "default", ...opts };
   items = [...items, item];
   emit();
@@ -59,7 +55,7 @@ export function Toaster() {
         <ToastPrimitive.Root
           key={t.id}
           onOpenChange={(open) => !open && dismiss(t.id)}
-          className="group pointer-events-auto relative flex items-start gap-3 rounded-[12px] border border-border bg-nummiq-surface3 p-4 pr-9 shadow-nq data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:slide-in-from-right-full data-[state=closed]:slide-out-to-right-full"
+          className="group pointer-events-auto relative flex items-start gap-3 rounded-[12px] border border-border bg-nummiq-surface3 p-4 pr-9 shadow-nq data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-right-full"
         >
           {icons[t.variant] && <div className="mt-0.5 shrink-0">{icons[t.variant]}</div>}
           <div className="min-w-0 flex-1">

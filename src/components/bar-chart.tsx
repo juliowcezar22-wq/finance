@@ -27,16 +27,16 @@ export function MonthlyBarChart({
 
   return (
     <div className="overflow-hidden">
-      <div className="flex items-end gap-1.5 h-40 border-b border-border">
+      <div className="flex h-40 items-end gap-1.5 border-b border-border">
         {values.map((v, i) => {
           const pct = (Math.abs(v) / max) * 100;
           const h = v !== 0 ? Math.max(4, pct) : 0;
           return (
             <div
               key={i}
-              className="flex-1 min-w-0 h-full flex flex-col justify-end items-center group"
+              className="group flex h-full min-w-0 flex-1 flex-col items-center justify-end"
             >
-              <span className="mb-1 max-w-full truncate text-[9px] font-medium tabular-nums text-nummiq-white opacity-0 group-hover:opacity-100 transition-opacity">
+              <span className="mb-1 max-w-full truncate text-[9px] font-medium tabular-nums text-nummiq-white opacity-0 transition-opacity group-hover:opacity-100">
                 {formatBRL(v)}
               </span>
               <div
@@ -48,11 +48,11 @@ export function MonthlyBarChart({
           );
         })}
       </div>
-      <div className="flex gap-1.5 mt-2">
+      <div className="mt-2 flex gap-1.5">
         {labels.map((l, i) => (
           <div
             key={i}
-            className="flex-1 min-w-0 text-center text-[10px] text-nummiq-muted capitalize truncate"
+            className="min-w-0 flex-1 truncate text-center text-[10px] capitalize text-nummiq-muted"
           >
             {l}
           </div>

@@ -36,7 +36,7 @@ export function ExpenseActions({
         disabled={pending}
         onClick={() => {
           if (!confirm("Excluir esta despesa?")) return;
-          start(() => deleteExpense(expense.id));
+          start(() => void deleteExpense(expense.id));
         }}
       >
         <Trash2 className="h-4 w-4 text-destructive" />

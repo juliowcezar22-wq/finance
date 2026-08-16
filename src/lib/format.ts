@@ -13,9 +13,11 @@ type DecimalLike = { toNumber: () => number };
 export function formatBRL(value: number | string | DecimalLike | null | undefined): string {
   if (value == null) return "R$ 0,00";
   const n =
-    typeof value === "number" ? value
-    : typeof value === "string" ? Number(value)
-    : value.toNumber();
+    typeof value === "number"
+      ? value
+      : typeof value === "string"
+        ? Number(value)
+        : value.toNumber();
   if (isNaN(n)) return "R$ 0,00";
   return BRL.format(n);
 }

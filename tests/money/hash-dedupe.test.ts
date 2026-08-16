@@ -10,7 +10,12 @@ import { toNum } from "@/lib/services/money";
  * chave NÃO muda — importações já deduplicadas continuam batendo.
  */
 
-const baseTx = { date: new Date("2026-03-10T00:00:00Z"), description: "Café da Esquina", cardId: "card1", accountId: null };
+const baseTx = {
+  date: new Date("2026-03-10T00:00:00Z"),
+  description: "Café da Esquina",
+  cardId: "card1",
+  accountId: null,
+};
 const baseLine = {
   date: new Date("2026-03-10T00:00:00Z"),
   description: "Café da Esquina",
@@ -27,17 +32,33 @@ describe("hash estável entre number e Decimal→toNum", () => {
   for (const v of valores) {
     it(`transactionHash idêntico para ${v} (number vs Decimal)`, () => {
       const asNumber = transactionHash({ ...baseTx, amount: v });
-      const asDecimal = transactionHash({ ...baseTx, amount: toNum(new Prisma.Decimal(v.toFixed(2))) });
+      const asDecimal = transactionHash({
+        ...baseTx,
+        amount: toNum(new Prisma.Decimal(v.toFixed(2))),
+      });
       expect(asDecimal).toBe(asNumber);
     });
     it(`importedLineHash idêntico para ${v} (number vs Decimal)`, () => {
       const asNumber = importedLineHash({ ...baseLine, amount: v });
-      const asDecimal = importedLineHash({ ...baseLine, amount: toNum(new Prisma.Decimal(v.toFixed(2))) });
+      const asDecimal = importedLineHash({
+        ...baseLine,
+        amount: toNum(new Prisma.Decimal(v.toFixed(2))),
+      });
       expect(asDecimal).toBe(asNumber);
     });
     it(`installmentGroupKeyFor idêntico para ${v} (number vs Decimal)`, () => {
-      const asNumber = installmentGroupKeyFor({ cardId: "card1", description: "X", amount: v, installmentTotal: 3 });
-      const asDecimal = installmentGroupKeyFor({ cardId: "card1", description: "X", amount: toNum(new Prisma.Decimal(v.toFixed(2))), installmentTotal: 3 });
+      const asNumber = installmentGroupKeyFor({
+        cardId: "card1",
+        description: "X",
+        amount: v,
+        installmentTotal: 3,
+      });
+      const asDecimal = installmentGroupKeyFor({
+        cardId: "card1",
+        description: "X",
+        amount: toNum(new Prisma.Decimal(v.toFixed(2))),
+        installmentTotal: 3,
+      });
       expect(asDecimal).toBe(asNumber);
     });
   }

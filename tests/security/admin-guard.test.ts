@@ -9,7 +9,7 @@ vi.mock("react", async (importOriginal) => {
 
 import { prisma } from "@/lib/prisma";
 import { runWithoutScope } from "@/lib/auth/owner-scope";
-import { deactivateGuarded } from "@/lib/actions/users";
+import { deactivateGuarded } from "@/lib/auth/deactivate-user";
 import { TEST_PREFIX } from "./../setup/db";
 
 /**

@@ -8,7 +8,7 @@ import { useTransition } from "react";
 export function CategoryRowActions({ category }: { category: any }) {
   const [pending, start] = useTransition();
   return (
-    <div className="flex gap-1 justify-end">
+    <div className="flex justify-end gap-1">
       <CategoryDialog
         initial={category}
         trigger={
@@ -23,7 +23,7 @@ export function CategoryRowActions({ category }: { category: any }) {
         disabled={pending}
         onClick={() => {
           if (!confirm("Excluir esta categoria?")) return;
-          start(() => deleteCategory(category.id));
+          start(() => void deleteCategory(category.id));
         }}
       >
         <Trash2 className="h-4 w-4 text-destructive" />

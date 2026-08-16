@@ -34,7 +34,8 @@ async function main() {
 
   if (ai?.apiKey && !isEncrypted(ai.apiKey)) plan.push({ model: "AISetting", field: "apiKey" });
   for (const field of ["token", "clientToken", "remindersSecret"] as const) {
-    if (wa?.[field] && !isEncrypted(wa[field] as string)) plan.push({ model: "WhatsAppSetting", field });
+    if (wa?.[field] && !isEncrypted(wa[field] as string))
+      plan.push({ model: "WhatsAppSetting", field });
   }
 
   if (plan.length === 0) {
@@ -55,11 +56,15 @@ async function main() {
   writeFileSync(resolve(dir, `secrets-${stamp}.json`), JSON.stringify(backup, null, 2));
 
   if (ai?.apiKey && !isEncrypted(ai.apiKey)) {
-    await prisma.aISetting.update({ where: { id: "default" }, data: { apiKey: encryptSecret(ai.apiKey) } });
+    await prisma.aISetting.update({
+      where: { id: "default" },
+      data: { apiKey: encryptSecret(ai.apiKey) },
+    });
   }
   const waData: Record<string, string> = {};
   for (const field of ["token", "clientToken", "remindersSecret"] as const) {
-    if (wa?.[field] && !isEncrypted(wa[field] as string)) waData[field] = encryptSecret(wa[field] as string);
+    if (wa?.[field] && !isEncrypted(wa[field] as string))
+      waData[field] = encryptSecret(wa[field] as string);
   }
   if (Object.keys(waData).length) {
     await prisma.whatsAppSetting.update({ where: { id: "default" }, data: waData });

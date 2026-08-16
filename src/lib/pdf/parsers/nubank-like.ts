@@ -12,15 +12,24 @@ import { matchCardSection, adjustYearToAnchor } from "./shared";
  */
 
 const MONTHS_PT: Record<string, number> = {
-  jan: 0, fev: 1, mar: 2, abr: 3, mai: 4, jun: 5,
-  jul: 6, ago: 7, set: 8, out: 9, nov: 10, dez: 11,
+  jan: 0,
+  fev: 1,
+  mar: 2,
+  abr: 3,
+  mai: 4,
+  jun: 5,
+  jul: 6,
+  ago: 7,
+  set: 8,
+  out: 9,
+  nov: 10,
+  dez: 11,
 };
 
 const LINE_RE =
   /^(\d{1,2})\s+([A-Za-zçÇ]{3})\s+(.+?)\s+(?:R\$\s*)?(-?\d{1,3}(?:\.\d{3})*,\d{2})\s*$/;
 
-const INSTALLMENT_RE =
-  /(?:parcela\s*)?\(?\s*(\d{1,2})\s*\/\s*(\d{1,2})\s*\)?/i;
+const INSTALLMENT_RE = /(?:parcela\s*)?\(?\s*(\d{1,2})\s*\/\s*(\d{1,2})\s*\)?/i;
 
 function parseAmount(raw: string): number {
   return Number(raw.replace(/\./g, "").replace(",", "."));
@@ -80,11 +89,7 @@ export function tryNubankLike(text: string): PdfParseResult | null {
       continue;
     }
     const [, dd, mmm, descRaw, amountStr] = m;
-    const monthKey = mmm
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[̀-ͯ]/g, "")
-      .slice(0, 3);
+    const monthKey = mmm.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").slice(0, 3);
     if (!(monthKey in MONTHS_PT)) {
       ignored.push(line);
       continue;

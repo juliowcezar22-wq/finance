@@ -52,9 +52,7 @@ describe("signUpAction — sem enumeração", () => {
     expect(r2?.error).toBeUndefined();
 
     // não duplicou o usuário
-    const count = await runWithoutScope(() =>
-      prisma.user.count({ where: { email } })
-    );
+    const count = await runWithoutScope(() => prisma.user.count({ where: { email } }));
     expect(count).toBe(1);
   });
 });

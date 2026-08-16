@@ -8,8 +8,7 @@ type Theme = "light" | "dark" | "system";
 function applyTheme(theme: Theme) {
   const isDark =
     theme === "dark" ||
-    (theme === "system" &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches);
+    (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
   document.documentElement.classList.toggle("dark", isDark);
 }
 
@@ -65,10 +64,10 @@ export function ThemeToggle({ className }: { className?: string }) {
             aria-pressed={active}
             onClick={() => choose(o.key)}
             className={cn(
-              "h-7 w-7 inline-flex items-center justify-center rounded-md transition-colors",
+              "inline-flex h-7 w-7 items-center justify-center rounded-md transition-colors",
               active
                 ? "bg-primary text-primary-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                : "text-muted-foreground hover:bg-accent hover:text-foreground"
             )}
           >
             <Icon className="h-3.5 w-3.5" />

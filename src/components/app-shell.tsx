@@ -20,13 +20,13 @@ export function AppShell({
 
   return (
     <>
-      <div className="flex min-h-screen app-shell">
+      <div className="app-shell flex min-h-screen">
         <Sidebar user={user} />
         <div className="flex min-w-0 flex-1 flex-col">
           <Header user={user} />
           <main
             key={path}
-            className="page-enter flex-1 px-4 py-6 md:px-8 md:py-8 pb-24 md:pb-8 w-full max-w-[1440px] mx-auto"
+            className="page-enter mx-auto w-full max-w-[1440px] flex-1 px-4 py-6 pb-24 md:px-8 md:py-8 md:pb-8"
           >
             {children}
           </main>

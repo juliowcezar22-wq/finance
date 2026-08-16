@@ -35,7 +35,15 @@ async function parseDocx(
     throw new PdfImportError(
       "PARSE_FAIL",
       "Arquivos .doc (Word antigo) não são suportados. Salve como .docx ou PDF e tente novamente.",
-      { layout: "unknown", totalLines: 0, recognized: 0, sampleLines: [], fileName: meta.name, fileSize: meta.size, fileType: meta.type }
+      {
+        layout: "unknown",
+        totalLines: 0,
+        recognized: 0,
+        sampleLines: [],
+        fileName: meta.name,
+        fileSize: meta.size,
+        fileType: meta.type,
+      }
     );
   }
 
@@ -64,7 +72,15 @@ async function parseDocx(
     throw new PdfImportError(
       "NO_TEXT",
       "Este DOCX não contém texto extraível (pode ser só imagens). Exporte em CSV/XLSX ou use um documento com texto.",
-      { layout: "unknown", totalLines: 0, recognized: 0, sampleLines: [], fileName: meta.name, fileSize: meta.size, fileType: meta.type }
+      {
+        layout: "unknown",
+        totalLines: 0,
+        recognized: 0,
+        sampleLines: [],
+        fileName: meta.name,
+        fileSize: meta.size,
+        fileType: meta.type,
+      }
     );
   }
 
@@ -94,11 +110,7 @@ export async function parseStatementFile(
   } catch (e) {
     // Fallback de IA: documento não reconhecido pelos parsers fixos. Se a IA
     // estiver configurada, tenta extrair os dados dela a partir do texto.
-    if (
-      e instanceof PdfImportError &&
-      e.reason === "NO_LAYOUT" &&
-      e.diagnostics?.fullText
-    ) {
+    if (e instanceof PdfImportError && e.reason === "NO_LAYOUT" && e.diagnostics?.fullText) {
       try {
         const ai = await aiExtractStatement(e.diagnostics.fullText);
         return { ...ai, diagnostics: { ...e.diagnostics, layout: "ai" } };

@@ -20,12 +20,8 @@ export function LinkUserPicker({
       <Select
         defaultValue={currentUserId ?? ""}
         disabled={pending}
-        onChange={(e) =>
-          start(() =>
-            linkPersonToUser(personId, e.target.value || null)
-          )
-        }
-        className="h-9 text-sm w-full sm:w-[260px]"
+        onChange={(e) => start(() => void linkPersonToUser(personId, e.target.value || null))}
+        className="h-9 w-full text-sm sm:w-[260px]"
       >
         <option value="">— sem usuário vinculado</option>
         {users.map((u) => (
@@ -39,14 +35,14 @@ export function LinkUserPicker({
           variant="outline"
           size="sm"
           disabled={pending}
-          onClick={() => start(() => linkPersonToUser(personId, null))}
+          onClick={() => start(() => void linkPersonToUser(personId, null))}
           title="Desvincular"
         >
           <Unlink className="h-3.5 w-3.5" />
         </Button>
       )}
       {!currentUserId && (
-        <span className="text-xs text-muted-foreground inline-flex items-center gap-1">
+        <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
           <LinkIcon className="h-3 w-3" /> nenhum usuário
         </span>
       )}

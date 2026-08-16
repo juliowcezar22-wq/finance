@@ -1,14 +1,21 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { getAISettings, isConfigured, chatComplete, resilientFetch, type AISettings } from "@/lib/ai/provider";
+import {
+  getAISettings,
+  isConfigured,
+  chatComplete,
+  resilientFetch,
+  type AISettings,
+} from "@/lib/ai/provider";
 import { assertUnderDailyCap, recordUsage } from "@/lib/ai/usage";
 import { buildFinancialSnapshot, snapshotToText, loadMemoryText } from "@/lib/ai/context";
 import { splitReais, toNum } from "@/lib/services/money";
+import { errorMessage } from "@/lib/utils";
 
 export type AgentResult = {
   reply: string;
   action: string;
-  created?: any;
+  created?: Record<string, string> | null;
   error?: string;
 };
 
@@ -67,7 +74,8 @@ ${snapshot}${memory ? "\n\n===== MEMÓRIA =====\n" + memory : ""}`;
       raw = await visionComplete(
         ai,
         system,
-        input.text || "Analise a imagem (comprovante/nota fiscal) e registre a despesa correspondente.",
+        input.text ||
+          "Analise a imagem (comprovante/nota fiscal) e registre a despesa correspondente.",
         input.imageUrl
       );
     } else {
@@ -79,11 +87,11 @@ ${snapshot}${memory ? "\n\n===== MEMÓRIA =====\n" + memory : ""}`;
       });
       raw = r.text;
     }
-  } catch (e: any) {
+  } catch (e: unknown) {
     return {
-      reply: "Tive um problema ao processar com a IA: " + (e?.message ?? e),
+      reply: "Tive um problema ao processar com a IA: " + errorMessage(e),
       action: "error",
-      error: String(e?.message ?? e),
+      error: errorMessage(e),
     };
   }
 
@@ -102,7 +110,7 @@ ${snapshot}${memory ? "\n\n===== MEMÓRIA =====\n" + memory : ""}`;
     switch (parsed.action) {
       case "add_expense": {
         const amount = num(f.amount);
-        const installments = Math.max(1, Math.min(60, parseInt(f.installments) || 1));
+        const installments = Math.max(1, Math.min(60, parseInt(f.installments ?? "1") || 1));
         const due = f.dueDate ? parseDate(f.dueDate) : null;
         const tx = await prisma.transaction.create({
           data: {
@@ -110,7 +118,10 @@ ${snapshot}${memory ? "\n\n===== MEMÓRIA =====\n" + memory : ""}`;
             description: String(f.description || "Despesa"),
             amount,
             type: "despesa",
-            origin: ["debito", "pix", "dinheiro", "boleto"].includes(f.origin) ? f.origin : "debito",
+            origin:
+              f.origin && ["debito", "pix", "dinheiro", "boleto"].includes(f.origin)
+                ? f.origin
+                : "debito",
             cardId: null,
             status: f.status === "pago" ? "pago" : "pendente",
             belongsTo: "pessoal",
@@ -184,7 +195,10 @@ ${snapshot}${memory ? "\n\n===== MEMÓRIA =====\n" + memory : ""}`;
         }
         const amount = num(f.amount);
         const type = f.type === "OUT" ? "OUT" : "IN";
-        const cur = (await prisma.cashBox.findUnique({ where: { id: box.id } }))!.currentAmount;
+        // Increment atômico (sem read-modify-write): movimentos concorrentes
+        // no mesmo caixa não se perdem; e sem non-null assertion (caixa pode
+        // ter sumido entre o findBox e aqui).
+        const delta = type === "IN" ? amount : -amount;
         await prisma.$transaction([
           prisma.cashBoxMovement.create({
             data: {
@@ -197,7 +211,7 @@ ${snapshot}${memory ? "\n\n===== MEMÓRIA =====\n" + memory : ""}`;
           }),
           prisma.cashBox.update({
             where: { id: box.id },
-            data: { currentAmount: toNum(cur) + (type === "IN" ? amount : -amount) },
+            data: { currentAmount: { increment: delta } },
           }),
         ]);
         revalidateAll();
@@ -207,11 +221,11 @@ ${snapshot}${memory ? "\n\n===== MEMÓRIA =====\n" + memory : ""}`;
       default:
         return { reply, action: parsed.action };
     }
-  } catch (e: any) {
+  } catch (e: unknown) {
     return {
-      reply: "Entendi o pedido, mas houve um erro ao registrar: " + (e?.message ?? e),
+      reply: "Entendi o pedido, mas houve um erro ao registrar: " + errorMessage(e),
       action: parsed.action,
-      error: String(e?.message ?? e),
+      error: errorMessage(e),
     };
   }
 }
@@ -228,13 +242,17 @@ function revalidateAll() {
   }
 }
 
-function num(v: any): number {
+function num(v: unknown): number {
   if (typeof v === "number") return v;
-  const n = Number(String(v ?? "0").replace(/\./g, "").replace(",", "."));
+  const n = Number(
+    String(v ?? "0")
+      .replace(/\./g, "")
+      .replace(",", ".")
+  );
   return Number.isFinite(n) ? n : Number(String(v ?? "0").replace(",", ".")) || 0;
 }
 
-function parseDate(v: any): Date {
+function parseDate(v: unknown): Date {
   if (v && /^\d{4}-\d{2}-\d{2}$/.test(String(v))) {
     const [y, m, d] = String(v).split("-").map(Number);
     return new Date(y, m - 1, d);
@@ -254,9 +272,39 @@ function nameMatcher<T extends { id: string; name: string }>(list: T[]) {
   };
 }
 
-function parseJson(raw: string): any | null {
+// Shape frouxo do JSON do LLM (borda validada defensivamente em parseJson/num/parseDate).
+type AgentFields = {
+  description?: string;
+  amount?: unknown;
+  date?: string;
+  origin?: string;
+  status?: string;
+  dueDate?: string;
+  installments?: string;
+  personName?: string;
+  categoryName?: string;
+  receivedAt?: string;
+  sourceType?: string;
+  incomeType?: string;
+  name?: string;
+  currentAmount?: unknown;
+  type?: string;
+  cashboxName?: string;
+};
+
+type AgentPlan = {
+  action?: string;
+  fields?: AgentFields;
+  reply?: string;
+};
+
+function parseJson(raw: string): AgentPlan | null {
   if (!raw) return null;
-  let t = raw.trim().replace(/^```(json)?/i, "").replace(/```$/, "").trim();
+  const t = raw
+    .trim()
+    .replace(/^```(json)?/i, "")
+    .replace(/```$/, "")
+    .trim();
   const start = t.indexOf("{");
   const end = t.lastIndexOf("}");
   if (start === -1 || end === -1) return null;
@@ -275,7 +323,9 @@ async function visionComplete(
   imageUrl: string
 ): Promise<string> {
   const base =
-    s.provider === "custom" && s.baseUrl ? s.baseUrl.replace(/\/$/, "") : "https://api.openai.com/v1";
+    s.provider === "custom" && s.baseUrl
+      ? s.baseUrl.replace(/\/$/, "")
+      : "https://api.openai.com/v1";
   // Teto de custo antes de contatar o provedor (0 custo ao exceder).
   await assertUnderDailyCap();
   const res = await resilientFetch(`${base}/chat/completions`, {
@@ -302,7 +352,10 @@ async function visionComplete(
     console.error(`[ai] visão erro ${res.status}: ${t.slice(0, 500)}`);
     throw new Error("Não consegui analisar a imagem agora. Tente novamente mais tarde.");
   }
-  const data: any = await res.json();
+  const data = (await res.json()) as {
+    choices?: Array<{ message?: { content?: string } }>;
+    usage?: { prompt_tokens?: number; completion_tokens?: number };
+  };
   await recordUsage({
     promptTokens: data?.usage?.prompt_tokens ?? 0,
     completionTokens: data?.usage?.completion_tokens ?? 0,

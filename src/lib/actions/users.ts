@@ -4,35 +4,20 @@ import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth/viewer";
+import { type ActionResult, ok, err } from "@/lib/types/action";
+import {
+  deactivateGuarded,
+  txSerializable,
+  assertOtherActiveAdmin,
+  LAST_ADMIN_ERROR,
+} from "@/lib/auth/deactivate-user";
 
-/**
- * Roda `fn` numa transação SERIALIZABLE com retry. Usada nas mutações que podem
- * reduzir o número de administradores ativos: o SERIALIZABLE detecta o conflito
- * de duas desativações concorrentes de admins DIFERENTES (que sob READ COMMITTED
- * ambas passariam, zerando os admins) e aborta uma; o retry reavalia já com a
- * mudança visível e rejeita corretamente.
- */
-async function txSerializable<T>(fn: (tx: any) => Promise<T>): Promise<T> {
-  for (let attempt = 0; ; attempt++) {
-    try {
-      return await prisma.$transaction(fn, { isolationLevel: "Serializable" });
-    } catch (e: any) {
-      // P2034: falha de serialização / conflito de escrita / deadlock.
-      if (e?.code === "P2034" && attempt < 2) continue;
-      throw e;
-    }
-  }
-}
-
-const LAST_ADMIN_ERROR =
-  "Não é possível remover o último administrador ativo (desativar ou rebaixar de ADMIN).";
-
-/** Lança se `id` é o único admin ativo (dentro da transação `tx`). */
-async function assertOtherActiveAdmin(tx: any, id: string) {
-  const others = await tx.user.count({
-    where: { role: "ADMIN", active: true, id: { not: id } },
-  });
-  if (others < 1) throw new Error(LAST_ADMIN_ERROR);
+// Mensagens de erro que PODEM ir ao cliente; o resto vira genérica (não vazar
+// detalhes internos de exceção).
+const SAFE_ERRORS = new Set([LAST_ADMIN_ERROR, "Usuário não encontrado."]);
+function safeErr(e: unknown): ActionResult {
+  const msg = e instanceof Error ? e.message : "";
+  return err(SAFE_ERRORS.has(msg) ? msg : "Não foi possível concluir a operação.");
 }
 
 const CreateSchema = z.object({
@@ -54,127 +39,134 @@ const UpdateSchema = z.object({
   personId: z.string().nullable().optional(),
 });
 
-export async function createUser(formData: FormData) {
+export async function createUser(formData: FormData): Promise<ActionResult> {
   await requireAdmin();
-  const parsed = CreateSchema.parse({
+  const parsed = CreateSchema.safeParse({
     name: String(formData.get("name") || ""),
-    email: String(formData.get("email") || "").trim().toLowerCase(),
+    email: String(formData.get("email") || "")
+      .trim()
+      .toLowerCase(),
     password: String(formData.get("password") || ""),
     role: String(formData.get("role") || "USER"),
     active: formData.get("active") !== "false",
     personId: (formData.get("personId") as string) || null,
   });
+  if (!parsed.success) return err(parsed.error.issues[0]?.message ?? "Dados inválidos");
 
-  const exists = await prisma.user.findUnique({ where: { email: parsed.email } });
-  if (exists) throw new Error("Já existe um usuário com este e-mail.");
+  const exists = await prisma.user.findUnique({
+    where: { email: parsed.data.email },
+  });
+  if (exists) return err("Já existe um usuário com este e-mail.");
 
-  const passwordHash = await bcrypt.hash(parsed.password, 10);
+  const passwordHash = await bcrypt.hash(parsed.data.password, 10);
 
   const user = await prisma.user.create({
     data: {
-      name: parsed.name,
-      email: parsed.email,
+      name: parsed.data.name,
+      email: parsed.data.email,
       passwordHash,
-      role: parsed.role,
-      active: parsed.active,
+      role: parsed.data.role,
+      active: parsed.data.active,
     },
   });
 
-  if (parsed.personId) {
+  if (parsed.data.personId) {
     // Garante 1:1 — desfaz vínculo anterior dessa Person
     await prisma.person.update({
-      where: { id: parsed.personId },
+      where: { id: parsed.data.personId },
       data: { userId: user.id },
     });
   }
 
   revalidatePath("/usuarios");
   revalidatePath("/pessoas");
+  return ok();
 }
 
-export async function updateUser(formData: FormData) {
+export async function updateUser(formData: FormData): Promise<ActionResult> {
   await requireAdmin();
-  const parsed = UpdateSchema.parse({
+  const parsed = UpdateSchema.safeParse({
     id: String(formData.get("id") || ""),
     name: String(formData.get("name") || ""),
-    email: String(formData.get("email") || "").trim().toLowerCase(),
+    email: String(formData.get("email") || "")
+      .trim()
+      .toLowerCase(),
     password: (formData.get("password") as string) || null,
     role: String(formData.get("role") || "USER"),
     active: formData.get("active") !== "false",
     personId: (formData.get("personId") as string) || null,
   });
+  if (!parsed.success) return err(parsed.error.issues[0]?.message ?? "Dados inválidos");
 
-  const newHash = parsed.password ? await bcrypt.hash(parsed.password, 10) : null;
+  const newHash = parsed.data.password ? await bcrypt.hash(parsed.data.password, 10) : null;
 
   // Guarda de "último admin ativo" (FR-008), cobrindo a via de edição
   // (papel/status), não só desativar/excluir. Se a mudança remove a condição
   // de admin ativo do alvo, exige que exista outro admin ativo — checado e
-  // aplicado sob SERIALIZABLE (race-safe).
-  const removesAdmin = !parsed.active || parsed.role !== "ADMIN";
-  await txSerializable(async (tx) => {
-    if (removesAdmin) {
-      const target = await tx.user.findUnique({
-        where: { id: parsed.id },
-        select: { role: true, active: true },
+  // aplicado sob SERIALIZABLE (race-safe). O throw interno permanece (aborta
+  // a transação); aqui vira err(...).
+  const removesAdmin = !parsed.data.active || parsed.data.role !== "ADMIN";
+  try {
+    await txSerializable(async (tx) => {
+      if (removesAdmin) {
+        const target = await tx.user.findUnique({
+          where: { id: parsed.data.id },
+          select: { role: true, active: true },
+        });
+        if (target?.role === "ADMIN" && target.active)
+          await assertOtherActiveAdmin(tx, parsed.data.id);
+      }
+      await tx.user.update({
+        where: { id: parsed.data.id },
+        data: {
+          name: parsed.data.name,
+          email: parsed.data.email,
+          role: parsed.data.role,
+          active: parsed.data.active,
+          ...(newHash ? { passwordHash: newHash } : {}),
+        },
       });
-      if (target?.role === "ADMIN" && target.active) await assertOtherActiveAdmin(tx, parsed.id);
-    }
-    await tx.user.update({
-      where: { id: parsed.id },
-      data: {
-        name: parsed.name,
-        email: parsed.email,
-        role: parsed.role,
-        active: parsed.active,
-        ...(newHash ? { passwordHash: newHash } : {}),
-      },
     });
-  });
+  } catch (e) {
+    return safeErr(e);
+  }
 
   // Sincroniza vínculo com Person:
   // 1. desvincula qualquer Person que apontava para esse user mas não é a selecionada
   await prisma.person.updateMany({
-    where: { userId: parsed.id, NOT: parsed.personId ? { id: parsed.personId } : undefined },
+    where: {
+      userId: parsed.data.id,
+      NOT: parsed.data.personId ? { id: parsed.data.personId } : undefined,
+    },
     data: { userId: null },
   });
   // 2. vincula a Person selecionada
-  if (parsed.personId) {
+  if (parsed.data.personId) {
     await prisma.person.update({
-      where: { id: parsed.personId },
-      data: { userId: parsed.id },
+      where: { id: parsed.data.personId },
+      data: { userId: parsed.data.id },
     });
   }
 
   revalidatePath("/usuarios");
   revalidatePath("/pessoas");
-}
-
-/**
- * Desativa um usuário sem deixar o sistema sem admin ativo (FR-008): checa e
- * escreve sob SERIALIZABLE (com retry), fechando a corrida de desativações
- * concorrentes de admins diferentes.
- */
-export async function deactivateGuarded(id: string) {
-  await txSerializable(async (tx) => {
-    const target = await tx.user.findUnique({
-      where: { id },
-      select: { role: true, active: true },
-    });
-    if (!target) throw new Error("Usuário não encontrado.");
-    if (target.role === "ADMIN" && target.active) await assertOtherActiveAdmin(tx, id);
-    await tx.user.update({ where: { id }, data: { active: false } });
-  });
+  return ok();
 }
 
 /** Aprova (ativa) ou suspende (desativa) uma conta. Usado no botão rápido de /usuarios. */
-export async function setUserActive(id: string, active: boolean) {
+export async function setUserActive(id: string, active: boolean): Promise<ActionResult> {
   await requireAdmin();
   if (active) {
     await prisma.user.update({ where: { id }, data: { active: true } });
   } else {
-    await deactivateGuarded(id);
+    try {
+      await deactivateGuarded(id);
+    } catch (e) {
+      return err(e instanceof Error ? e.message : "Erro inesperado.");
+    }
   }
   revalidatePath("/usuarios");
+  return ok();
 }
 
 /**
@@ -184,14 +176,22 @@ export async function setUserActive(id: string, active: boolean) {
  * derruba a sessão (getUserFromToken rejeita usuário inativo) e preserva os
  * dados; a exclusão dura exigiria remover/reatribuir os dados antes.
  */
-export async function deleteUser(id: string) {
+export async function deleteUser(id: string): Promise<ActionResult> {
   await requireAdmin();
-  await deactivateGuarded(id);
+  try {
+    await deactivateGuarded(id);
+  } catch (e) {
+    return safeErr(e);
+  }
   revalidatePath("/usuarios");
   revalidatePath("/pessoas");
+  return ok();
 }
 
-export async function linkPersonToUser(personId: string, userId: string | null) {
+export async function linkPersonToUser(
+  personId: string,
+  userId: string | null
+): Promise<ActionResult> {
   await requireAdmin();
   if (userId) {
     // Desfaz vínculo anterior do mesmo user a outra pessoa
@@ -207,4 +207,5 @@ export async function linkPersonToUser(personId: string, userId: string | null) 
   revalidatePath("/pessoas");
   revalidatePath(`/pessoas/${personId}`);
   revalidatePath("/usuarios");
+  return ok();
 }

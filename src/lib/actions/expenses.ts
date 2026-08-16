@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { parseBRL, parseDateBR } from "@/lib/format";
 import { splitReais } from "@/lib/services/money";
+import { type ActionResult, ok, err } from "@/lib/types/action";
 
 const ORIGINS = ["debito", "pix", "dinheiro", "boleto"] as const;
 const STATUS = ["pendente", "pago", "cancelado"] as const;
@@ -52,13 +53,13 @@ async function rebuildInstallments(
   await prisma.installment.createMany({ data: rows });
 }
 
-export async function saveExpense(formData: FormData) {
+export async function saveExpense(formData: FormData): Promise<ActionResult> {
   await getViewer();
   const date = parseDateBR(String(formData.get("date") || "")) ?? new Date();
   const dueRaw = String(formData.get("dueDate") || "");
   const dueDate = dueRaw ? parseDateBR(dueRaw) : null;
 
-  const parsed = Schema.parse({
+  const parsed = Schema.safeParse({
     id: formData.get("id") || undefined,
     description: String(formData.get("description") || ""),
     amount: parseBRL(String(formData.get("amount") || "0")),
@@ -72,59 +73,62 @@ export async function saveExpense(formData: FormData) {
     accountId: (formData.get("accountId") as string) || null,
     notes: (formData.get("notes") as string) || null,
   });
+  if (!parsed.success) return err(parsed.error.issues[0]?.message ?? "Dados inválidos");
+  const input = parsed.data;
 
   const data = {
-    date: parsed.date,
-    description: parsed.description,
-    amount: parsed.amount,
+    date: input.date,
+    description: input.description,
+    amount: input.amount,
     type: "despesa",
-    origin: parsed.origin,
+    origin: input.origin,
     cardId: null, // despesa manual: nunca cartão de crédito
-    accountId: parsed.accountId || null,
-    categoryId: parsed.categoryId || null,
-    responsibleId: parsed.responsibleId || null,
+    accountId: input.accountId || null,
+    categoryId: input.categoryId || null,
+    responsibleId: input.responsibleId || null,
     belongsTo: "pessoal",
-    status: parsed.status,
-    dueDate: parsed.dueDate ?? null,
-    notes: parsed.notes,
+    status: input.status,
+    dueDate: input.dueDate ?? null,
+    notes: input.notes,
     hash: null,
   };
 
   let txId: string;
-  if (parsed.id) {
-    const tx = await prisma.transaction.update({ where: { id: parsed.id }, data });
+  if (input.id) {
+    const tx = await prisma.transaction.update({ where: { id: input.id }, data });
     txId = tx.id;
   } else {
     const tx = await prisma.transaction.create({ data });
     txId = tx.id;
   }
 
-  await rebuildInstallments(
-    txId,
-    parsed.amount,
-    parsed.installments,
-    parsed.dueDate ?? parsed.date
-  );
+  await rebuildInstallments(txId, input.amount, input.installments, input.dueDate ?? input.date);
 
   revalidatePath("/despesas");
   revalidatePath("/dashboard");
   revalidatePath("/transacoes");
-  if (parsed.responsibleId) revalidatePath(`/pessoas/${parsed.responsibleId}`);
+  if (input.responsibleId) revalidatePath(`/pessoas/${input.responsibleId}`);
   revalidatePath("/pessoas");
+  return ok();
 }
 
-export async function deleteExpense(id: string) {
+export async function deleteExpense(id: string): Promise<ActionResult> {
   await getViewer();
   await prisma.transaction.delete({ where: { id } });
   revalidatePath("/despesas");
   revalidatePath("/dashboard");
   revalidatePath("/transacoes");
   revalidatePath("/pessoas");
+  return ok();
 }
 
-export async function setExpenseStatus(id: string, status: (typeof STATUS)[number]) {
+export async function setExpenseStatus(
+  id: string,
+  status: (typeof STATUS)[number]
+): Promise<ActionResult> {
   await getViewer();
   await prisma.transaction.update({ where: { id }, data: { status } });
   revalidatePath("/despesas");
   revalidatePath("/dashboard");
+  return ok();
 }

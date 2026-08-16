@@ -22,7 +22,7 @@ export function CategoryDialog({ initial, trigger }: { initial?: any; trigger?: 
       <DialogTrigger asChild>
         {trigger ?? (
           <Button>
-            <Plus className="h-4 w-4 mr-1" /> Nova categoria
+            <Plus className="mr-1 h-4 w-4" /> Nova categoria
           </Button>
         )}
       </DialogTrigger>

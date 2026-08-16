@@ -66,7 +66,7 @@ export default async function PessoasPage() {
         actions={<PersonDialog />}
       />
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard title="Pessoas" value={String(rows.length)} />
         <StatCard title="Total gasto" value={formatBRL(totalGasto)} intent="negative" />
         <StatCard title="Devendo a você" value={formatBRL(totalDevendo)} intent="warning" />

@@ -26,12 +26,19 @@ export function CashBoxDialog({
   trigger?: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        setError(null);
+      }}
+    >
       <DialogTrigger asChild>
         {trigger ?? (
           <Button>
-            <Plus className="h-4 w-4 mr-1" /> Nova reserva
+            <Plus className="mr-1 h-4 w-4" /> Nova reserva
           </Button>
         )}
       </DialogTrigger>
@@ -41,7 +48,12 @@ export function CashBoxDialog({
         </DialogHeader>
         <form
           action={async (fd) => {
-            await saveCashBox(fd);
+            const res = await saveCashBox(fd);
+            if (!res.ok) {
+              setError(res.error);
+              return;
+            }
+            setError(null);
             setOpen(false);
           }}
           className="space-y-3"
@@ -51,7 +63,7 @@ export function CashBoxDialog({
             <Label>Nome</Label>
             <Input name="name" defaultValue={initial?.name ?? ""} required />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <Label>Valor atual</Label>
               <Input
@@ -75,7 +87,7 @@ export function CashBoxDialog({
               <option value="PERSONAL">Caixa pessoal</option>
               <option value="EMERGENCY">Reserva de emergência</option>
               <option value="INVESTMENT">Investimento</option>
-              <option value="COMPANY">Empresa</option>              <option value="OTHER">Outro</option>
+              <option value="COMPANY">Empresa</option> <option value="OTHER">Outro</option>
             </Select>
           </div>
           <div>
@@ -93,6 +105,11 @@ export function CashBoxDialog({
             <Label>Observações</Label>
             <Textarea name="notes" defaultValue={initial?.notes ?? ""} />
           </div>
+          {error && (
+            <p role="alert" className="text-sm font-medium text-red-600 dark:text-red-400">
+              {error}
+            </p>
+          )}
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancelar

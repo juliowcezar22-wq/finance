@@ -35,9 +35,7 @@ function post(headers: Record<string, string>, body: any): any {
 }
 
 async function countByMsgId(id: string): Promise<number> {
-  return runWithoutScope(() =>
-    prisma.whatsAppMessage.count({ where: { providerMessageId: id } })
-  );
+  return runWithoutScope(() => prisma.whatsAppMessage.count({ where: { providerMessageId: id } }));
 }
 
 beforeEach(() => {
@@ -57,20 +55,26 @@ afterAll(async () => {
 describe("Autenticação do webhook", () => {
   it("501 quando Client-Token não está configurado (fail-closed)", async () => {
     mockSettings = { enabled: true, clientToken: null };
-    const res = await POST(post({}, { phone: TEST_PHONE, messageId: `${MSG_PREFIX}a`, text: { message: "oi" } }));
+    const res = await POST(
+      post({}, { phone: TEST_PHONE, messageId: `${MSG_PREFIX}a`, text: { message: "oi" } })
+    );
     expect(res.status).toBe(501);
     expect(await countByMsgId(`${MSG_PREFIX}a`)).toBe(0);
   });
 
   it("501 quando não há settings", async () => {
     mockSettings = null;
-    const res = await POST(post({ "client-token": TOKEN }, { phone: TEST_PHONE, messageId: `${MSG_PREFIX}b` }));
+    const res = await POST(
+      post({ "client-token": TOKEN }, { phone: TEST_PHONE, messageId: `${MSG_PREFIX}b` })
+    );
     expect(res.status).toBe(501);
   });
 
   it("401 sem header client-token — nada é gravado nem processado", async () => {
     mockSettings = { enabled: true, clientToken: TOKEN };
-    const res = await POST(post({}, { phone: TEST_PHONE, messageId: `${MSG_PREFIX}c`, text: { message: "oi" } }));
+    const res = await POST(
+      post({}, { phone: TEST_PHONE, messageId: `${MSG_PREFIX}c`, text: { message: "oi" } })
+    );
     expect(res.status).toBe(401);
     expect(await countByMsgId(`${MSG_PREFIX}c`)).toBe(0);
   });
@@ -78,7 +82,10 @@ describe("Autenticação do webhook", () => {
   it("401 com client-token errado", async () => {
     mockSettings = { enabled: true, clientToken: TOKEN };
     const res = await POST(
-      post({ "client-token": "errado" }, { phone: TEST_PHONE, messageId: `${MSG_PREFIX}d`, text: { message: "oi" } })
+      post(
+        { "client-token": "errado" },
+        { phone: TEST_PHONE, messageId: `${MSG_PREFIX}d`, text: { message: "oi" } }
+      )
     );
     expect(res.status).toBe(401);
     expect(await countByMsgId(`${MSG_PREFIX}d`)).toBe(0);
@@ -87,7 +94,10 @@ describe("Autenticação do webhook", () => {
   it("ignora quando desabilitado (após auth ok)", async () => {
     mockSettings = { enabled: false, clientToken: TOKEN };
     const res = await POST(
-      post({ "client-token": TOKEN }, { phone: TEST_PHONE, messageId: `${MSG_PREFIX}e`, text: { message: "oi" } })
+      post(
+        { "client-token": TOKEN },
+        { phone: TEST_PHONE, messageId: `${MSG_PREFIX}e`, text: { message: "oi" } }
+      )
     );
     expect(res.status).toBe(200);
     expect((await res.json()).ignored).toBe("disabled");
@@ -98,7 +108,9 @@ describe("Mensagem sem id do provedor", () => {
   it("ignora entrada sem providerMessageId (não dá para deduplicar → não processa)", async () => {
     mockSettings = { enabled: true, clientToken: TOKEN, myNumber: TEST_PHONE };
     // payload Z-API sem messageId/id
-    const res = await POST(post({ "client-token": TOKEN }, { phone: TEST_PHONE, text: { message: "oi" } }));
+    const res = await POST(
+      post({ "client-token": TOKEN }, { phone: TEST_PHONE, text: { message: "oi" } })
+    );
     expect(res.status).toBe(200);
     expect((await res.json()).ignored).toBe("no_message_id");
   });

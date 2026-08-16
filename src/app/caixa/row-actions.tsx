@@ -5,13 +5,7 @@ import { Pencil, Trash2 } from "lucide-react";
 import { deleteCashBox, deleteCashMovement } from "@/lib/actions/cashboxes";
 import { useTransition } from "react";
 
-export function CashBoxActions({
-  box,
-  accounts,
-}: {
-  box: any;
-  accounts: any[];
-}) {
+export function CashBoxActions({ box, accounts }: { box: any; accounts: any[] }) {
   const [pending, start] = useTransition();
   return (
     <div className="flex gap-1">
@@ -30,7 +24,7 @@ export function CashBoxActions({
         disabled={pending}
         onClick={() => {
           if (!confirm("Excluir este caixa? As movimentações serão perdidas.")) return;
-          start(() => deleteCashBox(box.id));
+          start(() => void deleteCashBox(box.id));
         }}
       >
         <Trash2 className="h-4 w-4 text-destructive" />
@@ -48,7 +42,7 @@ export function MovementDeleteButton({ id }: { id: string }) {
       disabled={pending}
       onClick={() => {
         if (!confirm("Excluir movimentação?")) return;
-        start(() => deleteCashMovement(id));
+        start(() => void deleteCashMovement(id));
       }}
     >
       <Trash2 className="h-4 w-4 text-destructive" />

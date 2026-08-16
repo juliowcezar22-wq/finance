@@ -87,7 +87,7 @@ export async function buildFinancialSnapshot(ref = new Date()) {
 
   const topCategorias = catRows
     .map((r) => ({
-      categoria: r.categoryId ? catName.get(r.categoryId) ?? "—" : "Sem categoria",
+      categoria: r.categoryId ? (catName.get(r.categoryId) ?? "—") : "Sem categoria",
       total: toNum(r._sum.amount),
       qtde: r._count._all,
     }))
@@ -97,7 +97,12 @@ export async function buildFinancialSnapshot(ref = new Date()) {
   const porPertence: Record<string, number> = {};
   for (const b of TYPE_BELONG) {
     const r = await prisma.transaction.aggregate({
-      where: { belongsTo: b, type: "despesa", status: { not: "cancelado" }, date: { gte: start, lt: end } },
+      where: {
+        belongsTo: b,
+        type: "despesa",
+        status: { not: "cancelado" },
+        date: { gte: start, lt: end },
+      },
       _sum: { amount: true },
     });
     porPertence[b] = toNum(r._sum.amount);
@@ -137,7 +142,10 @@ export async function buildFinancialSnapshot(ref = new Date()) {
       tipo: g.type,
       alvo: g.targetAmount,
       atual: g.currentAmount,
-      pct: toNum(g.targetAmount) > 0 ? Math.round((toNum(g.currentAmount) / toNum(g.targetAmount)) * 100) : 0,
+      pct:
+        toNum(g.targetAmount) > 0
+          ? Math.round((toNum(g.currentAmount) / toNum(g.targetAmount)) * 100)
+          : 0,
       prazo: g.deadline ? formatDateBR(g.deadline) : null,
     })),
     transacoesRecentes: recentes.map((t) => ({
@@ -175,7 +183,9 @@ export function snapshotToText(s: FinancialSnapshot): string {
   if (s.gastosPorCategoria.length) {
     lines.push(
       "GASTOS POR CATEGORIA (mês): " +
-        s.gastosPorCategoria.map((c) => `${c.categoria} ${formatBRL(c.total)} (${c.qtde}x)`).join("; ") +
+        s.gastosPorCategoria
+          .map((c) => `${c.categoria} ${formatBRL(c.total)} (${c.qtde}x)`)
+          .join("; ") +
         "."
     );
   }
@@ -190,18 +200,30 @@ export function snapshotToText(s: FinancialSnapshot): string {
     lines.push(
       "FATURAS ABERTAS: " +
         s.faturas
-          .map((f) => `${f.conta} ${f.referencia} vence ${f.vencimento} em aberto ${formatBRL(f.emAberto)} (${f.status})`)
+          .map(
+            (f) =>
+              `${f.conta} ${f.referencia} vence ${f.vencimento} em aberto ${formatBRL(f.emAberto)} (${f.status})`
+          )
           .join("; ") +
         "."
     );
   }
   if (s.quemMeDeve.length) {
-    lines.push("QUEM ME DEVE: " + s.quemMeDeve.map((d) => `${d.pessoa} ${formatBRL(d.total)}`).join("; ") + ".");
+    lines.push(
+      "QUEM ME DEVE: " +
+        s.quemMeDeve.map((d) => `${d.pessoa} ${formatBRL(d.total)}`).join("; ") +
+        "."
+    );
   }
   if (s.metas.length) {
     lines.push(
       "METAS: " +
-        s.metas.map((m) => `${m.nome} (${m.tipo}) ${m.pct}% — ${formatBRL(m.atual)}/${formatBRL(m.alvo)}${m.prazo ? ` até ${m.prazo}` : ""}`).join("; ") +
+        s.metas
+          .map(
+            (m) =>
+              `${m.nome} (${m.tipo}) ${m.pct}% — ${formatBRL(m.atual)}/${formatBRL(m.alvo)}${m.prazo ? ` até ${m.prazo}` : ""}`
+          )
+          .join("; ") +
         "."
     );
   }
@@ -209,12 +231,17 @@ export function snapshotToText(s: FinancialSnapshot): string {
     lines.push(
       "TRANSAÇÕES RECENTES: " +
         s.transacoesRecentes
-          .map((t) => `${t.data} ${t.descricao} ${formatBRL(t.valor)}${t.categoria ? ` [${t.categoria}]` : ""}${t.responsavel ? ` (${t.responsavel})` : ""}`)
+          .map(
+            (t) =>
+              `${t.data} ${t.descricao} ${formatBRL(t.valor)}${t.categoria ? ` [${t.categoria}]` : ""}${t.responsavel ? ` (${t.responsavel})` : ""}`
+          )
           .join("; ") +
         "."
     );
   }
-  lines.push(`CONTAGENS: ${s.contagens.pessoas} pessoas, ${s.contagens.contasBancarias} contas bancárias.`);
+  lines.push(
+    `CONTAGENS: ${s.contagens.pessoas} pessoas, ${s.contagens.contasBancarias} contas bancárias.`
+  );
   return lines.join("\n");
 }
 

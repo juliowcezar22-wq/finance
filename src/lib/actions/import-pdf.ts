@@ -93,9 +93,7 @@ function referenceFromParsed(
   if (parsed.dueDate) return referenceFromDate(parsed.dueDate);
   if (parsed.closingDate) return referenceFromDate(parsed.closingDate);
   if (card && parsed.transactions.length > 0) {
-    const latest = new Date(
-      Math.max(...parsed.transactions.map((t) => t.date.getTime()))
-    );
+    const latest = new Date(Math.max(...parsed.transactions.map((t) => t.date.getTime())));
     return invoiceReferenceFor(latest, card.closingDay);
   }
   return null;
@@ -175,10 +173,10 @@ export async function previewPdfImport(formData: FormData): Promise<PdfPreviewRe
       hash: card ? a.hash : "",
       duplicate: card ? a.duplicate : false,
       suggestedCategoryName: a.categoryId
-        ? analysis.categoryNameById.get(a.categoryId) ?? null
+        ? (analysis.categoryNameById.get(a.categoryId) ?? null)
         : null,
       suggestedResponsibleName: a.responsibleId
-        ? analysis.personNameById.get(a.responsibleId) ?? null
+        ? (analysis.personNameById.get(a.responsibleId) ?? null)
         : null,
       historyMatched: a.historyMatched,
     };
@@ -236,10 +234,7 @@ export async function commitPdfImport(formData: FormData): Promise<PdfCommitResu
   } catch (e: any) {
     return {
       ok: false,
-      error:
-        e instanceof PdfImportError
-          ? e.message
-          : e?.message ?? "Erro ao processar PDF.",
+      error: e instanceof PdfImportError ? e.message : (e?.message ?? "Erro ao processar PDF."),
     };
   }
 

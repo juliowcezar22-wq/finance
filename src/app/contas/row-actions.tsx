@@ -23,7 +23,7 @@ export function AccountRowActions({ account }: { account: any }) {
         title="Excluir"
         disabled={pending}
         onClick={() => {
-          if (confirm("Excluir esta conta?")) start(() => deleteAccount(account.id));
+          if (confirm("Excluir esta conta?")) start(() => void deleteAccount(account.id));
         }}
       >
         <Trash2 className="h-4 w-4 text-nummiq-danger" />

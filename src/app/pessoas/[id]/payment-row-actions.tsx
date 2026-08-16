@@ -13,7 +13,7 @@ export function PaymentDeleteButton({ id }: { id: string }) {
       disabled={pending}
       onClick={() => {
         if (!confirm("Excluir este pagamento?")) return;
-        start(() => deletePersonPayment(id));
+        start(() => void deletePersonPayment(id));
       }}
     >
       <Trash2 className="h-4 w-4 text-destructive" />

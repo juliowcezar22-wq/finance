@@ -3,10 +3,18 @@ import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
+// Sem senha default embutida (constituição, princípio IV): o seed exige
+// ADMIN_PASSWORD explícita (≥ 8 chars) — nunca cria credencial previsível.
+if (!process.env.ADMIN_PASSWORD || process.env.ADMIN_PASSWORD.length < 8) {
+  throw new Error(
+    "Seed requer ADMIN_PASSWORD (mínimo 8 caracteres) definida no ambiente — sem senha padrão."
+  );
+}
+
 const ADMIN = {
-  name: process.env.ADMIN_NAME ?? "Admin Bugia's Money",
-  email: process.env.ADMIN_EMAIL ?? "admin@bugiasmoney.local",
-  password: process.env.ADMIN_PASSWORD ?? "admin123",
+  name: process.env.ADMIN_NAME ?? "Admin Nummiq",
+  email: process.env.ADMIN_EMAIL ?? "admin@nummiq.local",
+  password: process.env.ADMIN_PASSWORD,
 };
 
 const PEOPLE = [
@@ -19,15 +27,87 @@ const PEOPLE = [
 ];
 
 const CARDS = [
-  { name: "Nubank Israel", bank: "Nubank", type: "pessoal", holder: "Israel", limitTotal: 5000, closingDay: 17, dueDay: 25 },
-  { name: "Inter Israel", bank: "Inter", type: "pessoal", holder: "Israel", limitTotal: 3000, closingDay: 5, dueDay: 12 },
-  { name: "C6 Bank", bank: "C6", type: "pessoal", holder: "Israel", limitTotal: 2000, closingDay: 10, dueDay: 18 },
-  { name: "Will", bank: "Will Bank", type: "pessoal", holder: "Israel", limitTotal: 1500, closingDay: 20, dueDay: 28 },
-  { name: "Magalu Esaú", bank: "Itaú", type: "terceiro", holder: "Esaú", limitTotal: 1000, closingDay: 1, dueDay: 8 },
-  { name: "Magalu Israel", bank: "Itaú", type: "pessoal", holder: "Israel", limitTotal: 1500, closingDay: 1, dueDay: 8 },
-  { name: "PicPay", bank: "PicPay", type: "pessoal", holder: "Israel", limitTotal: 800, closingDay: 22, dueDay: 30 },
-  { name: "Sicredi", bank: "Sicredi", type: "pessoal", holder: "Israel", limitTotal: 2500, closingDay: 15, dueDay: 22 },
-  { name: "Cartão do Pai", bank: "Bradesco", type: "terceiro", holder: "Pai", limitTotal: 4000, closingDay: 8, dueDay: 15 },
+  {
+    name: "Nubank Israel",
+    bank: "Nubank",
+    type: "pessoal",
+    holder: "Israel",
+    limitTotal: 5000,
+    closingDay: 17,
+    dueDay: 25,
+  },
+  {
+    name: "Inter Israel",
+    bank: "Inter",
+    type: "pessoal",
+    holder: "Israel",
+    limitTotal: 3000,
+    closingDay: 5,
+    dueDay: 12,
+  },
+  {
+    name: "C6 Bank",
+    bank: "C6",
+    type: "pessoal",
+    holder: "Israel",
+    limitTotal: 2000,
+    closingDay: 10,
+    dueDay: 18,
+  },
+  {
+    name: "Will",
+    bank: "Will Bank",
+    type: "pessoal",
+    holder: "Israel",
+    limitTotal: 1500,
+    closingDay: 20,
+    dueDay: 28,
+  },
+  {
+    name: "Magalu Esaú",
+    bank: "Itaú",
+    type: "terceiro",
+    holder: "Esaú",
+    limitTotal: 1000,
+    closingDay: 1,
+    dueDay: 8,
+  },
+  {
+    name: "Magalu Israel",
+    bank: "Itaú",
+    type: "pessoal",
+    holder: "Israel",
+    limitTotal: 1500,
+    closingDay: 1,
+    dueDay: 8,
+  },
+  {
+    name: "PicPay",
+    bank: "PicPay",
+    type: "pessoal",
+    holder: "Israel",
+    limitTotal: 800,
+    closingDay: 22,
+    dueDay: 30,
+  },
+  {
+    name: "Sicredi",
+    bank: "Sicredi",
+    type: "pessoal",
+    holder: "Israel",
+    limitTotal: 2500,
+    closingDay: 15,
+    dueDay: 22,
+  },
+  {
+    name: "Cartão do Pai",
+    bank: "Bradesco",
+    type: "terceiro",
+    holder: "Pai",
+    limitTotal: 4000,
+    closingDay: 8,
+    dueDay: 15,
+  },
 ];
 
 const CATEGORIES = [
@@ -122,7 +202,7 @@ async function main() {
         active: true,
       },
     });
-    console.log(`  ✓ admin criado: ${ADMIN.email} (senha: ${ADMIN.password})`);
+    console.log(`  ✓ admin criado: ${ADMIN.email}`);
   } else {
     console.log(`  • admin já existe: ${ADMIN.email}`);
   }

@@ -4,7 +4,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { RuleRowActions } from "./row-actions";
 import { Search, Wand2 } from "lucide-react";
@@ -34,7 +41,11 @@ export function RulesList({
     return rules.filter((r) => {
       if (status === "ativa" && !r.active) return false;
       if (status === "inativa" && r.active) return false;
-      if (q && !r.name.toLowerCase().includes(q) && !(r.descriptionContains ?? "").toLowerCase().includes(q))
+      if (
+        q &&
+        !r.name.toLowerCase().includes(q) &&
+        !(r.descriptionContains ?? "").toLowerCase().includes(q)
+      )
         return false;
       return true;
     });
@@ -42,12 +53,12 @@ export function RulesList({
 
   return (
     <Card>
-      <CardContent className="p-4 space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-end gap-3">
+      <CardContent className="space-y-4 p-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
           <div className="flex-1">
             <Label className="text-xs">Buscar</Label>
             <div className="relative">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -64,12 +75,12 @@ export function RulesList({
               <option value="inativa">Inativas</option>
             </Select>
           </div>
-          <div className="text-xs text-muted-foreground sm:pb-2 whitespace-nowrap">
+          <div className="whitespace-nowrap text-xs text-muted-foreground sm:pb-2">
             {filtered.length} de {rules.length}
           </div>
         </div>
 
-        <div className="hidden md:block border rounded-lg overflow-hidden">
+        <div className="hidden overflow-hidden rounded-lg border md:block">
           <Table>
             <TableHeader>
               <TableRow>
@@ -84,8 +95,8 @@ export function RulesList({
             <TableBody>
               {filtered.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground py-10">
-                    <Wand2 className="h-6 w-6 mx-auto mb-2 opacity-40" />
+                  <TableCell colSpan={6} className="py-10 text-center text-muted-foreground">
+                    <Wand2 className="mx-auto mb-2 h-6 w-6 opacity-40" />
                     {rules.length === 0
                       ? "Nenhuma regra cadastrada ainda."
                       : "Nenhuma regra encontrada com esse filtro."}
@@ -106,23 +117,33 @@ export function RulesList({
                         </Badge>
                       )}
                       {r.amountGreaterThan != null && (
-                        <Badge variant="secondary" className="font-normal">valor &gt; {r.amountGreaterThan}</Badge>
+                        <Badge variant="secondary" className="font-normal">
+                          valor &gt; {r.amountGreaterThan}
+                        </Badge>
                       )}
                       {r.amountLessThan != null && (
-                        <Badge variant="secondary" className="font-normal">valor &lt; {r.amountLessThan}</Badge>
+                        <Badge variant="secondary" className="font-normal">
+                          valor &lt; {r.amountLessThan}
+                        </Badge>
                       )}
-                      {!r.descriptionContains && r.amountGreaterThan == null && r.amountLessThan == null && (
-                        <span className="text-xs text-muted-foreground">—</span>
-                      )}
+                      {!r.descriptionContains &&
+                        r.amountGreaterThan == null &&
+                        r.amountLessThan == null && (
+                          <span className="text-xs text-muted-foreground">—</span>
+                        )}
                     </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
                       {r.category?.name && (
-                        <Badge variant="default" className="font-normal">cat: {r.category.name}</Badge>
+                        <Badge variant="default" className="font-normal">
+                          cat: {r.category.name}
+                        </Badge>
                       )}
                       {r.belongsTo && (
-                        <Badge variant="outline" className="font-normal capitalize">{r.belongsTo}</Badge>
+                        <Badge variant="outline" className="font-normal capitalize">
+                          {r.belongsTo}
+                        </Badge>
                       )}
                       {!r.category?.name && !r.belongsTo && (
                         <span className="text-xs text-muted-foreground">—</span>
@@ -174,23 +195,33 @@ export function RulesList({
                         </Badge>
                       )}
                       {r.amountGreaterThan != null && (
-                        <Badge variant="secondary" className="font-normal">valor &gt; {r.amountGreaterThan}</Badge>
+                        <Badge variant="secondary" className="font-normal">
+                          valor &gt; {r.amountGreaterThan}
+                        </Badge>
                       )}
                       {r.amountLessThan != null && (
-                        <Badge variant="secondary" className="font-normal">valor &lt; {r.amountLessThan}</Badge>
+                        <Badge variant="secondary" className="font-normal">
+                          valor &lt; {r.amountLessThan}
+                        </Badge>
                       )}
-                      {!r.descriptionContains && r.amountGreaterThan == null && r.amountLessThan == null && (
-                        <span className="text-xs text-muted-foreground">—</span>
-                      )}
+                      {!r.descriptionContains &&
+                        r.amountGreaterThan == null &&
+                        r.amountLessThan == null && (
+                          <span className="text-xs text-muted-foreground">—</span>
+                        )}
                     </span>
                   </Field>
                   <Field label="Ação">
                     <span className="flex flex-wrap justify-end gap-1">
                       {r.category?.name && (
-                        <Badge variant="default" className="font-normal">cat: {r.category.name}</Badge>
+                        <Badge variant="default" className="font-normal">
+                          cat: {r.category.name}
+                        </Badge>
                       )}
                       {r.belongsTo && (
-                        <Badge variant="outline" className="font-normal capitalize">{r.belongsTo}</Badge>
+                        <Badge variant="outline" className="font-normal capitalize">
+                          {r.belongsTo}
+                        </Badge>
                       )}
                       {!r.category?.name && !r.belongsTo && (
                         <span className="text-xs text-muted-foreground">—</span>

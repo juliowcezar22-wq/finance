@@ -33,8 +33,20 @@ export type NavItem = {
 // Fonte única de navegação — nomenclatura Nummiq (DS §25/§63), mapeada às
 // rotas REAIS existentes (sem inventar páginas).
 export const NAV_ITEMS: NavItem[] = [
-  { href: "/dashboard", label: "Visão Geral", short: "Início", icon: LayoutDashboard, primary: true },
-  { href: "/transacoes", label: "Transações", short: "Trans.", icon: ArrowRightLeft, primary: true },
+  {
+    href: "/dashboard",
+    label: "Visão Geral",
+    short: "Início",
+    icon: LayoutDashboard,
+    primary: true,
+  },
+  {
+    href: "/transacoes",
+    label: "Transações",
+    short: "Trans.",
+    icon: ArrowRightLeft,
+    primary: true,
+  },
   { href: "/receitas", label: "Receitas", icon: ArrowDownToLine, primary: true },
   { href: "/despesas", label: "Despesas", icon: ArrowUpFromLine },
   { href: "/contas", label: "Contas", icon: WalletCards },
@@ -59,7 +71,8 @@ export function visibleNavItems(user: UserLike): NavItem[] {
 
 /** Rótulo da rota atual (para o título no header). */
 export function labelForPath(path: string): string {
-  const match = NAV_ITEMS.filter((it) => path === it.href || path.startsWith(it.href + "/"))
-    .sort((a, b) => b.href.length - a.href.length)[0];
+  const match = NAV_ITEMS.filter((it) => path === it.href || path.startsWith(it.href + "/")).sort(
+    (a, b) => b.href.length - a.href.length
+  )[0];
   return match?.label ?? "Nummiq";
 }

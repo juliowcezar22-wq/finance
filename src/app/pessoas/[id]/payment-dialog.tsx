@@ -18,19 +18,20 @@ import { registerPersonPayment } from "@/lib/actions/people";
 import { HandCoins } from "lucide-react";
 import { formatDateInput } from "@/lib/format";
 
-export function PaymentDialog({
-  personId,
-  accounts,
-}: {
-  personId: string;
-  accounts: any[];
-}) {
+export function PaymentDialog({ personId, accounts }: { personId: string; accounts: any[] }) {
   const [open, setOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        setError(null);
+      }}
+    >
       <DialogTrigger asChild>
         <Button>
-          <HandCoins className="h-4 w-4 mr-1" /> Registrar pagamento
+          <HandCoins className="mr-1 h-4 w-4" /> Registrar pagamento
         </Button>
       </DialogTrigger>
       <DialogContent>
@@ -39,24 +40,25 @@ export function PaymentDialog({
         </DialogHeader>
         <form
           action={async (fd) => {
-            await registerPersonPayment(fd);
+            const res = await registerPersonPayment(fd);
+            if (!res.ok) {
+              setError(res.error);
+              return;
+            }
+            setError(null);
             setOpen(false);
           }}
           className="space-y-3"
         >
           <input type="hidden" name="personId" value={personId} />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <Label>Valor pago</Label>
               <Input name="amount" defaultValue="0,00" required />
             </div>
             <div>
               <Label>Data do pagamento</Label>
-              <DatePicker
-name="paidAt"
-                defaultValue={formatDateInput(new Date())}
-                required
-              />
+              <DatePicker name="paidAt" defaultValue={formatDateInput(new Date())} required />
             </div>
           </div>
           <div>
@@ -83,6 +85,11 @@ name="paidAt"
             <Label>Observações</Label>
             <Textarea name="notes" />
           </div>
+          {error && (
+            <p role="alert" className="text-sm font-medium text-red-600 dark:text-red-400">
+              {error}
+            </p>
+          )}
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancelar

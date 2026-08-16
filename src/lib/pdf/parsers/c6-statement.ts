@@ -16,12 +16,21 @@ import type { PdfParseResult, PdfTransaction } from "../types";
  */
 
 const MONTHS_PT: Record<string, number> = {
-  jan: 0, fev: 1, mar: 2, abr: 3, mai: 4, jun: 5,
-  jul: 6, ago: 7, set: 8, out: 9, nov: 10, dez: 11,
+  jan: 0,
+  fev: 1,
+  mar: 2,
+  abr: 3,
+  mai: 4,
+  jun: 5,
+  jul: 6,
+  ago: 7,
+  set: 8,
+  out: 9,
+  nov: 10,
+  dez: 11,
 };
 
-const LINE_RE =
-  /^(\d{1,2})\s+([a-zç]{3})\s+(.+?)\s+(-?\d{1,3}(?:\.\d{3})*,\d{2})$/i;
+const LINE_RE = /^(\d{1,2})\s+([a-zç]{3})\s+(.+?)\s+(-?\d{1,3}(?:\.\d{3})*,\d{2})$/i;
 const INSTALLMENT_RE = /\s*-\s*parcela\s+(\d{1,2})\s*\/\s*(\d{1,2})\s*$/i;
 
 // Linhas que NÃO são compras (pagamentos/créditos/estornos).
@@ -57,7 +66,10 @@ export function tryC6Statement(text: string): PdfParseResult | null {
   // Só tenta se o documento for claramente do C6 (evita falsos positivos).
   if (!/c6\s*bank|banco c6|cart[ãa]o c6/i.test(text)) return null;
 
-  const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  const lines = text
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter(Boolean);
   const year = detectYear(text);
   const transactions: PdfTransaction[] = [];
   const ignored: string[] = [];
@@ -67,11 +79,7 @@ export function tryC6Statement(text: string): PdfParseResult | null {
     const m = line.match(LINE_RE);
     if (!m) continue;
 
-    const monthKey = m[2]
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[̀-ͯ]/g, "")
-      .slice(0, 3);
+    const monthKey = m[2].toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").slice(0, 3);
     if (!(monthKey in MONTHS_PT)) continue;
 
     let description = m[3].trim();

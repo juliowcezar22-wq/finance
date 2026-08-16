@@ -38,10 +38,7 @@ export function parseIncoming(body: any): IncomingMessage {
     const from = jid.split("@")[0];
     const msg = data.message ?? {};
     const text =
-      msg.conversation ??
-      msg.extendedTextMessage?.text ??
-      msg.imageMessage?.caption ??
-      undefined;
+      msg.conversation ?? msg.extendedTextMessage?.text ?? msg.imageMessage?.caption ?? undefined;
     const imageUrl = msg.imageMessage?.url ?? data.mediaUrl ?? undefined;
     const audio = msg.audioMessage;
     return {

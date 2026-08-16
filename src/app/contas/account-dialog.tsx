@@ -15,20 +15,21 @@ import { Select } from "@/components/ui/select";
 import { saveAccount } from "@/lib/actions/accounts";
 import { Plus } from "lucide-react";
 
-export function AccountDialog({
-  initial,
-  trigger,
-}: {
-  initial?: any;
-  trigger?: React.ReactNode;
-}) {
+export function AccountDialog({ initial, trigger }: { initial?: any; trigger?: React.ReactNode }) {
   const [open, setOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        setError(null);
+      }}
+    >
       <DialogTrigger asChild>
         {trigger ?? (
           <Button>
-            <Plus className="h-4 w-4 mr-1" /> Nova conta
+            <Plus className="mr-1 h-4 w-4" /> Nova conta
           </Button>
         )}
       </DialogTrigger>
@@ -38,10 +39,15 @@ export function AccountDialog({
         </DialogHeader>
         <form
           action={async (fd) => {
-            await saveAccount(fd);
+            const res = await saveAccount(fd);
+            if (!res.ok) {
+              setError(res.error);
+              return;
+            }
+            setError(null);
             setOpen(false);
           }}
-          className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2"
         >
           {initial?.id && <input type="hidden" name="id" value={initial.id} />}
           <div className="col-span-2">
@@ -72,6 +78,14 @@ export function AccountDialog({
             <input type="checkbox" name="active" defaultChecked={initial?.active ?? true} />
             <Label>Ativa</Label>
           </div>
+          {error && (
+            <p
+              role="alert"
+              className="col-span-2 text-sm font-medium text-red-600 dark:text-red-400"
+            >
+              {error}
+            </p>
+          )}
           <DialogFooter className="col-span-2">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancelar

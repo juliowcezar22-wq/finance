@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { parseBRL } from "@/lib/format";
+import { type ActionResult, ok, err } from "@/lib/types/action";
 
 const AccountCardSchema = z.object({
   id: z.string().optional(),
@@ -15,9 +16,9 @@ const AccountCardSchema = z.object({
   notes: z.string().optional().nullable(),
 });
 
-export async function saveAccountCard(formData: FormData) {
+export async function saveAccountCard(formData: FormData): Promise<ActionResult> {
   await getViewer();
-  const parsed = AccountCardSchema.parse({
+  const parsed = AccountCardSchema.safeParse({
     id: formData.get("id") || undefined,
     cardId: formData.get("cardId"),
     name: formData.get("name"),
@@ -26,26 +27,29 @@ export async function saveAccountCard(formData: FormData) {
     limit: parseBRL(String(formData.get("limit") || "0")),
     notes: (formData.get("notes") as string) || null,
   });
+  if (!parsed.success) return err(parsed.error.issues[0]?.message ?? "Dados inválidos");
+  const input = parsed.data;
 
   const data = {
-    cardId: parsed.cardId,
-    name: parsed.name,
-    kind: parsed.kind,
-    lastDigits: parsed.lastDigits,
-    limit: parsed.limit,
-    notes: parsed.notes,
+    cardId: input.cardId,
+    name: input.name,
+    kind: input.kind,
+    lastDigits: input.lastDigits,
+    limit: input.limit,
+    notes: input.notes,
   };
 
-  if (parsed.id) {
-    await prisma.accountCard.update({ where: { id: parsed.id }, data });
+  if (input.id) {
+    await prisma.accountCard.update({ where: { id: input.id }, data });
   } else {
     await prisma.accountCard.create({ data });
   }
-  revalidatePath(`/cartoes/${parsed.cardId}`);
+  revalidatePath(`/cartoes/${input.cardId}`);
   revalidatePath("/cartoes");
+  return ok();
 }
 
-export async function deleteAccountCard(id: string) {
+export async function deleteAccountCard(id: string): Promise<ActionResult> {
   await getViewer();
   const existing = await prisma.accountCard.findUnique({ where: { id } });
   await prisma.accountCard.delete({ where: { id } });
@@ -53,4 +57,5 @@ export async function deleteAccountCard(id: string) {
     revalidatePath(`/cartoes/${existing.cardId}`);
     revalidatePath("/cartoes");
   }
+  return ok();
 }

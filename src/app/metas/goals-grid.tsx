@@ -37,16 +37,13 @@ function daysUntil(iso: string): number {
 export function GoalsGrid({ goals }: { goals: GoalRow[] }) {
   const [type, setType] = useState("");
 
-  const filtered = useMemo(
-    () => goals.filter((g) => !type || g.type === type),
-    [goals, type]
-  );
+  const filtered = useMemo(() => goals.filter((g) => !type || g.type === type), [goals, type]);
 
   return (
     <div className="space-y-4">
       <Card>
         <CardContent className="p-4">
-          <div className="flex flex-col sm:flex-row sm:items-end gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
             <div className="w-full sm:w-56">
               <Label className="text-xs">Tipo</Label>
               <Select value={type} onChange={(e) => setType(e.target.value)}>
@@ -74,7 +71,7 @@ export function GoalsGrid({ goals }: { goals: GoalRow[] }) {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((g) => {
             const pct = g.targetAmount > 0 ? (g.currentAmount / g.targetAmount) * 100 : 0;
             const done = pct >= 100;
@@ -83,11 +80,11 @@ export function GoalsGrid({ goals }: { goals: GoalRow[] }) {
             return (
               <Card key={g.id} className={done ? "ring-1 ring-nummiq-success/40" : undefined}>
                 <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center justify-between text-base gap-2">
+                  <CardTitle className="flex items-center justify-between gap-2 text-base">
                     <span className="truncate">{g.name}</span>
                     {done ? (
                       <Badge variant="success" className="shrink-0">
-                        <CheckCircle2 className="h-3 w-3 mr-1" /> Concluída
+                        <CheckCircle2 className="mr-1 h-3 w-3" /> Concluída
                       </Badge>
                     ) : (
                       <Badge variant="secondary" className="shrink-0">
@@ -98,12 +95,12 @@ export function GoalsGrid({ goals }: { goals: GoalRow[] }) {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div>
-                    <div className="flex justify-between text-sm mb-1">
+                    <div className="mb-1 flex justify-between text-sm">
                       <span className="font-medium">{formatBRL(g.currentAmount)}</span>
                       <span className="text-muted-foreground">de {formatBRL(g.targetAmount)}</span>
                     </div>
                     <Progress value={Math.min(100, pct)} />
-                    <div className="flex justify-between text-xs mt-1">
+                    <div className="mt-1 flex justify-between text-xs">
                       <span className={done ? "text-nummiq-success" : "text-muted-foreground"}>
                         {pct.toFixed(0)}%
                       </span>
@@ -117,7 +114,15 @@ export function GoalsGrid({ goals }: { goals: GoalRow[] }) {
                     <p className="text-xs text-muted-foreground">
                       Prazo: {formatDateBR(new Date(g.deadline))}
                       {days !== null && !done && (
-                        <span className={days < 0 ? "text-nummiq-danger" : days <= 30 ? "text-nummiq-warning" : ""}>
+                        <span
+                          className={
+                            days < 0
+                              ? "text-nummiq-danger"
+                              : days <= 30
+                                ? "text-nummiq-warning"
+                                : ""
+                          }
+                        >
                           {" "}
                           ·{" "}
                           {days < 0

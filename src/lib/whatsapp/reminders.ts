@@ -10,7 +10,10 @@ export async function buildReminders(daysAhead = 7): Promise<string | null> {
 
   const [invoices, expenses] = await Promise.all([
     prisma.creditCardInvoice.findMany({
-      where: { status: { in: ["aberta", "fechada", "parcial", "atrasada"] }, dueDate: { lte: limit } },
+      where: {
+        status: { in: ["aberta", "fechada", "parcial", "atrasada"] },
+        dueDate: { lte: limit },
+      },
       orderBy: { dueDate: "asc" },
       include: { card: true },
     }),
@@ -54,7 +57,8 @@ export type RemindersResult = { ok: boolean; sent: boolean; message?: string; er
 /** Monta e envia os lembretes ao número pessoal. */
 export async function sendReminders(daysAhead = 7): Promise<RemindersResult> {
   const s = await getWhatsAppSettings();
-  if (!isWhatsAppReady(s)) return { ok: false, sent: false, error: "WhatsApp não configurado/ativo." };
+  if (!isWhatsAppReady(s))
+    return { ok: false, sent: false, error: "WhatsApp não configurado/ativo." };
 
   const text = await buildReminders(daysAhead);
   if (!text) return { ok: true, sent: false, message: "Nada a lembrar no período." };
@@ -63,7 +67,13 @@ export async function sendReminders(daysAhead = 7): Promise<RemindersResult> {
   if (!r.ok) return { ok: false, sent: false, error: r.error };
 
   await prisma.whatsAppMessage.create({
-    data: { direction: "out", waType: "text", fromNumber: null, body: text, actionTaken: "reminders" },
+    data: {
+      direction: "out",
+      waType: "text",
+      fromNumber: null,
+      body: text,
+      actionTaken: "reminders",
+    },
   });
   return { ok: true, sent: true, message: text };
 }

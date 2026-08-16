@@ -34,7 +34,7 @@ const DialogContent = React.forwardRef<
       ref={ref}
       className={cn(
         // w-[calc(100%-1.5rem)] garante respiro nas laterais no mobile; radius 20px (DS §45)
-        "fixed left-[50%] top-[50%] z-50 grid w-[calc(100%-1.5rem)] max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border border-border bg-nummiq-surface2 p-5 sm:p-6 shadow-nq duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 rounded-xl max-h-[90vh] overflow-y-auto",
+        "fixed left-[50%] top-[50%] z-50 grid max-h-[90vh] w-[calc(100%-1.5rem)] max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 overflow-y-auto rounded-xl border border-border bg-nummiq-surface2 p-5 shadow-nq duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 sm:p-6",
         className
       )}
       {...props}
@@ -51,18 +51,34 @@ DialogContent.displayName = DialogPrimitive.Content.displayName;
 
 // DS §45 — cabeçalho e rodapé com divisórias discretas para estruturar o form.
 const DialogHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("flex flex-col gap-1 border-b border-border pb-4 text-left", className)} {...props} />
+  <div
+    className={cn("flex flex-col gap-1 border-b border-border pb-4 text-left", className)}
+    {...props}
+  />
 );
 
 const DialogFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("flex flex-col-reverse gap-2 border-t border-border pt-4 sm:flex-row sm:justify-end", className)} {...props} />
+  <div
+    className={cn(
+      "flex flex-col-reverse gap-2 border-t border-border pt-4 sm:flex-row sm:justify-end",
+      className
+    )}
+    {...props}
+  />
 );
 
 const DialogTitle = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Title>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title>
 >(({ className, ...props }, ref) => (
-  <DialogPrimitive.Title ref={ref} className={cn("text-[17px] font-semibold leading-tight tracking-tight text-nummiq-white", className)} {...props} />
+  <DialogPrimitive.Title
+    ref={ref}
+    className={cn(
+      "text-[17px] font-semibold leading-tight tracking-tight text-nummiq-white",
+      className
+    )}
+    {...props}
+  />
 ));
 DialogTitle.displayName = DialogPrimitive.Title.displayName;
 
@@ -70,7 +86,11 @@ const DialogDescription = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Description>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Description>
 >(({ className, ...props }, ref) => (
-  <DialogPrimitive.Description ref={ref} className={cn("text-sm text-nummiq-silver", className)} {...props} />
+  <DialogPrimitive.Description
+    ref={ref}
+    className={cn("text-sm text-nummiq-silver", className)}
+    {...props}
+  />
 ));
 DialogDescription.displayName = DialogPrimitive.Description.displayName;
 

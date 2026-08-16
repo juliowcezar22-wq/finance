@@ -25,10 +25,15 @@ export function StatCard({
 
   return (
     <Card className="p-5 transition-colors duration-150 ease-nq hover:border-nummiq-silver/30">
-      <p className="text-[11px] uppercase tracking-[0.14em] text-nummiq-muted font-medium">
+      <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-nummiq-muted">
         {title}
       </p>
-      <p className={cn("mt-2 text-2xl font-semibold tabular-nums tracking-tight break-words", valueColor)}>
+      <p
+        className={cn(
+          "mt-2 break-words text-2xl font-semibold tabular-nums tracking-tight",
+          valueColor
+        )}
+      >
         {value}
       </p>
       {hint && <p className="mt-1.5 text-xs text-nummiq-muted">{hint}</p>}

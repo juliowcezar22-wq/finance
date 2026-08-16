@@ -4,7 +4,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { CategoryRowActions } from "./row-actions";
 import { Search, Tags } from "lucide-react";
@@ -46,12 +53,12 @@ export function CategoriesList({ categories }: { categories: CategoryRow[] }) {
 
   return (
     <Card>
-      <CardContent className="p-4 space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-end gap-3">
+      <CardContent className="space-y-4 p-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
           <div className="flex-1">
             <Label className="text-xs">Buscar</Label>
             <div className="relative">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -69,12 +76,12 @@ export function CategoriesList({ categories }: { categories: CategoryRow[] }) {
               <option value="mista">Mista</option>
             </Select>
           </div>
-          <div className="text-xs text-muted-foreground sm:pb-2 whitespace-nowrap">
+          <div className="whitespace-nowrap text-xs text-muted-foreground sm:pb-2">
             {filtered.length} de {categories.length}
           </div>
         </div>
 
-        <div className="hidden md:block border rounded-lg overflow-hidden">
+        <div className="hidden overflow-hidden rounded-lg border md:block">
           <Table>
             <TableHeader>
               <TableRow>
@@ -87,8 +94,8 @@ export function CategoriesList({ categories }: { categories: CategoryRow[] }) {
             <TableBody>
               {filtered.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center text-muted-foreground py-10">
-                    <Tags className="h-6 w-6 mx-auto mb-2 opacity-40" />
+                  <TableCell colSpan={4} className="py-10 text-center text-muted-foreground">
+                    <Tags className="mx-auto mb-2 h-6 w-6 opacity-40" />
                     {categories.length === 0
                       ? "Nenhuma categoria cadastrada ainda."
                       : "Nenhuma categoria encontrada com esse filtro."}
@@ -100,7 +107,7 @@ export function CategoriesList({ categories }: { categories: CategoryRow[] }) {
                   <TableCell className="font-medium">
                     <span className="inline-flex items-center gap-2">
                       <span
-                        className="inline-block w-3.5 h-3.5 rounded-full ring-1 ring-black/10"
+                        className="inline-block h-3.5 w-3.5 rounded-full ring-1 ring-black/10"
                         style={{ background: c.color ?? "#999" }}
                       />
                       {c.name}
@@ -134,7 +141,7 @@ export function CategoriesList({ categories }: { categories: CategoryRow[] }) {
                   title={
                     <span className="inline-flex items-center gap-2">
                       <span
-                        className="inline-block w-3.5 h-3.5 rounded-full ring-1 ring-black/10"
+                        className="inline-block h-3.5 w-3.5 rounded-full ring-1 ring-black/10"
                         style={{ background: c.color ?? "#999" }}
                       />
                       {c.name}

@@ -25,11 +25,7 @@ import {
 import { ArrowLeft, UserCheck } from "lucide-react";
 import { PaymentDialog } from "./payment-dialog";
 import { BillingDialog } from "./billing-dialog";
-import {
-  StatusSelect,
-  CategorySelect,
-  ResponsibleInline,
-} from "./tx-inline-edit";
+import { StatusSelect, CategorySelect, ResponsibleInline } from "./tx-inline-edit";
 import { PaymentDeleteButton } from "./payment-row-actions";
 import { LinkUserPicker } from "./link-user";
 import { PersonMonthFilter } from "./month-filter";
@@ -90,43 +86,35 @@ export default async function PersonDetailPage({
   const ref = parseMonthRef(searchParams?.mes);
   const { start, end } = monthRange(ref);
 
-  const [
-    transactions,
-    receivables,
-    payments,
-    accounts,
-    categories,
-    people,
-    cards,
-    availableUsers,
-  ] = await Promise.all([
-    prisma.transaction.findMany({
-      where: { responsibleId: person.id, status: { not: "cancelado" } },
-      orderBy: { date: "desc" },
-      include: { card: true, account: true, category: true },
-    }),
-    prisma.receivable.findMany({
-      where: { personId: person.id },
-      include: { transaction: true },
-      orderBy: { dueDate: "asc" },
-    }),
-    prisma.personPayment.findMany({
-      where: { personId: person.id },
-      orderBy: { paidAt: "desc" },
-      include: { account: true },
-    }),
-    prisma.account.findMany({ orderBy: { name: "asc" } }),
-    prisma.category.findMany({ orderBy: { name: "asc" } }),
-    prisma.person.findMany({ orderBy: { name: "asc" } }),
-    prisma.creditCard.findMany({ orderBy: { name: "asc" } }),
-    viewer.role === "ADMIN"
-      ? prisma.user.findMany({
-          where: { active: true, OR: [{ person: null }, { person: { id: person.id } }] },
-          orderBy: { name: "asc" },
-          select: { id: true, name: true, email: true, role: true },
-        })
-      : Promise.resolve([] as { id: string; name: string; email: string; role: string }[]),
-  ]);
+  const [transactions, receivables, payments, accounts, categories, people, cards, availableUsers] =
+    await Promise.all([
+      prisma.transaction.findMany({
+        where: { responsibleId: person.id, status: { not: "cancelado" } },
+        orderBy: { date: "desc" },
+        include: { card: true, account: true, category: true },
+      }),
+      prisma.receivable.findMany({
+        where: { personId: person.id },
+        include: { transaction: true },
+        orderBy: { dueDate: "asc" },
+      }),
+      prisma.personPayment.findMany({
+        where: { personId: person.id },
+        orderBy: { paidAt: "desc" },
+        include: { account: true },
+      }),
+      prisma.account.findMany({ orderBy: { name: "asc" } }),
+      prisma.category.findMany({ orderBy: { name: "asc" } }),
+      prisma.person.findMany({ orderBy: { name: "asc" } }),
+      prisma.creditCard.findMany({ orderBy: { name: "asc" } }),
+      viewer.role === "ADMIN"
+        ? prisma.user.findMany({
+            where: { active: true, OR: [{ person: null }, { person: { id: person.id } }] },
+            orderBy: { name: "asc" },
+            select: { id: true, name: true, email: true, role: true },
+          })
+        : Promise.resolve([] as { id: string; name: string; email: string; role: string }[]),
+    ]);
 
   // Resumos
   const transactionsMonth = transactions.filter((t) => t.date >= start && t.date < end);
@@ -233,7 +221,7 @@ export default async function PersonDetailPage({
       <div className="mb-2">
         <Link
           href="/pessoas"
-          className="text-sm text-muted-foreground hover:underline inline-flex items-center gap-1"
+          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:underline"
         >
           <ArrowLeft className="h-3 w-3" /> Voltar para pessoas
         </Link>
@@ -273,18 +261,22 @@ export default async function PersonDetailPage({
               currentUserId={person.userId}
               users={availableUsers}
             />
-            <p className="text-xs text-muted-foreground mt-2">
+            <p className="mt-2 text-xs text-muted-foreground">
               Usuários comuns vinculados a esta pessoa visualizam apenas dados próprios.
             </p>
           </CardContent>
         </Card>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard title="Total gasto (mês)" value={formatBRL(totalGastoMes)} intent="negative" />
         <StatCard title="Total gasto (geral)" value={formatBRL(totalGastoTotal)} />
         <StatCard title="Total devendo" value={formatBRL(totalDevendo)} intent="warning" />
-        <StatCard title="Total já pago" value={formatBRL(totalPagamentos + totalPagoReceivables)} intent="positive" />
+        <StatCard
+          title="Total já pago"
+          value={formatBRL(totalPagamentos + totalPagoReceivables)}
+          intent="positive"
+        />
         <StatCard title="Total atrasado" value={formatBRL(totalAtrasado)} intent="negative" />
         <StatCard title="Reembolsável" value={formatBRL(totalReembolsavel)} />
         <StatCard title="Transações" value={String(transactions.length)} />
@@ -295,22 +287,22 @@ export default async function PersonDetailPage({
             </p>
             {lastPayment ? (
               <>
-                <p className="text-2xl font-bold mt-1 text-nummiq-success">
+                <p className="mt-1 text-2xl font-bold text-nummiq-success">
                   {formatBRL(lastPayment.amount)}
                 </p>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="mt-1 text-xs text-muted-foreground">
                   {formatDateBR(lastPayment.paidAt)} ·{" "}
                   {PAYMENT_METHOD_LABEL[lastPayment.method] ?? lastPayment.method}
                 </p>
               </>
             ) : (
-              <p className="text-sm text-muted-foreground mt-2">Nenhum pagamento registrado.</p>
+              <p className="mt-2 text-sm text-muted-foreground">Nenhum pagamento registrado.</p>
             )}
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+      <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>Resumo por cartão</CardTitle>
@@ -318,37 +310,41 @@ export default async function PersonDetailPage({
           <CardContent className="p-0">
             {/* Desktop: tabela */}
             <div className="hidden md:block">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Cartão</TableHead>
-                  <TableHead>Banco</TableHead>
-                  <TableHead className="text-right">Total</TableHead>
-                  <TableHead className="text-right">Devendo</TableHead>
-                  <TableHead className="text-right">Pago</TableHead>
-                  <TableHead className="text-right">Qtd</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {byCard.length === 0 && (
+              <Table>
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center text-muted-foreground py-6">
-                      Sem gastos em cartão.
-                    </TableCell>
+                    <TableHead>Cartão</TableHead>
+                    <TableHead>Banco</TableHead>
+                    <TableHead className="text-right">Total</TableHead>
+                    <TableHead className="text-right">Devendo</TableHead>
+                    <TableHead className="text-right">Pago</TableHead>
+                    <TableHead className="text-right">Qtd</TableHead>
                   </TableRow>
-                )}
-                {byCard.map((c) => (
-                  <TableRow key={c.cardId ?? "—"}>
-                    <TableCell className="font-medium">{c.name}</TableCell>
-                    <TableCell>{c.bank ?? "—"}</TableCell>
-                    <TableCell className="text-right">{formatBRL(c.total)}</TableCell>
-                    <TableCell className="text-right text-nummiq-danger">{formatBRL(c.devendo)}</TableCell>
-                    <TableCell className="text-right text-nummiq-success">{formatBRL(c.pago)}</TableCell>
-                    <TableCell className="text-right">{c.count}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {byCard.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={6} className="py-6 text-center text-muted-foreground">
+                        Sem gastos em cartão.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                  {byCard.map((c) => (
+                    <TableRow key={c.cardId ?? "—"}>
+                      <TableCell className="font-medium">{c.name}</TableCell>
+                      <TableCell>{c.bank ?? "—"}</TableCell>
+                      <TableCell className="text-right">{formatBRL(c.total)}</TableCell>
+                      <TableCell className="text-right text-nummiq-danger">
+                        {formatBRL(c.devendo)}
+                      </TableCell>
+                      <TableCell className="text-right text-nummiq-success">
+                        {formatBRL(c.pago)}
+                      </TableCell>
+                      <TableCell className="text-right">{c.count}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
 
             {/* Mobile: resumo por cartão em cards */}
@@ -386,35 +382,39 @@ export default async function PersonDetailPage({
           <CardContent className="p-0">
             {/* Desktop: tabela */}
             <div className="hidden md:block">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Conta</TableHead>
-                  <TableHead>Banco</TableHead>
-                  <TableHead className="text-right">Movimentado</TableHead>
-                  <TableHead className="text-right">Pago</TableHead>
-                  <TableHead className="text-right">Pendente</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {byAccount.length === 0 && (
+              <Table>
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center text-muted-foreground py-6">
-                      Sem movimentações em conta.
-                    </TableCell>
+                    <TableHead>Conta</TableHead>
+                    <TableHead>Banco</TableHead>
+                    <TableHead className="text-right">Movimentado</TableHead>
+                    <TableHead className="text-right">Pago</TableHead>
+                    <TableHead className="text-right">Pendente</TableHead>
                   </TableRow>
-                )}
-                {byAccount.map((a) => (
-                  <TableRow key={a.accountId ?? "—"}>
-                    <TableCell className="font-medium">{a.name}</TableCell>
-                    <TableCell>{a.bank ?? "—"}</TableCell>
-                    <TableCell className="text-right">{formatBRL(a.total)}</TableCell>
-                    <TableCell className="text-right text-nummiq-success">{formatBRL(a.pago)}</TableCell>
-                    <TableCell className="text-right text-nummiq-warning">{formatBRL(a.pendente)}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {byAccount.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={5} className="py-6 text-center text-muted-foreground">
+                        Sem movimentações em conta.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                  {byAccount.map((a) => (
+                    <TableRow key={a.accountId ?? "—"}>
+                      <TableCell className="font-medium">{a.name}</TableCell>
+                      <TableCell>{a.bank ?? "—"}</TableCell>
+                      <TableCell className="text-right">{formatBRL(a.total)}</TableCell>
+                      <TableCell className="text-right text-nummiq-success">
+                        {formatBRL(a.pago)}
+                      </TableCell>
+                      <TableCell className="text-right text-nummiq-warning">
+                        {formatBRL(a.pendente)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
 
             {/* Mobile: resumo por conta em cards */}
@@ -452,31 +452,31 @@ export default async function PersonDetailPage({
         <CardContent className="p-0">
           {/* Desktop: tabela */}
           <div className="hidden md:block">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Categoria</TableHead>
-                <TableHead className="text-right">Total</TableHead>
-                <TableHead className="text-right">Quantidade</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {byCategory.length === 0 && (
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={3} className="text-center text-muted-foreground py-6">
-                    Sem categorias.
-                  </TableCell>
+                  <TableHead>Categoria</TableHead>
+                  <TableHead className="text-right">Total</TableHead>
+                  <TableHead className="text-right">Quantidade</TableHead>
                 </TableRow>
-              )}
-              {byCategory.map((c) => (
-                <TableRow key={c.categoryId ?? "none"}>
-                  <TableCell className="font-medium">{c.name}</TableCell>
-                  <TableCell className="text-right">{formatBRL(c.total)}</TableCell>
-                  <TableCell className="text-right">{c.count}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {byCategory.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={3} className="py-6 text-center text-muted-foreground">
+                      Sem categorias.
+                    </TableCell>
+                  </TableRow>
+                )}
+                {byCategory.map((c) => (
+                  <TableRow key={c.categoryId ?? "none"}>
+                    <TableCell className="font-medium">{c.name}</TableCell>
+                    <TableCell className="text-right">{formatBRL(c.total)}</TableCell>
+                    <TableCell className="text-right">{c.count}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </div>
 
           {/* Mobile: resumo por categoria em cards */}
@@ -507,41 +507,41 @@ export default async function PersonDetailPage({
         <CardContent className="p-0">
           {/* Desktop: tabela */}
           <div className="hidden md:block">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Data</TableHead>
-                <TableHead>Forma</TableHead>
-                <TableHead>Conta</TableHead>
-                <TableHead>Observações</TableHead>
-                <TableHead className="text-right">Valor</TableHead>
-                <TableHead></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {payments.length === 0 && (
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground py-6">
-                    Nenhum pagamento registrado.
-                  </TableCell>
+                  <TableHead>Data</TableHead>
+                  <TableHead>Forma</TableHead>
+                  <TableHead>Conta</TableHead>
+                  <TableHead>Observações</TableHead>
+                  <TableHead className="text-right">Valor</TableHead>
+                  <TableHead></TableHead>
                 </TableRow>
-              )}
-              {payments.map((p) => (
-                <TableRow key={p.id}>
-                  <TableCell>{formatDateBR(p.paidAt)}</TableCell>
-                  <TableCell>{PAYMENT_METHOD_LABEL[p.method] ?? p.method}</TableCell>
-                  <TableCell>{p.account?.name ?? "—"}</TableCell>
-                  <TableCell className="max-w-xs truncate">{p.notes ?? "—"}</TableCell>
-                  <TableCell className="text-right font-medium text-nummiq-success">
-                    +{formatBRL(p.amount)}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <PaymentDeleteButton id={p.id} />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {payments.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={6} className="py-6 text-center text-muted-foreground">
+                      Nenhum pagamento registrado.
+                    </TableCell>
+                  </TableRow>
+                )}
+                {payments.map((p) => (
+                  <TableRow key={p.id}>
+                    <TableCell>{formatDateBR(p.paidAt)}</TableCell>
+                    <TableCell>{PAYMENT_METHOD_LABEL[p.method] ?? p.method}</TableCell>
+                    <TableCell>{p.account?.name ?? "—"}</TableCell>
+                    <TableCell className="max-w-xs truncate">{p.notes ?? "—"}</TableCell>
+                    <TableCell className="text-right font-medium text-nummiq-success">
+                      +{formatBRL(p.amount)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <PaymentDeleteButton id={p.id} />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </div>
 
           {/* Mobile: histórico de pagamentos em cards */}
@@ -581,53 +581,53 @@ export default async function PersonDetailPage({
         <CardContent className="p-0">
           {/* Desktop: tabela */}
           <div className="hidden md:block">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Data</TableHead>
-                <TableHead>Descrição</TableHead>
-                <TableHead>Cartão / Conta</TableHead>
-                <TableHead>Categoria</TableHead>
-                <TableHead>Responsável</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Pertence a</TableHead>
-                <TableHead className="text-right">Valor</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {transactionsMonth.length === 0 && (
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
-                    Nenhuma movimentação no mês selecionado.
-                  </TableCell>
+                  <TableHead>Data</TableHead>
+                  <TableHead>Descrição</TableHead>
+                  <TableHead>Cartão / Conta</TableHead>
+                  <TableHead>Categoria</TableHead>
+                  <TableHead>Responsável</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Pertence a</TableHead>
+                  <TableHead className="text-right">Valor</TableHead>
                 </TableRow>
-              )}
-              {transactionsMonth.map((t) => (
-                <TableRow key={t.id}>
-                  <TableCell>{formatDateBR(t.date)}</TableCell>
-                  <TableCell className="max-w-[220px] truncate">{t.description}</TableCell>
-                  <TableCell>{t.card?.name ?? t.account?.name ?? "—"}</TableCell>
-                  <TableCell className="min-w-[160px]">
-                    <CategorySelect txId={t.id} value={t.categoryId} categories={categories} />
-                  </TableCell>
-                  <TableCell className="min-w-[160px]">
-                    <ResponsibleInline txId={t.id} value={t.responsibleId} people={people} />
-                  </TableCell>
-                  <TableCell className="min-w-[140px]">
-                    <StatusSelect txId={t.id} value={t.status} />
-                    <Badge variant={statusVariant(t.status)} className="hidden">
-                      {STATUS_LABEL[t.status] ?? t.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="capitalize">{t.belongsTo}</TableCell>
-                  <TableCell className="text-right font-medium">
-                    {t.type === "despesa" ? "-" : "+"}
-                    {formatBRL(t.amount)}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {transactionsMonth.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={8} className="py-8 text-center text-muted-foreground">
+                      Nenhuma movimentação no mês selecionado.
+                    </TableCell>
+                  </TableRow>
+                )}
+                {transactionsMonth.map((t) => (
+                  <TableRow key={t.id}>
+                    <TableCell>{formatDateBR(t.date)}</TableCell>
+                    <TableCell className="max-w-[220px] truncate">{t.description}</TableCell>
+                    <TableCell>{t.card?.name ?? t.account?.name ?? "—"}</TableCell>
+                    <TableCell className="min-w-[160px]">
+                      <CategorySelect txId={t.id} value={t.categoryId} categories={categories} />
+                    </TableCell>
+                    <TableCell className="min-w-[160px]">
+                      <ResponsibleInline txId={t.id} value={t.responsibleId} people={people} />
+                    </TableCell>
+                    <TableCell className="min-w-[140px]">
+                      <StatusSelect txId={t.id} value={t.status} />
+                      <Badge variant={statusVariant(t.status)} className="hidden">
+                        {STATUS_LABEL[t.status] ?? t.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="capitalize">{t.belongsTo}</TableCell>
+                    <TableCell className="text-right font-medium">
+                      {t.type === "despesa" ? "-" : "+"}
+                      {formatBRL(t.amount)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </div>
 
           {/* Mobile: movimentações do mês em cards (com edição inline) */}
@@ -652,9 +652,7 @@ export default async function PersonDetailPage({
                     <span className="capitalize">{t.belongsTo}</span>
                   </div>
                   <div className="space-y-1.5">
-                    <Field label="Cartão / Conta">
-                      {t.card?.name ?? t.account?.name ?? "—"}
-                    </Field>
+                    <Field label="Cartão / Conta">{t.card?.name ?? t.account?.name ?? "—"}</Field>
                   </div>
                   <div className="space-y-2 pt-0.5">
                     <div>
