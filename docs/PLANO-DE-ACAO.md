@@ -202,6 +202,12 @@ O maior risco do sistema: um usuário logado pode alterar/apagar dados de outro.
 
 ## MÓDULO 11 — 🟡 Regras financeiras + testes automatizados
 
+> **Estado (features 001-011):** suíte Vitest com 131 testes — segurança
+> (intrusão/sessão/lockout/webhook), golden de calculations (23), split de
+> parcela, hash/dedupe, admin-guard, regras de categorização e recálculo de
+> fatura. Playwright DESCARTADO por decisão (clarify 011): E2E de navegador é
+> o roteiro manual do go-live (012).
+
 Instalar **Vitest** (unit/integration, usando o banco `.env.test`) e cobrir o
 coração do sistema — na ordem:
 
@@ -222,15 +228,17 @@ coração do sistema — na ordem:
 
 ## MÓDULO 12 — 🟡 Observabilidade
 
-- [ ] Sentry (`@sentry/nextjs`): erros de server actions, route handlers e
-      client; source maps no build da Vercel.
-- [ ] Logger estruturado (JSON) nos pontos críticos: login falho, webhook
-      rejeitado, chamada de IA (latência/tokens), importação, erros de action.
-- [ ] Alertas: erro 5xx no webhook, taxa de erro de IA, falha de build/deploy.
-- [ ] Health check simples (`/api/health` com `SELECT 1`) para uptime monitor
-      (UptimeRobot ou similar) — o GET do webhook não serve para isso.
-- [ ] Analytics de produto (Vercel Analytics ou Plausible) — pageviews e
-      funil de cadastro.
+- [x] Vendor de erros: **decisão (clarify 011) — sem Sentry por ora**; logger
+      estruturado + global-error + digest prontos para plugar `@sentry/nextjs`
+      depois (1 pacote + 1 env). Não bloqueia o lançamento.
+- [x] Logger estruturado JSON (`src/lib/log.ts`) aplicado: webhook
+      rejeitado/rate-limited, erros de provedores de IA/visão, revogação de
+      logout falha, import de PDF, CSP. **Feito (011).**
+- [ ] Alertas externos (uptime/5xx) — **pós-lançamento**: plugar UptimeRobot
+      no /api/health e alertas da Vercel (exige contas suas).
+- [x] `/api/health` (SELECT 1, 503 se banco fora, público no middleware).
+      **Feito (011)** + coletor `/api/csp-report` + `global-error.tsx`.
+- [ ] Analytics de produto — **pós-lançamento** (decisão de produto/conta).
 
 ## MÓDULO 13 — ⚪ Dashboard: conferência dos números
 

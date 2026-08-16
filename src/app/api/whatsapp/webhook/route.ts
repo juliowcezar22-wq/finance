@@ -7,6 +7,7 @@ import { runWithOwner } from "@/lib/auth/owner-scope";
 import { getPrimaryAdminId } from "@/lib/auth/system-owner";
 import { timingSafeEqualStr } from "@/lib/auth/timing";
 import { webhookRateLimited } from "@/lib/whatsapp/rate-limit";
+import { log } from "@/lib/log";
 
 export const dynamic = "force-dynamic";
 
@@ -27,6 +28,7 @@ export async function POST(req: NextRequest) {
   // do corpo, gravação ou chamada de IA.
   const provided = req.headers.get("client-token") ?? "";
   if (!timingSafeEqualStr(provided, settings.clientToken)) {
+    log.warn("webhook.unauthorized", {});
     return NextResponse.json({ ok: false }, { status: 401 });
   }
 
@@ -37,9 +39,11 @@ export async function POST(req: NextRequest) {
   // Rate-limit (30/min, Postgres) — após auth, antes de gravar/IA. Fail-closed.
   try {
     if (await webhookRateLimited()) {
+      log.warn("webhook.rate_limited", {});
       return NextResponse.json({ ok: false, error: "rate_limited" }, { status: 429 });
     }
-  } catch {
+  } catch (e) {
+    log.error("webhook.rate_limit_unavailable", {}, e);
     return NextResponse.json({ ok: false, error: "rate_limit_unavailable" }, { status: 503 });
   }
 

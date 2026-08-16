@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { log } from "@/lib/log";
 import { errorMessage } from "@/lib/utils";
 import { decryptMaybe } from "@/lib/crypto/secrets";
 import { assertUnderDailyCap, recordUsage } from "@/lib/ai/usage";
@@ -149,7 +150,7 @@ async function openAiChat(
   });
   if (!res.ok) {
     const body = await res.text().catch(() => "");
-    console.error(`[ai] provedor OpenAI erro ${res.status}: ${body.slice(0, 500)}`);
+    log.error("ai.openai_http_error", { status: res.status, body: body.slice(0, 500) });
     throw new Error(prettyHttpError(res.status));
   }
   const data = (await res.json()) as {
@@ -190,7 +191,7 @@ async function anthropicChat(
   });
   if (!res.ok) {
     const body = await res.text().catch(() => "");
-    console.error(`[ai] provedor Anthropic erro ${res.status}: ${body.slice(0, 500)}`);
+    log.error("ai.anthropic_http_error", { status: res.status, body: body.slice(0, 500) });
     throw new Error(prettyHttpError(res.status));
   }
   const data = (await res.json()) as {
