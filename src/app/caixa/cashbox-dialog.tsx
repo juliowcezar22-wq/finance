@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/components/ui/toast";
 import { saveCashBox } from "@/lib/actions/cashboxes";
 import { Plus } from "lucide-react";
 
@@ -54,6 +55,7 @@ export function CashBoxDialog({
               return;
             }
             setError(null);
+            toast({ title: "Caixa salvo", variant: "success" });
             setOpen(false);
           }}
           className="space-y-3"

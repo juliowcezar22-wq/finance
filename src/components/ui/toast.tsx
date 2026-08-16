@@ -11,6 +11,7 @@ type ToastItem = {
   title: string;
   description?: string;
   variant: Variant;
+  open: boolean;
 };
 
 let counter = 0;
@@ -22,15 +23,21 @@ function emit() {
 }
 
 export function toast(opts: { title: string; description?: string; variant?: Variant }) {
-  const item: ToastItem = { id: ++counter, variant: "default", ...opts };
+  const item: ToastItem = { id: ++counter, variant: "default", open: true, ...opts };
   items = [...items, item];
   emit();
   return item.id;
 }
 
 function dismiss(id: number) {
-  items = items.filter((t) => t.id !== id);
+  // Fase 1: marca fechado (Radix roda a animação de saída)...
+  items = items.map((t) => (t.id === id ? { ...t, open: false } : t));
   emit();
+  // Fase 2: remove do store depois do slide-out (~300ms).
+  setTimeout(() => {
+    items = items.filter((t) => t.id !== id);
+    emit();
+  }, 300);
 }
 
 const icons: Record<Variant, React.ReactNode> = {
@@ -54,6 +61,7 @@ export function Toaster() {
       {list.map((t) => (
         <ToastPrimitive.Root
           key={t.id}
+          open={t.open}
           onOpenChange={(open) => !open && dismiss(t.id)}
           className="group pointer-events-auto relative flex items-start gap-3 rounded-[12px] border border-border bg-nummiq-surface3 p-4 pr-9 shadow-nq data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-right-full"
         >

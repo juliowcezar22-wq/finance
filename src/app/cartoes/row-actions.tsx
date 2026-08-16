@@ -1,9 +1,10 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { CardDialog } from "./card-dialog";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { toast } from "@/components/ui/toast";
 import { Pencil, Trash2 } from "lucide-react";
 import { deleteCard } from "@/lib/actions/cards";
-import { useTransition } from "react";
 
 export function CardRowActions({
   card,
@@ -14,7 +15,6 @@ export function CardRowActions({
   people: any[];
   accounts?: any[];
 }) {
-  const [pending, start] = useTransition();
   return (
     <div className="flex gap-1">
       <CardDialog
@@ -27,18 +27,24 @@ export function CardRowActions({
           </Button>
         }
       />
-      <Button
-        variant="ghost"
-        size="icon"
-        disabled={pending}
-        onClick={() => {
-          if (!confirm("Excluir este cartão?")) return;
-          start(() => void deleteCard(card.id));
+      <ConfirmDialog
+        trigger={
+          <Button variant="ghost" size="icon" title="Excluir">
+            <Trash2 className="h-4 w-4 text-destructive" />
+          </Button>
+        }
+        title="Excluir cartão"
+        description={`Excluir o cartão "${card.name}"? Essa ação não pode ser desfeita.`}
+        confirmLabel="Excluir"
+        onConfirm={async () => {
+          const res = await deleteCard(card.id);
+          if (!res.ok) {
+            toast({ title: res.error, variant: "danger" });
+            return;
+          }
+          toast({ title: "Cartão excluído", variant: "success" });
         }}
-        title="Excluir"
-      >
-        <Trash2 className="h-4 w-4 text-destructive" />
-      </Button>
+      />
     </div>
   );
 }

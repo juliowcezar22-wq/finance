@@ -12,6 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
+import { toast } from "@/components/ui/toast";
 import { saveAccountCard } from "@/lib/actions/account-cards";
 import { Plus } from "lucide-react";
 
@@ -53,6 +54,7 @@ export function AccountCardDialog({
               return;
             }
             setError(null);
+            toast({ title: "Cartão adicional salvo", variant: "success" });
             setOpen(false);
           }}
           className="grid grid-cols-1 gap-4 sm:grid-cols-2"

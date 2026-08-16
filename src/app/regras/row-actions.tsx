@@ -1,9 +1,10 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { RuleDialog } from "./rule-dialog";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { toast } from "@/components/ui/toast";
 import { Pencil, Trash2 } from "lucide-react";
 import { deleteRule } from "@/lib/actions/rules";
-import { useTransition } from "react";
 
 export function RuleRowActions({
   rule,
@@ -14,7 +15,6 @@ export function RuleRowActions({
   categories: any[];
   cards: any[];
 }) {
-  const [pending, start] = useTransition();
   return (
     <div className="flex justify-end gap-1">
       <RuleDialog
@@ -27,17 +27,24 @@ export function RuleRowActions({
           </Button>
         }
       />
-      <Button
-        variant="ghost"
-        size="icon"
-        disabled={pending}
-        onClick={() => {
-          if (!confirm("Excluir esta regra?")) return;
-          start(() => void deleteRule(rule.id));
+      <ConfirmDialog
+        trigger={
+          <Button variant="ghost" size="icon" title="Excluir">
+            <Trash2 className="h-4 w-4 text-destructive" />
+          </Button>
+        }
+        title="Excluir regra"
+        description={`Excluir a regra "${rule.name}"? Essa ação não pode ser desfeita.`}
+        confirmLabel="Excluir"
+        onConfirm={async () => {
+          const res = await deleteRule(rule.id);
+          if (!res.ok) {
+            toast({ title: res.error, variant: "danger" });
+            return;
+          }
+          toast({ title: "Regra excluída", variant: "success" });
         }}
-      >
-        <Trash2 className="h-4 w-4 text-destructive" />
-      </Button>
+      />
     </div>
   );
 }

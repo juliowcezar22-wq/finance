@@ -1,12 +1,12 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { GoalDialog } from "./goal-dialog";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { toast } from "@/components/ui/toast";
 import { Pencil, Trash2 } from "lucide-react";
 import { deleteGoal } from "@/lib/actions/goals";
-import { useTransition } from "react";
 
 export function GoalRowActions({ goal }: { goal: any }) {
-  const [pending, start] = useTransition();
   return (
     <div className="flex gap-1">
       <GoalDialog
@@ -17,17 +17,24 @@ export function GoalRowActions({ goal }: { goal: any }) {
           </Button>
         }
       />
-      <Button
-        variant="ghost"
-        size="icon"
-        disabled={pending}
-        onClick={() => {
-          if (!confirm("Excluir esta meta?")) return;
-          start(() => void deleteGoal(goal.id));
+      <ConfirmDialog
+        trigger={
+          <Button variant="ghost" size="icon" title="Excluir">
+            <Trash2 className="h-4 w-4 text-destructive" />
+          </Button>
+        }
+        title="Excluir meta"
+        description={`Excluir a meta "${goal.name}"? Essa ação não pode ser desfeita.`}
+        confirmLabel="Excluir"
+        onConfirm={async () => {
+          const res = await deleteGoal(goal.id);
+          if (!res.ok) {
+            toast({ title: res.error, variant: "danger" });
+            return;
+          }
+          toast({ title: "Meta excluída", variant: "success" });
         }}
-      >
-        <Trash2 className="h-4 w-4 text-destructive" />
-      </Button>
+      />
     </div>
   );
 }

@@ -1,12 +1,12 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { CashBoxDialog } from "./cashbox-dialog";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { toast } from "@/components/ui/toast";
 import { Pencil, Trash2 } from "lucide-react";
 import { deleteCashBox, deleteCashMovement } from "@/lib/actions/cashboxes";
-import { useTransition } from "react";
 
 export function CashBoxActions({ box, accounts }: { box: any; accounts: any[] }) {
-  const [pending, start] = useTransition();
   return (
     <div className="flex gap-1">
       <CashBoxDialog
@@ -18,34 +18,47 @@ export function CashBoxActions({ box, accounts }: { box: any; accounts: any[] })
           </Button>
         }
       />
-      <Button
-        variant="ghost"
-        size="icon"
-        disabled={pending}
-        onClick={() => {
-          if (!confirm("Excluir este caixa? As movimentações serão perdidas.")) return;
-          start(() => void deleteCashBox(box.id));
+      <ConfirmDialog
+        trigger={
+          <Button variant="ghost" size="icon" title="Excluir">
+            <Trash2 className="h-4 w-4 text-destructive" />
+          </Button>
+        }
+        title="Excluir caixa"
+        description={`Excluir o caixa "${box.name}"? As movimentações serão perdidas e essa ação não pode ser desfeita.`}
+        confirmLabel="Excluir"
+        onConfirm={async () => {
+          const res = await deleteCashBox(box.id);
+          if (!res.ok) {
+            toast({ title: res.error, variant: "danger" });
+            return;
+          }
+          toast({ title: "Caixa excluído", variant: "success" });
         }}
-      >
-        <Trash2 className="h-4 w-4 text-destructive" />
-      </Button>
+      />
     </div>
   );
 }
 
 export function MovementDeleteButton({ id }: { id: string }) {
-  const [pending, start] = useTransition();
   return (
-    <Button
-      variant="ghost"
-      size="icon"
-      disabled={pending}
-      onClick={() => {
-        if (!confirm("Excluir movimentação?")) return;
-        start(() => void deleteCashMovement(id));
+    <ConfirmDialog
+      trigger={
+        <Button variant="ghost" size="icon" title="Excluir">
+          <Trash2 className="h-4 w-4 text-destructive" />
+        </Button>
+      }
+      title="Excluir movimentação"
+      description="Excluir esta movimentação? Essa ação não pode ser desfeita."
+      confirmLabel="Excluir"
+      onConfirm={async () => {
+        const res = await deleteCashMovement(id);
+        if (!res.ok) {
+          toast({ title: res.error, variant: "danger" });
+          return;
+        }
+        toast({ title: "Movimentação excluída", variant: "success" });
       }}
-    >
-      <Trash2 className="h-4 w-4 text-destructive" />
-    </Button>
+    />
   );
 }

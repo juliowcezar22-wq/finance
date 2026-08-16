@@ -47,7 +47,17 @@ export async function savePerson(formData: FormData): Promise<ActionResult> {
 
 export async function deletePerson(id: string): Promise<ActionResult> {
   await getViewer();
-  await prisma.person.delete({ where: { id } });
+  try {
+    await prisma.person.delete({ where: { id } });
+  } catch (e: any) {
+    // FK Restrict: pessoa com recebíveis/pagamentos/transações vinculados.
+    if (e?.code === "P2003") {
+      return err(
+        "Esta pessoa tem lançamentos vinculados (recebíveis, pagamentos ou transações). Remova-os primeiro."
+      );
+    }
+    return err("Registro não encontrado.");
+  }
   revalidatePath("/pessoas");
   return ok();
 }

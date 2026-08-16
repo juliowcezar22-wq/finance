@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { toast } from "@/components/ui/toast";
 import { payInvoice } from "@/lib/actions/invoices";
 import { formatBRL } from "@/lib/format";
 
@@ -43,6 +44,7 @@ export function PayInvoiceDialog({ invoice }: { invoice: any }) {
               return;
             }
             setError(null);
+            toast({ title: "Pagamento da fatura registrado", variant: "success" });
             setOpen(false);
           }}
           className="space-y-3"

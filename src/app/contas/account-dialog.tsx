@@ -12,6 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
+import { toast } from "@/components/ui/toast";
 import { saveAccount } from "@/lib/actions/accounts";
 import { Plus } from "lucide-react";
 
@@ -45,6 +46,7 @@ export function AccountDialog({ initial, trigger }: { initial?: any; trigger?: R
               return;
             }
             setError(null);
+            toast({ title: "Conta salva", variant: "success" });
             setOpen(false);
           }}
           className="grid grid-cols-1 gap-4 sm:grid-cols-2"
