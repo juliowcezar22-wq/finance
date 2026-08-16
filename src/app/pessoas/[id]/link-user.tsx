@@ -22,7 +22,7 @@ export function LinkUserPicker({
         disabled={pending}
         onChange={(e) =>
           start(() =>
-            linkPersonToUser(personId, e.target.value || null)
+            void linkPersonToUser(personId, e.target.value || null)
           )
         }
         className="h-9 text-sm w-full sm:w-[260px]"
@@ -39,7 +39,7 @@ export function LinkUserPicker({
           variant="outline"
           size="sm"
           disabled={pending}
-          onClick={() => start(() => linkPersonToUser(personId, null))}
+          onClick={() => start(() => void linkPersonToUser(personId, null))}
           title="Desvincular"
         >
           <Unlink className="h-3.5 w-3.5" />

@@ -23,7 +23,7 @@ export function ResponsibleSelect({
       onChange={(e) => {
         const next = e.target.value;
         setLocal(next);
-        start(() => setTransactionResponsible(txId, next || null));
+        start(() => void setTransactionResponsible(txId, next || null));
       }}
       className="h-8 text-sm"
     >

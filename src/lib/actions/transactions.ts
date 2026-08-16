@@ -7,6 +7,7 @@ import { parseBRL, parseDateBR } from "@/lib/format";
 import { applyRules } from "@/lib/services/rules";
 import { attachToInvoice } from "@/lib/services/invoices";
 import { transactionHash } from "@/lib/services/hash";
+import { type ActionResult, ok, err } from "@/lib/types/action";
 
 const TxSchema = z.object({
   id: z.string().optional(),
@@ -29,7 +30,7 @@ const TxSchema = z.object({
 function readForm(formData: FormData) {
   const dateStr = String(formData.get("date") || "");
   const date = parseDateBR(dateStr) ?? new Date();
-  return TxSchema.parse({
+  return TxSchema.safeParse({
     id: formData.get("id") || undefined,
     date,
     description: formData.get("description"),
@@ -48,45 +49,47 @@ function readForm(formData: FormData) {
   });
 }
 
-export async function saveTransaction(formData: FormData) {
+export async function saveTransaction(formData: FormData): Promise<ActionResult> {
   await getViewer();
   const parsed = readForm(formData);
+  if (!parsed.success) return err(parsed.error.issues[0]?.message ?? "Dados inválidos");
+  const input = parsed.data;
 
   // Correção conceitual: receita não pode estar vinculada a cartão de crédito.
   // Cartão é meio de dívida/pagamento, não de recebimento.
-  if (parsed.type === "receita" && parsed.cardId) {
-    throw new Error(
+  if (input.type === "receita" && input.cardId) {
+    return err(
       "Receita não pode ser vinculada a cartão de crédito. Use a aba Receitas para registrar entradas de dinheiro."
     );
   }
-  if (parsed.type === "receita" && parsed.origin === "cartao") {
-    throw new Error(
+  if (input.type === "receita" && input.origin === "cartao") {
+    return err(
       "Receita não pode ter origem em cartão de crédito. Use Pix, transferência, débito ou dinheiro."
     );
   }
 
   // Aplica regras se categoria/responsável estiverem em branco
   const effects = await applyRules({
-    description: parsed.description,
-    cardId: parsed.cardId ?? null,
-    amount: parsed.amount,
+    description: input.description,
+    cardId: input.cardId ?? null,
+    amount: input.amount,
   });
 
   const data = {
-    date: parsed.date,
-    description: parsed.description,
-    amount: parsed.amount,
-    type: parsed.type,
-    origin: parsed.origin,
-    cardId: parsed.cardId || null,
-    accountId: parsed.accountId || null,
-    categoryId: parsed.categoryId || effects.categoryId || null,
-    responsibleId: parsed.responsibleId || effects.responsibleId || null,
-    payerId: parsed.payerId || null,
-    belongsTo: parsed.belongsTo || effects.belongsTo || "pessoal",
-    status: parsed.status || effects.status || "pendente",
-    reimbursable: parsed.reimbursable || effects.reimbursable || false,
-    notes: parsed.notes ?? null,
+    date: input.date,
+    description: input.description,
+    amount: input.amount,
+    type: input.type,
+    origin: input.origin,
+    cardId: input.cardId || null,
+    accountId: input.accountId || null,
+    categoryId: input.categoryId || effects.categoryId || null,
+    responsibleId: input.responsibleId || effects.responsibleId || null,
+    payerId: input.payerId || null,
+    belongsTo: input.belongsTo || effects.belongsTo || "pessoal",
+    status: input.status || effects.status || "pendente",
+    reimbursable: input.reimbursable || effects.reimbursable || false,
+    notes: input.notes ?? null,
   };
 
   const hash = transactionHash({
@@ -98,9 +101,9 @@ export async function saveTransaction(formData: FormData) {
   });
 
   let tx;
-  if (parsed.id) {
+  if (input.id) {
     tx = await prisma.transaction.update({
-      where: { id: parsed.id },
+      where: { id: input.id },
       data: { ...data, hash },
     });
   } else {
@@ -116,21 +119,27 @@ export async function saveTransaction(formData: FormData) {
   revalidatePath("/transacoes");
   revalidatePath("/dashboard");
   revalidatePath("/importar");
+  return ok();
 }
 
-export async function deleteTransaction(id: string) {
+export async function deleteTransaction(id: string): Promise<ActionResult> {
   await getViewer();
   await prisma.transaction.delete({ where: { id } });
   revalidatePath("/transacoes");
   revalidatePath("/dashboard");
   revalidatePath("/importar");
+  return ok();
 }
 
-export async function setTransactionStatus(id: string, status: string) {
+export async function setTransactionStatus(
+  id: string,
+  status: string
+): Promise<ActionResult> {
   await getViewer();
   await prisma.transaction.update({ where: { id }, data: { status } });
   revalidatePath("/transacoes");
   revalidatePath("/dashboard");
+  return ok();
 }
 
 function normalizeDescription(s: string) {
@@ -154,13 +163,13 @@ function normalizeDescription(s: string) {
 export async function setTransactionResponsible(
   transactionId: string,
   personId: string | null
-) {
+): Promise<ActionResult> {
   await getViewer();
   const tx = await prisma.transaction.findUnique({
     where: { id: transactionId },
     include: { card: { include: { holder: true } } },
   });
-  if (!tx) return;
+  if (!tx) return err("Transação não encontrada");
 
   const holderId = tx.card?.holderId ?? null;
   const isThirdParty = !!personId && personId !== holderId;
@@ -277,4 +286,5 @@ export async function setTransactionResponsible(
   revalidatePath("/transacoes");
   revalidatePath("/pessoas");
   revalidatePath("/dashboard");
+  return ok();
 }

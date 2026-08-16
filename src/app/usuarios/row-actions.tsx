@@ -30,7 +30,7 @@ export function UserRowActions({
         disabled={pending}
         onClick={() => {
           if (!confirm(`Excluir o usuário ${user.name}?`)) return;
-          start(() => deleteUser(user.id));
+          start(() => void deleteUser(user.id));
         }}
         title="Excluir"
       >

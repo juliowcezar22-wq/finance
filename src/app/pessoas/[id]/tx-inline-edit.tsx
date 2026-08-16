@@ -16,7 +16,7 @@ export function StatusSelect({
     <Select
       defaultValue={value}
       disabled={pending}
-      onChange={(e) => start(() => setPersonTxStatus(txId, e.target.value))}
+      onChange={(e) => start(() => void setPersonTxStatus(txId, e.target.value))}
       className="h-8 text-sm"
     >
       <option value="pendente">Pendente</option>
@@ -43,7 +43,7 @@ export function CategorySelect({
       defaultValue={value ?? ""}
       disabled={pending}
       onChange={(e) =>
-        start(() => setPersonTxCategory(txId, e.target.value || null))
+        start(() => void setPersonTxCategory(txId, e.target.value || null))
       }
       className="h-8 text-sm"
     >
@@ -72,7 +72,7 @@ export function ResponsibleInline({
       defaultValue={value ?? ""}
       disabled={pending}
       onChange={(e) =>
-        start(() => setTransactionResponsible(txId, e.target.value || null))
+        start(() => void setTransactionResponsible(txId, e.target.value || null))
       }
       className="h-8 text-sm"
     >

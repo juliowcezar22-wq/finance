@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { parseBRL, parseDateBR } from "@/lib/format";
 import { toNum } from "@/lib/services/money";
+import { type ActionResult, ok, err } from "@/lib/types/action";
 
 const TYPES = [
   "PERSONAL",
@@ -25,10 +26,10 @@ const Schema = z.object({
   notes: z.string().nullable().optional(),
 });
 
-export async function saveCashBox(formData: FormData) {
+export async function saveCashBox(formData: FormData): Promise<ActionResult> {
   await getViewer();
   const targetRaw = String(formData.get("targetAmount") || "").trim();
-  const parsed = Schema.parse({
+  const parsed = Schema.safeParse({
     id: formData.get("id") || undefined,
     name: String(formData.get("name") || ""),
     currentAmount: parseBRL(String(formData.get("currentAmount") || "0")),
@@ -37,31 +38,35 @@ export async function saveCashBox(formData: FormData) {
     accountId: (formData.get("accountId") as string) || null,
     notes: (formData.get("notes") as string) || null,
   });
+  if (!parsed.success) return err(parsed.error.issues[0]?.message ?? "Dados inválidos");
+  const input = parsed.data;
 
   const data = {
-    name: parsed.name,
-    currentAmount: parsed.currentAmount,
-    targetAmount: parsed.targetAmount ?? null,
-    type: parsed.type,
-    accountId: parsed.accountId,
-    notes: parsed.notes,
+    name: input.name,
+    currentAmount: input.currentAmount,
+    targetAmount: input.targetAmount ?? null,
+    type: input.type,
+    accountId: input.accountId,
+    notes: input.notes,
   };
 
-  if (parsed.id) {
-    await prisma.cashBox.update({ where: { id: parsed.id }, data });
+  if (input.id) {
+    await prisma.cashBox.update({ where: { id: input.id }, data });
   } else {
     await prisma.cashBox.create({ data });
   }
 
   revalidatePath("/caixa");
   revalidatePath("/dashboard");
+  return ok();
 }
 
-export async function deleteCashBox(id: string) {
+export async function deleteCashBox(id: string): Promise<ActionResult> {
   await getViewer();
   await prisma.cashBox.delete({ where: { id } });
   revalidatePath("/caixa");
   revalidatePath("/dashboard");
+  return ok();
 }
 
 const MoveSchema = z.object({
@@ -72,52 +77,55 @@ const MoveSchema = z.object({
   description: z.string().nullable().optional(),
 });
 
-export async function registerCashMovement(formData: FormData) {
+export async function registerCashMovement(formData: FormData): Promise<ActionResult> {
   await getViewer();
   const date =
     parseDateBR(String(formData.get("date") || "")) ?? new Date();
 
-  const parsed = MoveSchema.parse({
+  const parsed = MoveSchema.safeParse({
     cashBoxId: String(formData.get("cashBoxId") || ""),
     type: String(formData.get("type") || "IN"),
     amount: parseBRL(String(formData.get("amount") || "0")),
     date,
     description: (formData.get("description") as string) || null,
   });
+  if (!parsed.success) return err(parsed.error.issues[0]?.message ?? "Dados inválidos");
+  const input = parsed.data;
 
-  const box = await prisma.cashBox.findUnique({ where: { id: parsed.cashBoxId } });
-  if (!box) throw new Error("Caixa não encontrado");
+  const box = await prisma.cashBox.findUnique({ where: { id: input.cashBoxId } });
+  if (!box) return err("Caixa não encontrado");
 
-  const delta = parsed.type === "IN" ? parsed.amount : -parsed.amount;
+  const delta = input.type === "IN" ? input.amount : -input.amount;
   const next = toNum(box.currentAmount) + delta;
 
   await prisma.$transaction([
     prisma.cashBoxMovement.create({
       data: {
-        cashBoxId: parsed.cashBoxId,
-        type: parsed.type,
-        amount: parsed.amount,
-        date: parsed.date,
-        description: parsed.description,
+        cashBoxId: input.cashBoxId,
+        type: input.type,
+        amount: input.amount,
+        date: input.date,
+        description: input.description,
       },
     }),
     prisma.cashBox.update({
-      where: { id: parsed.cashBoxId },
+      where: { id: input.cashBoxId },
       data: { currentAmount: next },
     }),
   ]);
 
   revalidatePath("/caixa");
   revalidatePath("/dashboard");
+  return ok();
 }
 
-export async function deleteCashMovement(id: string) {
+export async function deleteCashMovement(id: string): Promise<ActionResult> {
   await getViewer();
   const mov = await prisma.cashBoxMovement.findUnique({ where: { id } });
-  if (!mov) return;
+  if (!mov) return err("Movimentação não encontrada");
   const delta = mov.type === "IN" ? -toNum(mov.amount) : toNum(mov.amount);
   const box = await prisma.cashBox.findUnique({ where: { id: mov.cashBoxId } });
-  if (!box) return;
+  if (!box) return err("Caixa não encontrado");
 
   await prisma.$transaction([
     prisma.cashBoxMovement.delete({ where: { id } }),
@@ -128,4 +136,5 @@ export async function deleteCashMovement(id: string) {
   ]);
   revalidatePath("/caixa");
   revalidatePath("/dashboard");
+  return ok();
 }

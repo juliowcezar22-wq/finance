@@ -23,7 +23,7 @@ export function CategoryRowActions({ category }: { category: any }) {
         disabled={pending}
         onClick={() => {
           if (!confirm("Excluir esta categoria?")) return;
-          start(() => deleteCategory(category.id));
+          start(() => void deleteCategory(category.id));
         }}
       >
         <Trash2 className="h-4 w-4 text-destructive" />

@@ -606,7 +606,9 @@ function NewBankAccountDialog({
         <form
           action={(fd) =>
             start(async () => {
-              const { id } = await createBankAccountQuick(fd);
+              const res = await createBankAccountQuick(fd);
+              if (!res.ok || !res.data) return;
+              const { id } = res.data;
               onCreated(id, {
                 id,
                 name: String(fd.get("name") || ""),

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { parseBRL, parseDateBR } from "@/lib/format";
+import { type ActionResult, ok, err } from "@/lib/types/action";
 
 const Schema = z.object({
   id: z.string().optional(),
@@ -16,11 +17,11 @@ const Schema = z.object({
   notes: z.string().optional().nullable(),
 });
 
-export async function saveGoal(formData: FormData) {
+export async function saveGoal(formData: FormData): Promise<ActionResult> {
   await getViewer();
   const deadlineStr = String(formData.get("deadline") || "");
   const deadline = deadlineStr ? parseDateBR(deadlineStr) : null;
-  const parsed = Schema.parse({
+  const parsed = Schema.safeParse({
     id: formData.get("id") || undefined,
     name: formData.get("name"),
     type: formData.get("type") || "economia",
@@ -30,37 +31,41 @@ export async function saveGoal(formData: FormData) {
     priority: Number(formData.get("priority") || 3),
     notes: (formData.get("notes") as string) || null,
   });
-  if (parsed.id) {
+  if (!parsed.success) return err(parsed.error.issues[0]?.message ?? "Dados inválidos");
+  const input = parsed.data;
+  if (input.id) {
     await prisma.goal.update({
-      where: { id: parsed.id },
+      where: { id: input.id },
       data: {
-        name: parsed.name,
-        type: parsed.type,
-        targetAmount: parsed.targetAmount,
-        currentAmount: parsed.currentAmount,
-        deadline: parsed.deadline ?? null,
-        priority: parsed.priority,
-        notes: parsed.notes,
+        name: input.name,
+        type: input.type,
+        targetAmount: input.targetAmount,
+        currentAmount: input.currentAmount,
+        deadline: input.deadline ?? null,
+        priority: input.priority,
+        notes: input.notes,
       },
     });
   } else {
     await prisma.goal.create({
       data: {
-        name: parsed.name,
-        type: parsed.type,
-        targetAmount: parsed.targetAmount,
-        currentAmount: parsed.currentAmount,
-        deadline: parsed.deadline ?? null,
-        priority: parsed.priority,
-        notes: parsed.notes,
+        name: input.name,
+        type: input.type,
+        targetAmount: input.targetAmount,
+        currentAmount: input.currentAmount,
+        deadline: input.deadline ?? null,
+        priority: input.priority,
+        notes: input.notes,
       },
     });
   }
   revalidatePath("/metas");
+  return ok();
 }
 
-export async function deleteGoal(id: string) {
+export async function deleteGoal(id: string): Promise<ActionResult> {
   await getViewer();
   await prisma.goal.delete({ where: { id } });
   revalidatePath("/metas");
+  return ok();
 }

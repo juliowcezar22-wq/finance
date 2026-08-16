@@ -141,7 +141,7 @@ function RowActions({ cardId, accountCard }: { cardId: string; accountCard: any 
         disabled={pending}
         onClick={() => {
           if (confirm(`Excluir o cartão "${accountCard.name}"?`)) {
-            start(() => deleteAccountCard(accountCard.id));
+            start(() => void deleteAccountCard(accountCard.id));
           }
         }}
       >

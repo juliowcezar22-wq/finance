@@ -23,7 +23,7 @@ export function GoalRowActions({ goal }: { goal: any }) {
         disabled={pending}
         onClick={() => {
           if (!confirm("Excluir esta meta?")) return;
-          start(() => deleteGoal(goal.id));
+          start(() => void deleteGoal(goal.id));
         }}
       >
         <Trash2 className="h-4 w-4 text-destructive" />

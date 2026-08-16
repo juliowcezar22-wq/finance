@@ -25,7 +25,7 @@ export function RuleRowActions({ rule, categories, cards }: { rule: any; categor
         disabled={pending}
         onClick={() => {
           if (!confirm("Excluir esta regra?")) return;
-          start(() => deleteRule(rule.id));
+          start(() => void deleteRule(rule.id));
         }}
       >
         <Trash2 className="h-4 w-4 text-destructive" />

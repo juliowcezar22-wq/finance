@@ -36,7 +36,7 @@ export function IncomeActions({
         disabled={pending}
         onClick={() => {
           if (!confirm("Excluir receita?")) return;
-          start(() => deleteIncome(income.id));
+          start(() => void deleteIncome(income.id));
         }}
       >
         <Trash2 className="h-4 w-4 text-destructive" />

@@ -29,3 +29,11 @@
 ## Log
 
 - 008 iniciada. Base: `main` @ 298a106 (0 erros tsc, 120 testes, build verde).
+- 008: clarify respondido (ActionResult padrão+explodem; prettier repo inteiro;
+  simulador flag dev; rate-limit Postgres). T001-T010 feitos. Lote 2 de
+  ActionResult concluído (23 actions); aguardando lote 1.
+- ⚠️ Achado: `$transaction([...])` batch com client estendido + fire-and-forget
+  concorrente produziu creates duplicados no rate-limit (36 hits/32 esperados);
+  rate-limit reescrito como 1 statement SQL (CTE modificadora). Batch puro
+  isolado NÃO duplica (testado). revisao-forte da 008 deve olhar os batches
+  existentes (invoices.ts:88, cashboxes.ts:101/130, import.ts:275, agent.ts:189).

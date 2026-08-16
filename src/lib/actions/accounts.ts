@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { parseBRL } from "@/lib/format";
 import { getViewer } from "@/lib/auth/viewer";
+import { type ActionResult, ok, err } from "@/lib/types/action";
 
 // #2 Separar Cartões/Contas: gestão das contas bancárias (modelo Account).
 const Schema = z.object({
@@ -15,9 +16,9 @@ const Schema = z.object({
   active: z.boolean().default(true),
 });
 
-export async function saveAccount(formData: FormData) {
+export async function saveAccount(formData: FormData): Promise<ActionResult> {
   await getViewer();
-  const parsed = Schema.parse({
+  const parsed = Schema.safeParse({
     id: formData.get("id") || undefined,
     name: formData.get("name"),
     bank: (formData.get("bank") as string) || null,
@@ -25,26 +26,29 @@ export async function saveAccount(formData: FormData) {
     balance: parseBRL(String(formData.get("balance") || "0")),
     active: formData.get("active") !== "false",
   });
+  if (!parsed.success) return err(parsed.error.issues[0]?.message ?? "Dados inválidos");
 
   const data = {
-    name: parsed.name,
-    bank: parsed.bank,
-    type: parsed.type,
-    balance: parsed.balance,
-    active: parsed.active,
+    name: parsed.data.name,
+    bank: parsed.data.bank,
+    type: parsed.data.type,
+    balance: parsed.data.balance,
+    active: parsed.data.active,
   };
 
-  if (parsed.id) {
-    await prisma.account.update({ where: { id: parsed.id }, data });
+  if (parsed.data.id) {
+    await prisma.account.update({ where: { id: parsed.data.id }, data });
   } else {
     await prisma.account.create({ data });
   }
   revalidatePath("/contas");
   revalidatePath("/dashboard");
+  return ok();
 }
 
-export async function deleteAccount(id: string) {
+export async function deleteAccount(id: string): Promise<ActionResult> {
   await getViewer();
   await prisma.account.delete({ where: { id } });
   revalidatePath("/contas");
+  return ok();
 }

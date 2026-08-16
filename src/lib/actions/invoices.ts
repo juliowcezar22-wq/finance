@@ -49,28 +49,35 @@ export async function payInvoice(formData: FormData): Promise<ActionResult> {
   return ok();
 }
 
-export async function setInvoiceStatus(id: string, status: string) {
+export async function setInvoiceStatus(
+  id: string,
+  status: string
+): Promise<ActionResult> {
   await getViewer();
-  const parsedId = z.string().min(1).parse(id);
-  const parsedStatus = InvoiceStatus.parse(status);
+  const parsedId = z.string().min(1).safeParse(id);
+  if (!parsedId.success) return err(parsedId.error.issues[0]?.message ?? "Dados inválidos");
+  const parsedStatus = InvoiceStatus.safeParse(status);
+  if (!parsedStatus.success)
+    return err(parsedStatus.error.issues[0]?.message ?? "Dados inválidos");
   await prisma.creditCardInvoice.update({
-    where: { id: parsedId },
-    data: { status: parsedStatus },
+    where: { id: parsedId.data },
+    data: { status: parsedStatus.data },
   });
   revalidatePath("/importar");
+  return ok();
 }
 
 /**
  * Exclui uma fatura E todas as suas transações (com recebíveis vinculados).
  * Usado para desfazer uma importação de fatura inteira.
  */
-export async function deleteInvoice(id: string) {
+export async function deleteInvoice(id: string): Promise<ActionResult> {
   await getViewer();
   const inv = await prisma.creditCardInvoice.findUnique({
     where: { id },
     select: { id: true, cardId: true },
   });
-  if (!inv) return;
+  if (!inv) return ok();
 
   const txs = await prisma.transaction.findMany({
     where: { invoiceId: id },
@@ -93,4 +100,5 @@ export async function deleteInvoice(id: string) {
   revalidatePath("/cartoes");
   revalidatePath(`/cartoes/${inv.cardId}`);
   revalidatePath("/dashboard");
+  return ok();
 }

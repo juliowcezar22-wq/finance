@@ -23,7 +23,7 @@ export function PersonRowActions({ person }: { person: any }) {
         disabled={pending}
         onClick={() => {
           if (!confirm("Excluir esta pessoa?")) return;
-          start(() => deletePerson(person.id));
+          start(() => void deletePerson(person.id));
         }}
       >
         <Trash2 className="h-4 w-4 text-destructive" />
